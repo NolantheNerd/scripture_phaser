@@ -1,0 +1,32 @@
+#!/bin/sh
+
+make_attempt () {
+	$EDITOR temp.txt
+	delta temp.txt verse.txt
+	rm temp.txt
+}
+
+main () {
+	while [[ $confirm != [Qq] ]]; do
+		if [[ $confirm == [Vv] ]]
+		then
+			echo -e $VERSE
+		else
+			make_attempt
+		fi
+		read -p "What do you want to do? [P]ractice? [V]iew the Verse? [Q]uit? " confirm
+	done
+	rm verse.txt
+}
+
+confirm=""
+ESV_ENDPOINT="https://api.esv.org/v3/passage/text/?"
+ESV_QUERY_ADDONS="include-passage-references=false&include-footnotes=false&include-headings=false&include-short-copyright=false&"
+source ./.env
+
+REFERENCE=$(echo $1 | tr " " "+")
+
+VERSE=$(curl -s -H "${API_KEY}" "${ESV_ENDPOINT}${ESV_QUERY_ADDONS}q=$REFERENCE" | jq ".passages|.[0]")
+echo -e ${VERSE} > verse.txt
+
+main
