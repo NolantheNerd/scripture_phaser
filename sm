@@ -1,32 +1,35 @@
 #!/bin/sh
 
 make_attempt () {
-	$EDITOR temp.txt
-	delta temp.txt verse.txt
-	rm temp.txt
+	$EDITOR $XDG_CACHE_HOME/sm/temp.txt
+	delta $XDG_CACHE_HOME/sm/temp.txt $XDG_CACHE_HOME/sm/verse.txt
+	rm $XDG_CACHE_HOME/sm/temp.txt
 }
 
 main () {
 	while [[ $confirm != [Qq] ]]; do
+		read -p "What do you want to do? [P]ractice? [V]iew the Verse? [Q]uit? " confirm
 		if [[ $confirm == [Vv] ]]
 		then
 			echo -e $VERSE
+		elif [[ $confirm == [Qq] ]]
+		then
+			:
 		else
 			make_attempt
 		fi
-		read -p "What do you want to do? [P]ractice? [V]iew the Verse? [Q]uit? " confirm
 	done
-	rm verse.txt
+	rm $XDG_CACHE_HOME/sm/verse.txt
 }
 
 confirm=""
 ESV_ENDPOINT="https://api.esv.org/v3/passage/text/?"
 ESV_QUERY_ADDONS="include-passage-references=false&include-footnotes=false&include-headings=false&include-short-copyright=false&"
-source ~/.config/sm/config
+source $XDG_CONFIG_HOME/sm/config
 
 REFERENCE=$(echo $1 | tr " " "+")
 
 VERSE=$(curl -s -H "${API_KEY}" "${ESV_ENDPOINT}${ESV_QUERY_ADDONS}q=$REFERENCE" | jq ".passages|.[0]")
-echo -e ${VERSE} > verse.txt
+echo -e ${VERSE} > $XDG_CACHE_HOME/sm/verse.txt
 
 main
