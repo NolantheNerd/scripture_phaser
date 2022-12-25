@@ -2,7 +2,7 @@
 
 make_attempt () {
 	$EDITOR $XDG_CACHE_HOME/sm/temp.txt
-	delta $XDG_CACHE_HOME/sm/temp.txt $XDG_CACHE_HOME/sm/verse.txt
+	delta --wrap-max-lines 100 $XDG_CACHE_HOME/sm/temp.txt $XDG_CACHE_HOME/sm/verse.txt
 	rm $XDG_CACHE_HOME/sm/temp.txt
 }
 
