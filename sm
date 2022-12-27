@@ -11,7 +11,7 @@ main () {
 		read -p "What do you want to do? [P]ractice? [V]iew the Verse? [Q]uit? " confirm
 		if [[ $confirm == [Vv] ]]
 		then
-			echo -e $VERSE
+			echo -e $VERSE | fold -sw 70
 		elif [[ $confirm == [Qq] ]]
 		then
 			:
@@ -29,7 +29,7 @@ source $XDG_CONFIG_HOME/sm/config
 
 REFERENCE=$(echo $1 | tr " " "+")
 
-VERSE=$(curl -s -H "${API_KEY}" "${ESV_ENDPOINT}${ESV_QUERY_ADDONS}q=$REFERENCE" | jq ".passages|.[0]")
+VERSE=$(curl -s -H "${API_KEY}" "${ESV_ENDPOINT}${ESV_QUERY_ADDONS}q=$REFERENCE" | jq ".passages|.[0]" | sed "y/’/'/")
 echo -e ${VERSE} > $XDG_CACHE_HOME/sm/verse.txt
 
 main
