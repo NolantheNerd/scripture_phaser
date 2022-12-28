@@ -29,7 +29,7 @@ source $XDG_CONFIG_HOME/sm/config
 
 REFERENCE=$(echo $1 | tr " " "+")
 
-VERSE=$(curl -s -H "${API_KEY}" "${ESV_ENDPOINT}${ESV_QUERY_ADDONS}q=$REFERENCE" | jq ".passages|.[0]" | sed "y/’/'/")
+VERSE=$(curl -s -H "${API_KEY}" "${ESV_ENDPOINT}${ESV_QUERY_ADDONS}q=$REFERENCE" | jq ".passages|.[0]" | sed "y/’/'/" | sed "y/—/-/")
 echo -e ${VERSE} > $XDG_CACHE_HOME/sm/verse.txt
 
 main
