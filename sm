@@ -3,11 +3,12 @@
 make_attempt () {
 	clear
 	$EDITOR $XDG_CACHE_HOME/sm/temp.txt
-	delta --wrap-max-lines 100 $XDG_CACHE_HOME/sm/temp.txt $XDG_CACHE_HOME/sm/verse.txt
+	delta --wrap-max-lines 10000 $XDG_CACHE_HOME/sm/temp.txt $XDG_CACHE_HOME/sm/verse.txt
 	rm $XDG_CACHE_HOME/sm/temp.txt
 }
 
 main () {
+	confirm=""
 	while [[ $confirm != [Qq] ]]; do
 		read -p "What do you want to do? [P]ractice? [V]iew the Verse? [Q]uit? " confirm
 		if [[ $confirm == [Vv] ]]
@@ -23,7 +24,6 @@ main () {
 	rm $XDG_CACHE_HOME/sm/verse.txt
 }
 
-confirm=""
 ESV_ENDPOINT="https://api.esv.org/v3/passage/text/?"
 ESV_QUERY_ADDONS="include-passage-references=false&include-footnotes=false&include-headings=false&include-short-copyright=false&"
 source $XDG_CONFIG_HOME/sm/config
