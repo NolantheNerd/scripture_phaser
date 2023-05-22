@@ -12,6 +12,8 @@ class Verse:
         ref_string = ref_string.lower().title()
 
     def validate_reference(cls, book, chapter, verse):
+        # Accomodate for chapter enum names starting with "_"
+        chapter = f"_{chapter}"
         if book not in Bible.__members__:
             return False
         if chapter not in Bible[book].__members__:
