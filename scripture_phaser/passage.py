@@ -1,12 +1,14 @@
 from scripture_phaser.enums import Bible
 from scripture_phaser.exceptions import InvalidReference
+from scripture_phaser.exceptions import InvalidReferenceFormat
 
 class Passage:
     def __init__(self, ref_string):
         self.start_ref, self.end_ref = self.split_reference(ref_string)
         if (
             not self.validate_reference(self.start_ref) or \
-            not self.validate_reference(self.end_ref)
+            not self.validate_reference(self.end_ref) or \
+            not self.validate_reference_pair(self.start_ref, self.end_ref) \
         ):
             raise InvalidReference(ref_string)
 
@@ -37,6 +39,9 @@ class Passage:
             .replace("3 John", "Three_John")
 
         ref_components = ref_string.split("_")
+
+        if len(ref_components) == 1:
+            raise InvalidReferenceFormat()
 
         book = ref_components.pop(0)
         # Handle 2 Word Book Names
@@ -73,7 +78,8 @@ class Passage:
         return (book, start_chapter, start_verse), (book, end_chapter, end_verse)
 
     @classmethod
-    def validate_reference(cls, book, chapter, verse):
+    def validate_reference(cls, ref):
+        book, chapter, verse = ref
         # Accomodate for chapter enum names starting with "_"
         chapter = f"_{chapter}"
         if book not in Bible.__members__:
@@ -81,5 +87,18 @@ class Passage:
         if chapter not in Bible[book].value.__members__:
             return False
         if int(verse) > Bible[book].value[chapter].value:
+            return False
+        return True
+
+    @classmethod
+    def validate_reference_pair(cls, ref1, ref2):
+        book1, chapter1, verse1 = ref1
+        book2, chapter2, verse2 = ref2
+
+        if book1 != book2:
+            return False
+        if int(chapter2) < int(chapter1):
+            return False
+        if int(chapter2) == int(chapter1) and int(verse2) < int(verse1):
             return False
         return True
