@@ -1,1 +1,3 @@
-xdg-base-dirs
+pyxdg
+requests
+python-dotenv

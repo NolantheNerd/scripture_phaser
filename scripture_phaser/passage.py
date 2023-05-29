@@ -3,7 +3,8 @@ from scripture_phaser.exceptions import InvalidReference
 from scripture_phaser.exceptions import InvalidReferenceFormat
 
 class Passage:
-    def __init__(self, ref_string):
+    def __init__(self, ref_string, translation):
+        self.translation = translation
         self.start_ref, self.end_ref = self.split_reference(ref_string)
         if (
             not self.validate_reference(self.start_ref) or \
@@ -11,6 +12,7 @@ class Passage:
             not self.validate_reference_pair(self.start_ref, self.end_ref) \
         ):
             raise InvalidReference(ref_string)
+        self.text = self.translation.agent.fetch()
 
     @classmethod
     def split_reference(cls, ref_string):

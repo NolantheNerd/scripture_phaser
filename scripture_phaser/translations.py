@@ -1,11 +1,13 @@
 import webbrowser
-from enums import Translations
+from scripture_phaser.enums import Translations
+from scripture_phaser.agents import ESVAPIAgent
+from scripture_phaser.agents import BibleGatewayAgent
 
 class BaseTranslation:
-    def __init__(self, name, source, api):
-        self.name = name
+    def __init__(self, name, source, agent):
+        self.name = name.name
         self.source = source
-        self.api = api
+        self.agent = agent
 
     def about(self):
         print(self.name.value)

@@ -1,5 +1,8 @@
 import enum
 
+class App(enum.Enum):
+    Name = "scripture_phaser"
+
 class Translations(enum.Enum):
     ESV = "English Standard Version"
     NIV = "New International Version"
