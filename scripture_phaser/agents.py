@@ -1,4 +1,4 @@
-import pdb
+import re
 import requests
 from dotenv import dotenv_values
 from unicodedata import normalize
@@ -69,9 +69,10 @@ class ESVAPIAgent(BaseAgent):
             "include-selahs": False
         }
         resp = requests.get(self.api, params=params, headers=headers).json()
-        print(resp)
         return resp["passages"][0]
 
     def _clean(self, text):
-        pdb.set_trace()
-        return normalize("NFKD", text).encode("ascii", "ignore")
+        text = re.sub("“", "\"", text)
+        text = re.sub("”", "\"", text)
+        text = re.sub("—", "-", text)
+        return normalize("NFKD", text)
