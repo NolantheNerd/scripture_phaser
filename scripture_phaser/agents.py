@@ -66,7 +66,12 @@ class ESVAPIAgent(BaseAgent):
             "include-footnotes": False,
             "include-headings": False,
             "include-short-copyright": False,
-            "include-selahs": False
+            "include-selahs": False,
+            "include-verse-numbers": False,
+            "indent-paragraphs": 0,
+            "indent-poetry": False,
+            "indent-declares": 0,
+            "indent-psalm-doxology": 0
         }
         resp = requests.get(self.api, params=params, headers=headers).json()
         return resp["passages"][0]
