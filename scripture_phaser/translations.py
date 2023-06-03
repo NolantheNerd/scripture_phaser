@@ -1,27 +1,41 @@
 import webbrowser
+from dotenv import dotenv_values
+from scripture_phaser.enums import App
 from scripture_phaser.enums import Translations
 from scripture_phaser.agents import ESVAPIAgent
-from scripture_phaser.agents import BibleGatewayAgent
+from scripture_phaser.agents import ESVBibleGatewayAgent
+from xdg.BaseDirectory import load_first_config
 
 class BaseTranslation:
     def __init__(self, name, source, agent):
-        self.name = name.name
+        self.name = name
         self.source = source
         self.agent = agent
 
     def about(self):
-        print(self.name.value)
+        return self.name.value
 
     def visit_source(self):
         webbrowser.open(self.source)
 
 class ESV(BaseTranslation):
     def __init__(self):
-        super().__init__(
-            name = Translations.ESV,
-            source="https://esv.org",
-            api="https://www.biblegateway.com/passage/?version=ESV"
-        )
+        self.api_key = dotenv_values(
+            load_first_config(App.Name.value) + "/config"
+        ).get("ESV_API_KEY", None)
+
+        if self.api_key is None:
+            super().__init__(
+                name=Translations.ESV,
+                source="https://www.esv.org",
+                agent=ESVAPIAgent
+            )
+        else:
+            super().__init__(
+                name=Translations.ESV,
+                source="https://www.esv.org",
+                agent=ESVBibleGatewayAgent
+            )
 
 class NIV(BaseTranslation):
     def __init__(self):

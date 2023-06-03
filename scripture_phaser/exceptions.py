@@ -5,7 +5,3 @@ class InvalidReference(Exception):
 class InvalidReferenceFormat(Exception):
     def __init__(self):
         Exception.__init__(self, "Invalid reference format; make sure there is a space between the book name and chapter number")
-
-class MissingAPIKey(Exception):
-    def __init__(self):
-        Exception.__init__(self, "Missing API key.")

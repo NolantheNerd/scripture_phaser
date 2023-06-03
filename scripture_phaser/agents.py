@@ -1,19 +1,15 @@
 import re
 import requests
-from dotenv import dotenv_values
 from unicodedata import normalize
 from xdg.BaseDirectory import save_data_path
 from xdg.BaseDirectory import save_config_path
-from xdg.BaseDirectory import load_first_config
 from scripture_phaser.enums import App
 from scripture_phaser.enums import Agents
 from scripture_phaser.enums import Translations
-from scripture_phaser.exceptions import MissingAPIKey
 
 class BaseAgent:
-    def __init__(self, agent, translation):
-        self.Name = agent.name
-        self.api = agent.value
+    def __init__(self, agent):
+        self.agent = agent
 
         if agent is Agents.BibleGateway:
             self.api += f"version={self.translation}&"
@@ -28,13 +24,12 @@ class BaseAgent:
         raise NotImplementedError("Child agent must implement _clean()")
 
     def get(self, ref):
-        self.text = self._clean(self._fetch(ref))
+        return self._clean(self._fetch(ref))
 
 class BibleGatewayAgent(BaseAgent):
-    def __init__(self, translation):
+    def __init__(self):
         super().__init__(
-            agent=Agents.BibleGateway,
-            translation=translation
+            agent=Agents.BibleGateway
         )
 
     def _fetch(self, ref):
@@ -43,19 +38,16 @@ class BibleGatewayAgent(BaseAgent):
     def _clean(self, text):
         raise NotImplementedError()
 
+class ESVBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__()
+        self.api = "https://www.biblegateway.com/passage/?version=ESV"
+
 class ESVAPIAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             agent=Agents.ESVAPI,
-            translation=Translations.ESV
         )
-
-        self.api_key = dotenv_values(
-            load_first_config(App.Name.value) + "/config"
-        ).get("ESV_API_KEY", None)
-
-        if self.api_key is None:
-            raise MissingAPIKey()
 
     def _fetch(self, ref):
         headers = {"Authorization": "Token %s" % self.api_key}

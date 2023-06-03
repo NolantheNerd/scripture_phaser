@@ -1,4 +1,5 @@
 from scripture_phaser.enums import Bible
+from scripture_phaser.agents import ESVAPIAgent
 from scripture_phaser.exceptions import InvalidReference
 from scripture_phaser.exceptions import InvalidReferenceFormat
 
@@ -12,7 +13,7 @@ class Passage:
             not self.validate_reference_pair(self.start_ref, self.end_ref) \
         ):
             raise InvalidReference(ref_string)
-        self.text = self.translation.agent.fetch()
+        self.text = self.translation.agent.get()
 
     @classmethod
     def split_reference(cls, ref_string):
