@@ -7,6 +7,7 @@ from scripture_phaser.enums import App
 from scripture_phaser.enums import Bible
 from scripture_phaser.enums import Agents
 from scripture_phaser.enums import Translations
+from scripture_phaser.verse import Verse
 from scripture_phaser.exceptions import InvalidReferenceFormat
 
 class BaseAgent:
@@ -31,13 +32,13 @@ class BaseAgent:
         raise NotImplementedError("Child agent must implement _clean()")
 
     def get(self, ref):
-        _validate(ref)
+        self._validate(ref)
         return self._clean(self._fetch(ref))
 
     @classmethod
-    def split_reference(cls, ref_string):
-        ref_string = ref_string.lower().title()
-        ref_string = ref_string \
+    def clean_reference(cls, ref):
+        ref = ref.lower().title()
+        ref = ref \
             .replace(" ", "_") \
             .replace("First", "One") \
             .replace("1_Samuel", "One_Samuel") \
@@ -60,20 +61,26 @@ class BaseAgent:
             .replace("Third", "Three") \
             .replace("3 John", "Three_John")
 
-        ref_components = ref_string.split("_")
+        return ref
+
+    @classmethod
+    def split_reference(cls, ref):
+        ref = cls.clean_reference(ref)
+
+        ref_components = ref.split("_")
 
         if len(ref_components) == 1:
             raise InvalidReferenceFormat()
 
         book = ref_components.pop(0)
-        # Handle 2 Word Book Names
+        # Handle 2 Word Book Names [One John 1:1]
         if book in ["One", "Two", "Three"]:
             book = book + f"_{ref_components.pop(0)}"
         ref_components = "".join(ref_components).split("-")
 
         start_ref = ref_components[0].split(":")
         start_chapter = start_ref[0]
-        # Handle No Verse in Reference
+        # Handle No Verse in Reference [John 1]
         if len(start_ref) == 1:
             start_verse = "1"
         else:

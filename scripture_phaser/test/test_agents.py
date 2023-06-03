@@ -47,6 +47,13 @@ class AgentsTests(unittest.TestCase):
         self.assertTupleEqual(expected_start_ref4, actual_start_ref4)
         self.assertTupleEqual(expected_end_ref4, actual_end_ref4)
 
+        ref_string5 = "exodus 3-4:3"
+        expected_start_ref5 = ("Exodus", "3", "1")
+        expected_end_ref5 = ("Exodus", "4", "3")
+        actual_start_ref5, actual_end_ref5 = BaseAgent.split_reference(ref_string5)
+        self.assertTupleEqual(expected_start_ref5, actual_start_ref5)
+        self.assertTupleEqual(expected_end_ref5, actual_end_ref5)
+
     def test_validate_reference_pair(self):
         ref1 = ("Job", "1", "11")
         ref2 = ("Job", "1", "12")
