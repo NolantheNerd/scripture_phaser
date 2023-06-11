@@ -7,7 +7,7 @@ class Verse:
         self.book = book
         self.chapter = chapter
         self.verse = verse
-        self.reference = f"{Bible_Books[self.book]} {self.chapter+1}:{self.verse+1}"
+        self.reference = f"{Bible_Books.get(self.book, None)} {self.chapter+1}:{self.verse+1}"
         self.valid = self.validate(self)
 
         self.initialized = text is not None

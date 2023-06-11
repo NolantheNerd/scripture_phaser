@@ -46,6 +46,7 @@ class Passage:
             new_ref += ref[i]
 
         new_ref = new_ref \
+            .replace("Psalm", "Psalms") \
             .replace("First", "One") \
             .replace("1 Samuel", "One Samuel") \
             .replace("1 Kings", "One Kings") \
@@ -73,7 +74,7 @@ class Passage:
     def reference_to_verses(cls, ref):
         # Handle a Single Whole Book Reference [Genesis]
         if ref in Reverse_Bible_Books:
-            book1 = Reverse_Bible_Books[ref]
+            book1 = Reverse_Bible_Books.get(ref, -1)
             book2 = book1
             chapter1 = 0
             chapter2 = len(Bible[book2]) - 1
@@ -91,7 +92,7 @@ class Passage:
                 i = 0
                 while i < len(split_components) and split_components[i].isalpha():
                     i += 1
-                book1 = book2 = Reverse_Bible_Books[" ".join(split_components[:i])]
+                book1 = book2 = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
 
                 # Get Chapter:Verse Split
                 loc_components = split_components[-1].split(":")
@@ -121,7 +122,7 @@ class Passage:
                 i = 0
                 while i < len(split_components) and split_components[i].isalpha():
                     i += 1
-                book1 = Reverse_Bible_Books[" ".join(split_components[:i])]
+                book1 = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
 
                 # Get Chapter:Verse Split (if part of reference isn't book name)
                 if not split_components[-1].isalpha():
@@ -154,7 +155,7 @@ class Passage:
                     i = 0
                     while i < len(split_components) and split_components[i].isalpha():
                         i += 1
-                    book2 = Reverse_Bible_Books[" ".join(split_components[:i])]
+                    book2 = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
                 # Second Book is Not Specified [John 1:1 - 1:2]
                 else:
                     book2 = book1
