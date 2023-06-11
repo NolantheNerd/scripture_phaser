@@ -1,3 +1,4 @@
+import pdb
 import unittest
 from scripture_phaser.verse import Verse
 from scripture_phaser.passage import Passage
@@ -60,25 +61,28 @@ class PassageTests(unittest.TestCase):
         self.assertTrue(Verse.verse_equal(expected_start_verse8, actual_verses[0]))
         self.assertTrue(Verse.verse_equal(expected_end_verse8, actual_verses[-1]))
 
-    @unittest.skip("")
     def test_validate_verse_pair(self):
-        ref1 = ("Job", "1", "11")
-        ref2 = ("Job", "1", "12")
-        ref3 = ("Job", "1", "13")
-        ref4 = ("Proverbs", "30", "5")
+        # Job 1:11
+        ref1 = Verse(17, 0, 10)
+        # Job 1:12
+        ref2 = Verse(17, 0, 11)
+        # Job 1:13
+        ref3 = Verse(17, 0, 12)
+        # Proverbs 30:5
+        ref4 = Verse(19, 29, 4)
 
         self.assertTrue(Passage.validate_verse_pair(ref1, ref1))
         self.assertTrue(Passage.validate_verse_pair(ref1, ref2))
         self.assertTrue(Passage.validate_verse_pair(ref1, ref3))
-        self.assertFalse(Passage.validate_verse_pair(ref1, ref4))
+        self.assertTrue(Passage.validate_verse_pair(ref1, ref4))
         self.assertFalse(Passage.validate_verse_pair(ref2, ref1))
         self.assertTrue(Passage.validate_verse_pair(ref2, ref2))
         self.assertTrue(Passage.validate_verse_pair(ref2, ref3))
-        self.assertFalse(Passage.validate_verse_pair(ref2, ref4))
+        self.assertTrue(Passage.validate_verse_pair(ref2, ref4))
         self.assertFalse(Passage.validate_verse_pair(ref3, ref1))
         self.assertFalse(Passage.validate_verse_pair(ref3, ref2))
         self.assertTrue(Passage.validate_verse_pair(ref3, ref3))
-        self.assertFalse(Passage.validate_verse_pair(ref3, ref4))
+        self.assertTrue(Passage.validate_verse_pair(ref3, ref4))
         self.assertFalse(Passage.validate_verse_pair(ref4, ref1))
         self.assertFalse(Passage.validate_verse_pair(ref4, ref2))
         self.assertFalse(Passage.validate_verse_pair(ref4, ref3))
