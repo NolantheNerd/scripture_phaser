@@ -7,6 +7,7 @@ class Verse:
         self.book = book
         self.chapter = chapter
         self.verse = verse
+        self.reference = f"{Bible_Books[self.book]} {self.chapter+1}:{self.verse+1}"
         self.valid = self.validate(self)
 
         self.initialized = text is not None
@@ -15,7 +16,6 @@ class Verse:
 
     def initialize(self, text):
         self.text = text
-        self.reference = f"{Bible_Books[self.book]} {self.chapter+1}:{self.verse}"
         self.length = len(self.text)
         self.n_words = len(self.text.split())
 
@@ -40,7 +40,7 @@ class Verse:
     @staticmethod
     def previous_verse(verse):
         # Previous Verse, Same Chapter
-        if verse.verse > 1:
+        if verse.verse > 0:
             new_verse = verse.verse - 1
             return Verse(
                 book=verse.book,
@@ -49,9 +49,9 @@ class Verse:
             )
         else:
             # Last Verse, Previous Chapter
-            if verse.chapter > 1:
+            if verse.chapter > 0:
                 new_chapter = verse.chapter - 1
-                new_verse = Bible[verse.book][new_chapter]
+                new_verse = Bible[verse.book][new_chapter] - 1
                 return Verse(
                     book=verse.book,
                     chapter=new_chapter,
@@ -61,7 +61,7 @@ class Verse:
             else:
                 new_book = verse.book - 1
                 new_chapter = len(Bible[new_book]) - 1
-                new_verse = Bible[new_book][new_chapter]
+                new_verse = Bible[new_book][new_chapter] - 1
                 return Verse(
                     book=new_book,
                     chapter=new_chapter,
@@ -71,7 +71,7 @@ class Verse:
     @staticmethod
     def next_verse(verse):
         # Next Verse, Same Chapter
-        if verse.verse < Bible[verse.book][verse.chapter]:
+        if verse.verse < Bible[verse.book][verse.chapter] - 1:
             new_verse = verse.verse + 1
             return Verse(
                 book=verse.book,
@@ -82,7 +82,7 @@ class Verse:
             # First Verse, Next Chapter
             if verse.chapter < len(Bible[verse.book]) - 1:
                 new_chapter = verse.chapter + 1
-                new_verse = Bible[verse.book][new_chapter]
+                new_verse = 0
                 return Verse(
                     book=verse.book,
                     chapter=new_chapter,
@@ -91,8 +91,8 @@ class Verse:
             # First Verse, Next Book
             else:
                 new_book = verse.book + 1
-                new_chapter = 1
-                new_verse = 1
+                new_chapter = 0
+                new_verse = 0
                 return Verse(
                     book=new_book,
                     chapter=new_chapter,

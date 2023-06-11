@@ -75,10 +75,10 @@ class Passage:
         if ref in Reverse_Bible_Books:
             book1 = Reverse_Bible_Books[ref]
             book2 = book1
-            chapter1 = 1
+            chapter1 = 0
             chapter2 = len(Bible[book2]) - 1
-            verse1 = 1
-            verse2 = Bible[book2][chapter2]
+            verse1 = 0
+            verse2 = Bible[book2][chapter2] - 1
 
         else:
             ref_components = ref.split(" - ")
@@ -89,7 +89,7 @@ class Passage:
 
                 # Get Book Name (Even if it is Multiple Words)
                 i = 0
-                while split_components[i].isalpha():
+                while i < len(split_components) and split_components[i].isalpha():
                     i += 1
                 book1 = book2 = Reverse_Bible_Books[" ".join(split_components[:i])]
 
@@ -100,17 +100,17 @@ class Passage:
                     # Handle Single Chapter Books (Jude 10)
                     if len(Bible[book1]) == 1:
                         chapter1 = chapter2 = 0
-                        verse1 = verse2 = int(loc_components[0])
+                        verse1 = verse2 = int(loc_components[0]) - 1
                     # Handle Entire Chapter References (John 1)
                     else:
                         chapter1 = chapter2 = int(loc_components[0]) - 1
-                        verse1 = 1
-                        verse2 = Bible[book1][chapter1]
+                        verse1 = 0
+                        verse2 = Bible[book1][chapter1] - 1
 
                 # Handle Single Verse References [John 1:1]
                 else:
                     chapter1 = chapter2 = int(loc_components[0]) - 1
-                    verse1 = verse2 = int(loc_components[1])
+                    verse1 = verse2 = int(loc_components[1]) - 1
 
             # Split Reference (one "-")
             elif len(ref_components) == 2:
@@ -119,27 +119,31 @@ class Passage:
 
                 # Get Book Name (Even if it is Multiple Words)
                 i = 0
-                while split_components[i].isalpha():
+                while i < len(split_components) and split_components[i].isalpha():
                     i += 1
                 book1 = Reverse_Bible_Books[" ".join(split_components[:i])]
 
-                # Get Chapter:Verse Split
-                loc_components = split_components[-1].split(":")
+                # Get Chapter:Verse Split (if part of reference isn't book name)
+                if not split_components[-1].isalpha():
+                    loc_components = split_components[-1].split(":")
 
-                if len(loc_components) == 1:
-                    # Handle Single Chapter Books (Jude 10)
-                    if len(Bible[book1]) == 1:
-                        chapter1 = 0
-                        verse1 = int(loc_components[0])
-                    # Handle Entire Chapter References (John 1)
+                    if len(loc_components) == 1:
+                        # Handle Single Chapter Books (Jude 10)
+                        if len(Bible[book1]) == 1:
+                            chapter1 = 0
+                            verse1 = int(loc_components[0]) - 1
+                        # Handle Entire Chapter References (John 1)
+                        else:
+                            chapter1 = int(loc_components[0]) - 1
+                            verse1 = 0
+
+                    # Handle Single Verse References [John 1:1]
                     else:
                         chapter1 = int(loc_components[0]) - 1
-                        verse1 = 1
-
-                # Handle Single Verse References [John 1:1]
+                        verse1 = int(loc_components[1]) - 1
+                # Handle Just a Book (Genesis)
                 else:
-                    chapter1 = int(loc_components[0]) - 1
-                    verse1 = int(loc_components[1])
+                    chapter1 = verse1 = 0
 
                 # Handle Second Half of Split
                 split_components = ref_components[1].split(" ")
@@ -148,31 +152,35 @@ class Passage:
                 if split_components[0].isalpha():
                     # Get Book Name (Even if it is Multiple Words)
                     i = 0
-                    while split_components[i].isalpha():
+                    while i < len(split_components) and split_components[i].isalpha():
                         i += 1
                     book2 = Reverse_Bible_Books[" ".join(split_components[:i])]
                 # Second Book is Not Specified [John 1:1 - 1:2]
                 else:
                     book2 = book1
 
-                # Get Chapter:Verse Split
-                loc_components = split_components[-1].split(":")
+                # Get Chapter:Verse Split (if part of reference isn't book name)
+                if not split_components[-1].isalpha():
+                    loc_components = split_components[-1].split(":")
 
-                if len(loc_components) == 1:
-                    # Handle Single Chapter Books (Jude 10)
-                    if len(Bible[book1]) == 1:
-                        chapter2 = 0
-                        verse2 = int(loc_components[0])
-                    # Handle Entire Chapter References (John 1)
+                    if len(loc_components) == 1:
+                        # Handle Single Chapter Books (Jude 10)
+                        if len(Bible[book1]) == 1:
+                            chapter2 = 0
+                            verse2 = int(loc_components[0]) - 1
+                        # Handle Entire Chapter References (John 1)
+                        else:
+                            chapter2 = int(loc_components[0]) - 1
+                            verse2 = Bible[book2][chapter2] - 1
+
+                    # Handle Single Verse References [John 1:1]
                     else:
                         chapter2 = int(loc_components[0]) - 1
-                        verse2 = Bible[book2][chapter2]
-
-                # Handle Single Verse References [John 1:1]
+                        verse2 = int(loc_components[1]) - 1
+                # Handle Just a Book (Genesis)
                 else:
-                    chapter2 = int(loc_components[0]) - 1
-                    verse2 = int(loc_components[1])
-
+                    chapter2 = len(Bible[book2]) - 1
+                    verse2 = Bible[book2][chapter2] - 1
 
             # More than One Split is No Good (two+ "-")
             else:
@@ -189,14 +197,11 @@ class Passage:
 
     @classmethod
     def infill_verse(cls, verses):
-        # If Most Recently Found Verse is the Last Verse: Stop and Remove Duplicate
-        if Verse.verse_equal(verses[-1], verses[-2]):
-            verses.pop()
-            return verses
-        # Otherwise, find next Verse
-        else:
-            verses.insert(-2, Verse.next_verse(verses[-2]))
-            return cls.infill_verse(verses)
+        new_verse = Verse.next_verse(verses[-2])
+        while not Verse.verse_equal(verses[-1], new_verse):
+            verses.insert(-1, new_verse)
+            new_verse = Verse.next_verse(verses[-2])
+        return verses
 
     @classmethod
     def validate(cls, start_verse, end_verse):
