@@ -4,7 +4,6 @@ from scripture_phaser.agents import BaseAgent
 from scripture_phaser.agents import ESVAPIAgent
 
 class AgentsTests(unittest.TestCase):
-    @unittest.skip("")
     def test_esv_api(self):
        self.agent = ESVAPIAgent()
 
