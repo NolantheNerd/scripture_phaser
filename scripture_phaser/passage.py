@@ -14,6 +14,29 @@ class Passage:
     def clean_reference(ref):
         ref = ref.strip().lower().title()
 
+        ref = ref \
+            .replace("Psalm", "Psalms") \
+            .replace("First", "One") \
+            .replace("1 Samuel", "One Samuel") \
+            .replace("1 Kings", "One Kings") \
+            .replace("1 Chronicles", "One Chronicles") \
+            .replace("1 Corinthians", "One Corinthians") \
+            .replace("1 Thessalonians", "One Thessalonians") \
+            .replace("1 Timothy", "One Timothy") \
+            .replace("1 Peter", "One Peter") \
+            .replace("1 John", "One John") \
+            .replace("Second", "Two") \
+            .replace("2 Samuel", "Two Samuel") \
+            .replace("2 Kings", "Two Kings") \
+            .replace("2 Chronicles", "Two Chronicles") \
+            .replace("2 Corinthians", "Two Corinthians") \
+            .replace("2 Thessalonians", "Two Thessalonians") \
+            .replace("2 Timothy", "Two Timothy") \
+            .replace("2 Peter", "Two Peter") \
+            .replace("2 John", "Two John") \
+            .replace("Third", "Three") \
+            .replace("3 John", "Three John")
+
         new_ref = ""
         prev_char = ""
         for i, char in enumerate(ref):
@@ -37,36 +60,15 @@ class Passage:
             elif char == " ":
                 # Remove Space Before ":" and After Chapter Number
                 if prev_char.isdigit() and next_char == ":":
+                    prev_char = ref[max(0, i)]
                     continue
                 # Remove Space After ":" and Before Verse Number
                 elif prev_char == ":" and next_char.isdigit():
+                    prev_char = ref[max(0, i)]
                     continue
 
-            prev_char = ref[max(0, i-1)]
+            prev_char = ref[max(0, i)]
             new_ref += ref[i]
-
-        new_ref = new_ref \
-            .replace("Psalm", "Psalms") \
-            .replace("First", "One") \
-            .replace("1 Samuel", "One Samuel") \
-            .replace("1 Kings", "One Kings") \
-            .replace("1 Chronicles", "One Chronicles") \
-            .replace("1 Corinthians", "One Corinthians") \
-            .replace("1 Thessalonians", "One Thessalonians") \
-            .replace("1 Timothy", "One Timothy") \
-            .replace("1 Peter", "One Peter") \
-            .replace("1 John", "One John") \
-            .replace("Second", "Two") \
-            .replace("2 Samuel", "Two Samuel") \
-            .replace("2 Kings", "Two Kings") \
-            .replace("2 Chronicles", "Two Chronicles") \
-            .replace("2 Corinthians", "Two Corinthians") \
-            .replace("2 Thessalonians", "Two Thessalonians") \
-            .replace("2 Timothy", "Two Timothy") \
-            .replace("2 Peter", "Two Peter") \
-            .replace("2 John", "Two John") \
-            .replace("Third", "Three") \
-            .replace("3 John", "Three John")
 
         return new_ref
 
