@@ -24,11 +24,11 @@ class ESV(BaseTranslation):
             load_first_config(App.Name.value) + "/config"
         ).get("ESV_API_KEY", None)
 
-        if self.api_key is None:
+        if self.api_key is not None:
             super().__init__(
                 name=Translations.ESV,
                 source="https://www.esv.org",
-                agent=ESVAPIAgent
+                agent=ESVAPIAgent(self.api_key)
             )
         else:
             super().__init__(

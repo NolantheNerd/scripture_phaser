@@ -10,6 +10,11 @@ class Passage:
         self.reference = self.clean_reference(reference)
         self.verses = self.reference_to_verses(self.reference)
 
+    def populate(self):
+        texts = self.translation.agent.get(self.reference)
+        for verse, text in zip(self.verses, texts):
+            verse.initialize(text)
+
     @staticmethod
     def clean_reference(ref):
         ref = ref.strip().lower().title()

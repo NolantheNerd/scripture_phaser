@@ -22,8 +22,11 @@ class BaseAgent:
     def _clean(self, text):
         raise NotImplementedError("Child agent must implement _clean()")
 
+    def _split(self, text):
+        return text
+
     def get(self, ref):
-        return self._clean(self._fetch(ref))
+        return self._split(self._clean(self._fetch(ref)))
 
 class BibleGatewayAgent(BaseAgent):
     def __init__(self):
@@ -31,26 +34,22 @@ class BibleGatewayAgent(BaseAgent):
             agent=Agents.BibleGateway
         )
 
-    def _fetch(self, ref):
-        raise NotImplementedError()
-
-    def _clean(self, text):
-        raise NotImplementedError()
-
 class ESVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__()
         self.api = "https://www.biblegateway.com/passage/?version=ESV"
 
 class ESVAPIAgent(BaseAgent):
-    def __init__(self):
+    def __init__(self, api_key):
+        self.api = Agents.ESVAPI.value
+        self.api_key = api_key
+
         super().__init__(
             agent=Agents.ESVAPI,
         )
 
     def _fetch(self, ref):
         headers = {"Authorization": "Token %s" % self.api_key}
-        # @@@ TODO Allow ESV API params to be configured by user
         params = {
             "q": ref,
             "include-passage-references": False,
@@ -58,7 +57,7 @@ class ESVAPIAgent(BaseAgent):
             "include-headings": False,
             "include-short-copyright": False,
             "include-selahs": False,
-            "include-verse-numbers": False,
+            "include-verse-numbers": True,
             "indent-paragraphs": 0,
             "indent-poetry": False,
             "indent-declares": 0,
@@ -68,7 +67,17 @@ class ESVAPIAgent(BaseAgent):
         return resp["passages"][0]
 
     def _clean(self, text):
+        # ESV API always returns 2 "\n" at the end
+        text = text[:-2]
+
         text = re.sub("“", "\"", text)
         text = re.sub("”", "\"", text)
         text = re.sub("—", "-", text)
+
         return normalize("NFKD", text)
+
+    def _split(self, text):
+        verse_number_pattern = re.compile(r"\s*\[[0-9]+\]\s*")
+
+        # Always starts with a verse marker leaving the 0th element empty
+        return re.split(verse_number_pattern, text)[1:]
