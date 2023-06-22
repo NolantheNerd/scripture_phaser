@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import MagicMock
 from scripture_phaser.verse import Verse
 from scripture_phaser.passage import Passage
+from scripture_phaser.translations import ESV
 
 class PassageTests(unittest.TestCase):
     def test_clean_reference(self):
@@ -117,3 +119,30 @@ class PassageTests(unittest.TestCase):
         self.assertFalse(Passage.validate_verse_pair(ref4, ref2))
         self.assertFalse(Passage.validate_verse_pair(ref4, ref3))
         self.assertTrue(Passage.validate_verse_pair(ref4, ref4))
+
+    def test_populate(self):
+        reference = "John 1:1 - 1:5"
+        translation = ESV()
+        passage = Passage(reference, translation)
+
+        mock_api_return = '[1] In the beginning was the Word, and the Word was with ' + \
+        'God, and the Word was God. [2] He was in the beginning with God. [3] ' + \
+        'All things were made through him, and without him was not any thing ' + \
+        'made that was made. [4] In him was life, and the life was the light of ' + \
+        'men. [5] The light shines in the darkness, and the darkness has not ' + \
+        'overcome it.\n\n'
+        passage.translation.agent._fetch = MagicMock(return_value=mock_api_return)
+
+        passage.populate()
+
+        expected_verses = [
+            Verse(42, 0, 0, 'In the beginning was the Word, and the Word was with God, and the Word was God.'),
+            Verse(42, 0, 1, 'He was in the beginning with God.'),
+            Verse(42, 0, 2, 'All things were made through him, and without him was not any thing made that was made.'),
+            Verse(42, 0, 3, 'In him was life, and the life was the light of men.'),
+            Verse(42, 0, 4, 'The light shines in the darkness, and the darkness has not overcome it.')
+        ]
+
+        self.assertEqual(len(expected_verses), len(passage.verses))
+        for i in range(len(expected_verses)):
+            self.assertTrue(Verse.verse_equal(expected_verses[i], passage.verses[i]))
