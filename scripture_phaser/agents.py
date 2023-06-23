@@ -77,7 +77,7 @@ class ESVAPIAgent(BaseAgent):
         return normalize("NFKD", text)
 
     def _split(self, text):
-        verse_number_pattern = re.compile(r"\s*\[[0-9]+\]\s*")
+        verse_number_pattern = re.compile(r" *\[[0-9]+\] *")
 
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
