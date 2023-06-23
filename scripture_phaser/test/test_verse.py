@@ -19,3 +19,28 @@ class VerseTests(unittest.TestCase):
         self.assertFalse(Verse.validate(ref3))
         self.assertTrue(Verse.validate(ref4))
         self.assertFalse(Verse.validate(ref5))
+
+    def test_show(self):
+        # John 11:35
+        text = "Jesus wept."
+        verse = Verse(42, 10, 34, text)
+
+        self.assertEqual(
+            verse.show(),
+            text
+        )
+
+        self.assertEqual(
+            verse.show(with_verse=True),
+            f"[35] {text}"
+        )
+
+        self.assertEqual(
+            verse.show(with_ref=True),
+            f"{text} - John 11:35"
+        )
+
+        self.assertEqual(
+            verse.show(with_verse=True, with_ref=True),
+            f"[35] {text} - John 11:35"
+        )

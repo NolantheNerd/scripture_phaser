@@ -7,16 +7,38 @@ from scripture_phaser.exceptions import InvalidReference
 class Passage:
     def __init__(self, reference, translation):
         self.translation = translation
-        self.reference = self.clean_reference(reference)
-        self.verses = self.reference_to_verses(self.reference)
+        self.reference = self.clean_reference(reference, for_verse_selection=False)
+        self.verses = self.reference_to_verses(
+            self.clean_reference(reference, for_verse_selection=True)
+        )
+        self.populated = False
 
     def populate(self):
+        self.populated = True
         texts = self.translation.agent.get(self.reference)
         for verse, text in zip(self.verses, texts):
             verse.initialize(text)
 
+    def show(self, with_verse=False, with_ref=False):
+        if not self.populated:
+            return ""
+        else:
+            if with_verse:
+                texts = [verse.show(with_verse=True) for verse in self.verses]
+            else:
+                texts = [verse.show() for verse in self.verses]
+
+            text = " ".join(texts)
+
+            # Spaces after new lines are no good
+            text = text.replace("\n ", "\n")
+
+            if with_ref:
+                text = f"{text} - {self.reference}"
+            return text
+
     @staticmethod
-    def clean_reference(ref):
+    def clean_reference(ref, for_verse_selection):
         ref = ref.strip().lower().title()
 
         ref = ref \
@@ -74,6 +96,16 @@ class Passage:
 
             prev_char = ref[max(0, i)]
             new_ref += ref[i]
+
+        # APIs like ESV API Don't Recognize "One John" only "1 John"
+        # So for the sake of the AGENTS (and End Users with Passage.show())
+        # Convert Reference to Use Digit in Book Name (Doesn't work with
+        # reference_to_veres() though because of isalpha() calls etc.)
+        if not for_verse_selection:
+            new_ref = new_ref \
+                .replace("One", "1") \
+                .replace("Two", "2") \
+                .replace("Three", "3") \
 
         return new_ref
 

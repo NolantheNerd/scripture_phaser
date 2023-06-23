@@ -20,6 +20,18 @@ class Verse:
         self.length = len(self.text)
         self.n_words = len(self.text.split())
 
+    def show(self, with_verse=False, with_ref=False):
+        if not self.initialized:
+            return ""
+
+        text = self.text
+        if with_verse:
+            text = f"[{self.verse+1}] {text}"
+        if with_ref:
+            text = f"{text} - {self.reference}"
+
+        return text
+
     @staticmethod
     def verse_equal(verse1, verse2):
         if (verse1.book == verse2.book and

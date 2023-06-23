@@ -8,33 +8,67 @@ class PassageTests(unittest.TestCase):
     def test_clean_reference(self):
         verse_string1 = "1 John 3:5"
         expected_string1 = "One John 3:5"
-        actual_string1 = Passage.clean_reference(verse_string1)
+        actual_string1 = Passage.clean_reference(
+            verse_string1,
+            for_verse_selection=True
+        )
         self.assertEqual(actual_string1, expected_string1)
 
         verse_string2 = "genesis 5:1"
         expected_string2 = "Genesis 5:1"
-        actual_string2 = Passage.clean_reference(verse_string2)
+        actual_string2 = Passage.clean_reference(
+            verse_string2,
+            for_verse_selection=True
+        )
         self.assertEqual(actual_string2, expected_string2)
 
         verse_string3 = "exodus 1-2"
         expected_string3 = "Exodus 1 - 2"
-        actual_string3 = Passage.clean_reference(verse_string3)
+        actual_string3 = Passage.clean_reference(
+            verse_string3,
+            for_verse_selection=True
+        )
         self.assertEqual(actual_string3, expected_string3)
 
         verse_string4 = "First Peter - 2 peter 1 : 5"
         expected_string4 = "One Peter - Two Peter 1:5"
-        actual_string4 = Passage.clean_reference(verse_string4)
+        actual_string4 = Passage.clean_reference(
+            verse_string4,
+            for_verse_selection=True
+        )
         self.assertEqual(actual_string4, expected_string4)
 
         verse_string5 = "psalm-proverbs"
         expected_string5 = "Psalms - Proverbs"
-        actual_string5 = Passage.clean_reference(verse_string5)
+        actual_string5 = Passage.clean_reference(
+            verse_string5,
+            for_verse_selection=True
+        )
         self.assertEqual(actual_string5, expected_string5)
 
         verse_string6 = "Ezra 1 : 2-2 : 1"
         expected_string6 = "Ezra 1:2 - 2:1"
-        actual_string6 = Passage.clean_reference(verse_string6)
+        actual_string6 = Passage.clean_reference(
+            verse_string6,
+            for_verse_selection=True
+        )
         self.assertEqual(actual_string6, expected_string6)
+
+        verse_string7 = "1 John 3:5"
+        expected_string7 = "1 John 3:5"
+        actual_string7 = Passage.clean_reference(
+            verse_string7,
+            for_verse_selection=False
+        )
+        self.assertEqual(actual_string7, expected_string7)
+
+        verse_string8 = "First Peter - 2 peter 1 : 5"
+        expected_string8 = "1 Peter - 2 Peter 1:5"
+        actual_string8 = Passage.clean_reference(
+            verse_string8,
+            for_verse_selection=False
+        )
+        self.assertEqual(actual_string8, expected_string8)
 
     def test_reference_to_verses(self):
         verse_string1 = "One John 3:5"
@@ -146,3 +180,54 @@ class PassageTests(unittest.TestCase):
         self.assertEqual(len(expected_verses), len(passage.verses))
         for i in range(len(expected_verses)):
             self.assertTrue(Verse.verse_equal(expected_verses[i], passage.verses[i]))
+
+    def test_show(self):
+        reference = "1 Peter 1:2 - 1:3"
+        translation = ESV()
+        passage = Passage(reference, translation)
+
+        mock_api_return = '[2] according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
+        'you.\n\n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead,\n\n'
+
+        passage.translation.agent._fetch = MagicMock(return_value=mock_api_return)
+
+        expected_clean = 'according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
+        'you.\n\nBlessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead,'
+
+        expected_verse = '[2] according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
+        'you.\n\n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead,'
+
+        expected_ref = 'according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
+        'you.\n\nBlessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead, ' + \
+        '- 1 Peter 1:2 - 1:3'
+
+        expected_full = '[2] according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
+        'you.\n\n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead, ' + \
+        '- 1 Peter 1:2 - 1:3'
+
+        passage.populate()
+
+        self.assertEqual(passage.show(), expected_clean)
+        self.assertEqual(passage.show(with_verse=True), expected_verse)
+        self.assertEqual(passage.show(with_ref=True), expected_ref)
+        self.assertEqual(passage.show(with_verse=True, with_ref=True), expected_full)
