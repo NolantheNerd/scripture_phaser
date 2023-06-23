@@ -15,6 +15,7 @@ class Verse:
             self.initialize(text)
 
     def initialize(self, text):
+        self.initialized = True
         self.text = text
         self.length = len(self.text)
         self.n_words = len(self.text.split())
