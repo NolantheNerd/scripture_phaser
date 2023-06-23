@@ -205,13 +205,18 @@ class Passage:
 
                     if len(loc_components) == 1:
                         # Handle Single Chapter Books (Jude 10)
-                        if len(Bible[book1]) == 1:
+                        if len(Bible[book2]) == 1:
                             chapter2 = 0
                             verse2 = int(loc_components[0]) - 1
                         # Handle Entire Chapter References (John 1)
-                        else:
+                        # Handle Chapter Ranges (John 1 - 2)
+                        elif book2 != book1 or ":" not in ref_components[0]:
                             chapter2 = int(loc_components[0]) - 1
                             verse2 = Bible[book2][chapter2] - 1
+                        # Handle Single Values As Verses not Chapters (John 1:4 - 6)
+                        else:
+                            chapter2 = chapter1
+                            verse2 = int(loc_components[0]) - 1
 
                     # Handle Single Verse References [John 1:1]
                     else:

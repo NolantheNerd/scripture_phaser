@@ -85,9 +85,9 @@ class PassageTests(unittest.TestCase):
         self.assertTrue(Verse.verse_equal(expected_start_verse2, actual_verses[0]))
         self.assertTrue(Verse.verse_equal(expected_end_verse2, actual_verses[-1]))
 
-        verse_string3 = "Esther 3:7 - 4"
+        verse_string3 = "Esther 3:7 - 10"
         expected_start_verse3 = Verse(16, 2, 6)
-        expected_end_verse3 = Verse(16, 3, 16)
+        expected_end_verse3 = Verse(16, 2, 9)
         actual_verses = Passage.reference_to_verses(verse_string3)
         self.assertTrue(Verse.verse_equal(expected_start_verse3, actual_verses[0]))
         self.assertTrue(Verse.verse_equal(expected_end_verse3, actual_verses[-1]))
@@ -126,6 +126,34 @@ class PassageTests(unittest.TestCase):
         actual_verses = Passage.reference_to_verses(verse_string8)
         self.assertTrue(Verse.verse_equal(expected_start_verse8, actual_verses[0]))
         self.assertTrue(Verse.verse_equal(expected_end_verse8, actual_verses[-1]))
+
+        verse_string9 = "Exodus 3 - 4"
+        expected_start_verse9 = Verse(1, 2, 0)
+        expected_end_verse9 = Verse(1, 3, 30)
+        actual_verses = Passage.reference_to_verses(verse_string9)
+        self.assertTrue(Verse.verse_equal(expected_start_verse9, actual_verses[0]))
+        self.assertTrue(Verse.verse_equal(expected_end_verse9, actual_verses[-1]))
+
+        verse_string10 = "Jude 10 - 11"
+        expected_start_verse10 = Verse(64, 0, 9)
+        expected_end_verse10 = Verse(64, 0, 10)
+        actual_verses = Passage.reference_to_verses(verse_string10)
+        self.assertTrue(Verse.verse_equal(expected_start_verse10, actual_verses[0]))
+        self.assertTrue(Verse.verse_equal(expected_end_verse10, actual_verses[-1]))
+
+        verse_string11 = "Genesis 50 - Exodus 1"
+        expected_start_verse11 = Verse(0, 49, 0)
+        expected_end_verse11 = Verse(1, 0, 21)
+        actual_verses = Passage.reference_to_verses(verse_string11)
+        self.assertTrue(Verse.verse_equal(expected_start_verse11, actual_verses[0]))
+        self.assertTrue(Verse.verse_equal(expected_end_verse11, actual_verses[-1]))
+
+        verse_string12 = "Jude - Revelation 1"
+        expected_start_verse12 = Verse(64, 0, 0)
+        expected_end_verse12 = Verse(65, 0, 19)
+        actual_verses = Passage.reference_to_verses(verse_string12)
+        self.assertTrue(Verse.verse_equal(expected_start_verse12, actual_verses[0]))
+        self.assertTrue(Verse.verse_equal(expected_end_verse12, actual_verses[-1]))
 
     def test_validate_verse_pair(self):
         # Job 1:11
