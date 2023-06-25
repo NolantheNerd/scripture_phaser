@@ -20,7 +20,7 @@ class BaseAgent:
         raise NotImplementedError("Child agent must implement _fetch()")
 
     def _clean(self, text):
-        raise NotImplementedError("Child agent must implement _clean()")
+        return text
 
     def _split(self, text):
         return text
@@ -45,7 +45,7 @@ class ESVAPIAgent(BaseAgent):
         self.api_key = api_key
 
         super().__init__(
-            agent=Agents.ESVAPI,
+            agent=Agents.ESVAPI
         )
 
     def _fetch(self, ref):
@@ -78,6 +78,34 @@ class ESVAPIAgent(BaseAgent):
 
     def _split(self, text):
         verse_number_pattern = re.compile(r" *\[[0-9]+\] *")
+
+        # Always starts with a verse marker leaving the 0th element empty
+        return re.split(verse_number_pattern, text)[1:]
+
+class KJVAPIAgent(BaseAgent):
+    def __init__(self):
+        self.api = Agents.KJVAPI.value
+
+        super().__init__(
+            agent=Agents.KJVAPI
+        )
+
+    def _fetch(self, ref):
+        params = {
+            "translation": "kjv",
+            "verse_numbers": True
+        }
+        resp = requests.get(f"{self.api}{ref}", params=params).json()
+        return resp["text"]
+
+    def _clean(self, text):
+        # Bible-API Always Keeps 1 "\n" at the end of the returned text
+        text = text[:-1]
+
+        return text
+
+    def _split(self, text):
+        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
 
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]

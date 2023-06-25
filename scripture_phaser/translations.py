@@ -50,7 +50,7 @@ class KJV(BaseTranslation):
         super().__init__(
             name = Translations.KJV,
             source="https://www.kingjamesbibleonline.org/",
-            api="https://www.biblegateway.com/passage/?version=KJV"
+            api="https://bible-api.com/"
         )
 
 class NKJV(BaseTranslation):
