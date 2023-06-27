@@ -2,13 +2,16 @@ import webbrowser
 from dotenv import dotenv_values
 from scripture_phaser.enums import App
 from scripture_phaser.enums import Translations
+from scripture_phaser.agents import KJVAPIAgent
+from scripture_phaser.agents import WEBAPIAgent
+from scripture_phaser.agents import BBEAPIAgent
 from scripture_phaser.agents import ESVAPIAgent
 from scripture_phaser.agents import ESVBibleGatewayAgent
 from xdg.BaseDirectory import load_first_config
 
 class BaseTranslation:
     def __init__(self, name, source, agent):
-        self.name = name
+        self.name=name
         self.source = source
         self.agent = agent
 
@@ -37,66 +40,75 @@ class ESV(BaseTranslation):
                 agent=ESVBibleGatewayAgent
             )
 
-class NIV(BaseTranslation):
-    def __init__(self):
-        super().__init__(
-            name = Translations.NIV,
-            source="https://thenivbible.com",
-            api="https://www.biblegateway.com/passage/?version=NIV"
-        )
-
 class KJV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name = Translations.KJV,
+            name=Translations.KJV,
             source="https://www.kingjamesbibleonline.org/",
-            api="https://bible-api.com/"
+            agent=KJVAPIAgent()
+        )
+
+class WEB(BaseTranslation):
+    def __init__(self):
+        super().__init__(
+            name=Translations.WEB,
+            source="https://worldenglish.bible/",
+            agent=WEBAPIAgent()
+        )
+
+class BBE(BaseTranslation):
+    def __init__(self):
+        super().__init__(
+            name=Translations.BBE,
+            source="https://www.o-bible.com/bbe.html",
+            agent=BBEAPIAgent()
+        )
+
+class NIV(BaseTranslation):
+    def __init__(self):
+        super().__init__(
+            name=Translations.NIV,
+            source="https://thenivbible.com"
         )
 
 class NKJV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name = Translations.NKJV,
-            source="https://www.thomasnelsonbibles.com/nkjv-bible/",
-            api="https://www.biblegateway.com/passage/?version=NKJV"
+            name=Translations.NKJV,
+            source="https://www.thomasnelsonbibles.com/nkjv-bible/"
         )
 
 class NLT(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name = Translations.NLT,
-            source="https://nlt.to/",
-            api="https://www.biblegateway.com/passage/?version=NLT"
+            name=Translations.NLT,
+            source="https://nlt.to/"
         )
 
 class NASB(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name = Translations.NASB,
-            source="https://www.lockman.org/new-american-standard-bible-nasb/",
-            api="https://www.biblegateway.com/passage/?version=NASB"
+            name=Translations.NASB,
+            source="https://www.lockman.org/new-american-standard-bible-nasb/"
         )
 
 class RSV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name = Translations.RSV,
-            source="https://rsv.friendshippress.org/",
-            api="https://www.biblegateway.com/passage/?version=RSV"
+            name=Translations.RSV,
+            source="https://rsv.friendshippress.org/"
         )
 
 class NCV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name = Translations.NCV,
-            source="https://www.thomasnelsonbibles.com/ncv/",
-            api="https://www.biblegateway.com/passage/?version=NCV"
+            name=Translations.NCV,
+            source="https://www.thomasnelsonbibles.com/ncv/"
         )
 
 class MSG(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name = Translations.MSG,
-            source="https://messagebible.com/",
-            api="https://www.biblegateway.com/passage/?version=MSG"
+            name=Translations.MSG,
+            source="https://messagebible.com/"
         )
