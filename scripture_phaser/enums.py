@@ -13,12 +13,15 @@ class Translations(enum.Enum):
     RSV = "Revised Standard Version"
     NCV = "New Century Version"
     MSG = "The Message"
+    WEB = "World English Bible"
+    BBE = "Bible in Basic English"
 
 class Agents(enum.Enum):
     BibleGateway = "https://www.biblegateway.com/passage/?"
     ESVAPI = "https://api.esv.org/v3/passage/text/?"
     KJVAPI = "https://bible-api.com/"
     WEBAPI = "https://bible-api.com/"
+    BBEAPI = "https://bible-api.com/"
 
 Genesis = [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27,
            33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 55, 32, 20, 31,

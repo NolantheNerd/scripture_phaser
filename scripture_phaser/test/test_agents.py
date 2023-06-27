@@ -7,6 +7,7 @@ from scripture_phaser.agents import BaseAgent
 from scripture_phaser.agents import ESVAPIAgent
 from scripture_phaser.agents import KJVAPIAgent
 from scripture_phaser.agents import WEBAPIAgent
+from scripture_phaser.agents import BBEAPIAgent
 from xdg.BaseDirectory import load_first_config
 
 class AgentsTests(unittest.TestCase):
@@ -138,6 +139,35 @@ class AgentsTests(unittest.TestCase):
             "Blessed be the God and Father of our Lord Jesus Christ, who according to his great mercy caused us to be born again to a living hope through the resurrection of Jesus Christ from the dead,\n",
             "to an incorruptible and undefiled inheritance that doesn’t fade away, reserved in Heaven for you,\n",
         "who by the power of God are guarded through faith for a salvation ready to be revealed in the last time."
+        ]
+
+        self.assertEqual(agent.get(ref), expected_split)
+
+    def test_bbe_agent(self):
+        agent = BBEAPIAgent()
+        ref = "1 Peter 1:1-5"
+
+        raw_return = "(1) Peter, an Apostle of Jesus Christ, to the saints who " + \
+        "are living in Pontus, Galatia, Cappadocia, Asia, and Bithynia,(2) Who, " + \
+        "through the purpose of God, have been made holy by the Spirit, " + \
+        "disciples of Jesus, made clean by his blood: May you have grace and " + \
+        "peace in full measure.(3) Praise be to the God and Father of our Lord " + \
+        "Jesus Christ, who through his great mercy has given us a new birth and " + \
+        "a living hope by the coming again of Jesus Christ from the dead,(4) And " + \
+        "a heritage fair, holy and for ever new, waiting in heaven for you,(5) " + \
+        "Who, by the power of God are kept, through faith, for that salvation, " + \
+        "which will be seen at the last day. "
+
+        agent._fetch = MagicMock(return_value=raw_return)
+        expected_clean = raw_return
+        self.assertEqual(agent._clean(raw_return), expected_clean)
+
+        expected_split = [
+            "Peter, an Apostle of Jesus Christ, to the saints who are living in Pontus, Galatia, Cappadocia, Asia, and Bithynia,",
+            "Who, through the purpose of God, have been made holy by the Spirit, disciples of Jesus, made clean by his blood: May you have grace and peace in full measure.",
+            "Praise be to the God and Father of our Lord Jesus Christ, who through his great mercy has given us a new birth and a living hope by the coming again of Jesus Christ from the dead,",
+            "And a heritage fair, holy and for ever new, waiting in heaven for you,",
+            "Who, by the power of God are kept, through faith, for that salvation, which will be seen at the last day. "
         ]
 
         self.assertEqual(agent.get(ref), expected_split)

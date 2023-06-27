@@ -137,3 +137,28 @@ class WEBAPIAgent(BaseAgent):
 
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
+
+class BBEAPIAgent(BaseAgent):
+    def __init__(self):
+        self.api = Agents.BBEAPI.value
+
+        super().__init__(
+            agent=Agents.BBEAPI
+        )
+
+    def _fetch(self, ref):
+        params = {
+            "translation": "bbe",
+            "verse_numbers": True
+        }
+        resp = requests.get(f"{self.api}{ref}", params=params).json()
+        return resp["text"]
+
+    def _clean(self, text):
+        return text
+
+    def _split(self, text):
+        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
+
+        # Always starts with a verse marker leaving the 0th element empty
+        return re.split(verse_number_pattern, text)[1:]
