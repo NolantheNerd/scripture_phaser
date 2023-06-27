@@ -109,3 +109,31 @@ class KJVAPIAgent(BaseAgent):
 
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
+
+class WEBAPIAgent(BaseAgent):
+    def __init__(self):
+        self.api = Agents.WEBAPI.value
+
+        super().__init__(
+            agent=Agents.WEBAPI
+        )
+
+    def _fetch(self, ref):
+        params = {
+            "translation": "web",
+            "verse_numbers": True
+        }
+        resp = requests.get(f"{self.api}{ref}", params=params).json()
+        return resp["text"]
+
+    def _clean(self, text):
+        # Bible-API Always Keeps 1 "\n" at the end of the returned text
+        text = text[:-1]
+
+        return text
+
+    def _split(self, text):
+        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
+
+        # Always starts with a verse marker leaving the 0th element empty
+        return re.split(verse_number_pattern, text)[1:]

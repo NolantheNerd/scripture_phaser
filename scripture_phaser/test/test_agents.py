@@ -6,6 +6,7 @@ from scripture_phaser.verse import Verse
 from scripture_phaser.agents import BaseAgent
 from scripture_phaser.agents import ESVAPIAgent
 from scripture_phaser.agents import KJVAPIAgent
+from scripture_phaser.agents import WEBAPIAgent
 from xdg.BaseDirectory import load_first_config
 
 class AgentsTests(unittest.TestCase):
@@ -95,4 +96,48 @@ class AgentsTests(unittest.TestCase):
         'power of God through faith unto salvation ready to be revealed in the ' + \
         'last time.'
         ]
+        self.assertEqual(agent.get(ref), expected_split)
+
+    def test_web_agent(self):
+        agent = WEBAPIAgent()
+        ref = "1 Peter 1:1-5"
+
+        raw_return = "(1) Peter, an apostle of Jesus Christ, to the chosen ones " + \
+        "who are living as foreigners in the Dispersion in Pontus, Galatia, " + \
+        "Cappadocia, Asia, and Bithynia,\n(2) according to the foreknowledge of " + \
+        "God the Father, in sanctification of the Spirit, that you may obey " + \
+        "Jesus Christ and be sprinkled with his blood: Grace to you and peace be " + \
+        "multiplied.\n(3) Blessed be the God and Father of our Lord Jesus " + \
+        "Christ, who according to his great mercy caused us to be born again to " + \
+        "a living hope through the resurrection of Jesus Christ from the " + \
+        "dead,\n(4) to an incorruptible and undefiled inheritance that doesn’t " + \
+        "fade away, reserved in Heaven for you,\n(5) who by the power of God are " + \
+        "guarded through faith for a salvation ready to be revealed in the last " + \
+        "time.\n"
+
+        agent._fetch = MagicMock(return_value=raw_return)
+
+        expected_clean = "(1) Peter, an apostle of Jesus Christ, to the chosen ones " + \
+        "who are living as foreigners in the Dispersion in Pontus, Galatia, " + \
+        "Cappadocia, Asia, and Bithynia,\n(2) according to the foreknowledge of " + \
+        "God the Father, in sanctification of the Spirit, that you may obey " + \
+        "Jesus Christ and be sprinkled with his blood: Grace to you and peace be " + \
+        "multiplied.\n(3) Blessed be the God and Father of our Lord Jesus " + \
+        "Christ, who according to his great mercy caused us to be born again to " + \
+        "a living hope through the resurrection of Jesus Christ from the " + \
+        "dead,\n(4) to an incorruptible and undefiled inheritance that doesn’t " + \
+        "fade away, reserved in Heaven for you,\n(5) who by the power of God are " + \
+        "guarded through faith for a salvation ready to be revealed in the last " + \
+        "time."
+
+        self.assertEqual(agent._clean(raw_return), expected_clean)
+
+        expected_split = [
+            "Peter, an apostle of Jesus Christ, to the chosen ones who are living as foreigners in the Dispersion in Pontus, Galatia, Cappadocia, Asia, and Bithynia,\n",
+            "according to the foreknowledge of God the Father, in sanctification of the Spirit, that you may obey Jesus Christ and be sprinkled with his blood: Grace to you and peace be multiplied.\n",
+            "Blessed be the God and Father of our Lord Jesus Christ, who according to his great mercy caused us to be born again to a living hope through the resurrection of Jesus Christ from the dead,\n",
+            "to an incorruptible and undefiled inheritance that doesn’t fade away, reserved in Heaven for you,\n",
+        "who by the power of God are guarded through faith for a salvation ready to be revealed in the last time."
+        ]
+
         self.assertEqual(agent.get(ref), expected_split)
