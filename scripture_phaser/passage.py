@@ -1,6 +1,5 @@
 from scripture_phaser.enums import Bible
 from scripture_phaser.verse import Verse
-from scripture_phaser.agents import ESVAPIAgent
 from scripture_phaser.enums import Reverse_Bible_Books
 from scripture_phaser.exceptions import InvalidReference
 
@@ -109,8 +108,8 @@ class Passage:
 
         return new_ref
 
-    @classmethod
-    def reference_to_verses(cls, ref):
+    @staticmethod
+    def interpret_reference(ref):
         # Handle a Single Whole Book Reference [Genesis]
         if ref in Reverse_Bible_Books:
             book1 = Reverse_Bible_Books.get(ref, -1)
@@ -230,6 +229,13 @@ class Passage:
             # More than One Split is No Good (two+ "-")
             else:
                 raise InvalidReference(ref)
+
+        return book1, chapter1, verse1, book2, chapter2, verse2
+
+    @classmethod
+    def reference_to_verses(cls, ref):
+        book1, chapter1, verse1, \
+            book2, chapter2, verse2 = cls.interpret_reference(ref)
 
         first_verse = Verse(book1, chapter1, verse1)
         last_verse = Verse(book2, chapter2, verse2)

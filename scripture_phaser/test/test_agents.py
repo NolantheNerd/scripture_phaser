@@ -3,7 +3,6 @@ from dotenv import dotenv_values
 from unittest.mock import MagicMock
 from scripture_phaser.enums import App
 from scripture_phaser.verse import Verse
-from scripture_phaser.agents import BaseAgent
 from scripture_phaser.agents import ESVAPIAgent
 from scripture_phaser.agents import KJVAPIAgent
 from scripture_phaser.agents import WEBAPIAgent
@@ -45,7 +44,7 @@ class AgentsTests(unittest.TestCase):
 
         self.assertEqual(agent.get(ref), expected_output)
 
-    def test_kjv_agent(self):
+    def test_kjvapi_agent(self):
         agent = KJVAPIAgent()
         ref = "1 Peter 1:1-5"
 
@@ -99,7 +98,7 @@ class AgentsTests(unittest.TestCase):
         ]
         self.assertEqual(agent.get(ref), expected_split)
 
-    def test_web_agent(self):
+    def test_webapi_agent(self):
         agent = WEBAPIAgent()
         ref = "1 Peter 1:1-5"
 
@@ -143,7 +142,7 @@ class AgentsTests(unittest.TestCase):
 
         self.assertEqual(agent.get(ref), expected_split)
 
-    def test_bbe_agent(self):
+    def test_bbeapi_agent(self):
         agent = BBEAPIAgent()
         ref = "1 Peter 1:1-5"
 

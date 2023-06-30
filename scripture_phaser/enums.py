@@ -17,7 +17,8 @@ class Translations(enum.Enum):
     BBE = "Bible in Basic English"
 
 class Agents(enum.Enum):
-    BibleGateway = "https://www.biblegateway.com/passage/?"
+    ESVBGW = "ESV"
+    NIVBGW = "NIV"
     ESVAPI = "https://api.esv.org/v3/passage/text/?"
     KJVAPI = "https://bible-api.com/"
     WEBAPI = "https://bible-api.com/"

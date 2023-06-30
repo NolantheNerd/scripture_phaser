@@ -1,20 +1,18 @@
 import re
 import requests
 from unicodedata import normalize
-from xdg.BaseDirectory import save_data_path
-from xdg.BaseDirectory import save_config_path
-from scripture_phaser.enums import App
-from scripture_phaser.enums import Bible
 from scripture_phaser.enums import Agents
 from scripture_phaser.enums import Translations
 from scripture_phaser.verse import Verse
+from scripture_phaser.enums import Bible
+from scripture_phaser.enums import Bible_Books
 from scripture_phaser.enums import Reverse_Bible_Books
+from scripture_phaser.passage import Passage
+from meaningless.bible_web_extractor import WebExtractor
 
-class BaseAgent:
+class BaseAPIAgent:
     def __init__(self, agent):
         self.agent = agent
-        self.data_path = save_data_path(App.Name.value)
-        self.config_path = save_config_path(App.Name.value)
 
     def _fetch(self, ref):
         raise NotImplementedError("Child agent must implement _fetch()")
@@ -28,18 +26,7 @@ class BaseAgent:
     def get(self, ref):
         return self._split(self._clean(self._fetch(ref)))
 
-class BibleGatewayAgent(BaseAgent):
-    def __init__(self):
-        super().__init__(
-            agent=Agents.BibleGateway
-        )
-
-class ESVBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
-        super().__init__()
-        self.api = "https://www.biblegateway.com/passage/?version=ESV"
-
-class ESVAPIAgent(BaseAgent):
+class ESVAPIAgent(BaseAPIAgent):
     def __init__(self, api_key):
         self.api = Agents.ESVAPI.value
         self.api_key = api_key
@@ -82,7 +69,7 @@ class ESVAPIAgent(BaseAgent):
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
 
-class KJVAPIAgent(BaseAgent):
+class KJVAPIAgent(BaseAPIAgent):
     def __init__(self):
         self.api = Agents.KJVAPI.value
 
@@ -110,7 +97,7 @@ class KJVAPIAgent(BaseAgent):
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
 
-class WEBAPIAgent(BaseAgent):
+class WEBAPIAgent(BaseAPIAgent):
     def __init__(self):
         self.api = Agents.WEBAPI.value
 
@@ -138,7 +125,7 @@ class WEBAPIAgent(BaseAgent):
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
 
-class BBEAPIAgent(BaseAgent):
+class BBEAPIAgent(BaseAPIAgent):
     def __init__(self):
         self.api = Agents.BBEAPI.value
 
@@ -162,3 +149,61 @@ class BBEAPIAgent(BaseAgent):
 
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
+
+class BibleGatewayAgent:
+    def __init__(self, agent):
+        self.agent = agent
+        self.xtcr = WebExtractor(
+            translation=self.agent.value,
+            show_passage_numbers=False,
+            output_as_list=True,
+            strip_excess_whitespace_from_list=True,
+            use_ascii_punctuation=True
+        )
+
+    def get(self, ref):
+        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(ref)
+
+        if b1 == b2:
+            return self.xtcr.get_passage_range(
+                book=b1,
+                chapter_from=c1,
+                passage_from=v1,
+                chapter_to=c2,
+                passage_to=v2
+            )
+        else:
+            verses = []
+            while b1 != b2:
+                verses.extend(self.xtcr.get_passage_range(
+                        book=b1,
+                        chapter_from=c1,
+                        passage_from=v1,
+                        chapter_to=len(Bible[b1]),
+                        passage_to=Bible[b1][-1]
+                    )
+                )
+                b1 = Bible_Books[Reverse_Bible_Books[b1] + 1]
+                c1, v1 = 0, 0
+
+            verses.extend(self.xtcr.get_passage_range(
+                    book=b1,
+                    chapter_from=c1,
+                    passage_from=v1,
+                    chapter_to=c2,
+                    passage_to=v2
+                )
+            )
+            return verses
+
+class ESVBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__(
+            agent=Agents.ESVBGW
+        )
+
+class NIVBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__(
+            agent=Agents.NIVBGW
+        )
