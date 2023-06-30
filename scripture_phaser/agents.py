@@ -207,3 +207,27 @@ class NIVBibleGatewayAgent(BibleGatewayAgent):
         super().__init__(
             agent=Agents.NIVBGW
         )
+
+class NKJVBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__(
+            agent=Agents.NKJVBGW
+        )
+
+class NLTBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__(
+            agent=Agents.NLTBGW
+        )
+
+class NASBBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__(
+            agent=Agents.NASBBGW
+        )
+
+class NRSVBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__(
+            agent=Agents.NRSVBGW
+        )

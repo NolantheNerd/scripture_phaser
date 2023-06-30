@@ -7,6 +7,11 @@ from scripture_phaser.agents import WEBAPIAgent
 from scripture_phaser.agents import BBEAPIAgent
 from scripture_phaser.agents import ESVAPIAgent
 from scripture_phaser.agents import ESVBibleGatewayAgent
+from scripture_phaser.agents import NIVBibleGatewayAgent
+from scripture_phaser.agents import NKJVBibleGatewayAgent
+from scripture_phaser.agents import NLTBibleGatewayAgent
+from scripture_phaser.agents import NASBBibleGatewayAgent
+from scripture_phaser.agents import NRSVBibleGatewayAgent
 from xdg.BaseDirectory import load_first_config
 
 class BaseTranslation:
@@ -68,47 +73,38 @@ class NIV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NIV,
-            source="https://thenivbible.com"
+            source="https://thenivbible.com",
+            agent=NIVBibleGatewayAgent()
         )
 
 class NKJV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NKJV,
-            source="https://www.thomasnelsonbibles.com/nkjv-bible/"
+            source="https://www.thomasnelsonbibles.com/nkjv-bible/",
+            agent=NKJVBibleGatewayAgent()
         )
 
 class NLT(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NLT,
-            source="https://nlt.to/"
+            source="https://nlt.to/",
+            agent=NLTBibleGatewayAgent()
         )
 
 class NASB(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NASB,
-            source="https://www.lockman.org/new-american-standard-bible-nasb/"
+            source="https://www.lockman.org/new-american-standard-bible-nasb/",
+            agent=NASBBibleGatewayAgent()
         )
 
-class RSV(BaseTranslation):
+class NRSV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.RSV,
-            source="https://rsv.friendshippress.org/"
-        )
-
-class NCV(BaseTranslation):
-    def __init__(self):
-        super().__init__(
-            name=Translations.NCV,
-            source="https://www.thomasnelsonbibles.com/ncv/"
-        )
-
-class MSG(BaseTranslation):
-    def __init__(self):
-        super().__init__(
-            name=Translations.MSG,
-            source="https://messagebible.com/"
+            source="https://www.friendshippress.org/pages/about-the-nrsvue",
+            agent=NRSVBibleGatewayAgent()
         )
