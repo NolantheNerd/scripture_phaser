@@ -2,7 +2,13 @@ import unittest
 from scripture_phaser.verse import Verse
 
 class VerseTests(unittest.TestCase):
+    """
+    Test the Verse Object
+    """
     def test_validate(self):
+        """
+        Are illegitimate verses uninstantiatable?
+        """
         # Job 1:1
         ref1 = Verse(17, 0, 0)
         # Psalm 151:1
@@ -21,6 +27,9 @@ class VerseTests(unittest.TestCase):
         self.assertFalse(Verse.validate(ref5))
 
     def test_show(self):
+        """
+        Do verses preview correctly?
+        """
         # John 11:35
         text = "Jesus wept."
         verse = Verse(42, 10, 34, text)

@@ -5,7 +5,13 @@ from scripture_phaser.passage import Passage
 from scripture_phaser.translations import ESV
 
 class PassageTests(unittest.TestCase):
+    """
+    Test the Passage Object
+    """
     def test_clean_reference(self):
+        """
+        Can reference strings be standardized?
+        """
         verse_string1 = "1 John 3:5"
         expected_string1 = "One John 3:5"
         actual_string1 = Passage.clean_reference(
@@ -71,6 +77,9 @@ class PassageTests(unittest.TestCase):
         self.assertEqual(actual_string8, expected_string8)
 
     def test_interpret_reference(self):
+        """
+        Can verse strings be interpreted?
+        """
         verse_string1 = "One John 3:5"
         eb1, ec1, ev1, eb2, ec2, ev2 = 61, 2, 4, 61, 2, 4
         b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string1)
@@ -192,6 +201,9 @@ class PassageTests(unittest.TestCase):
         self.assertEqual(ev2, v2)
 
     def test_reference_to_verses(self):
+        """
+        Can reference strings be converted to Verse() objects?
+        """
         verse_string1 = "One John 3:5"
         actual_verses = Passage.reference_to_verses(verse_string1)
         self.assertEqual(len(actual_verses), 1)
@@ -241,6 +253,9 @@ class PassageTests(unittest.TestCase):
         self.assertEqual(len(actual_verses), 45)
 
     def test_validate_verse_pair(self):
+        """
+        Are invalid verse ranges rejected?
+        """
         # Job 1:11
         ref1 = Verse(17, 0, 10)
         # Job 1:12
@@ -268,6 +283,9 @@ class PassageTests(unittest.TestCase):
         self.assertTrue(Passage.validate_verse_pair(ref4, ref4))
 
     def test_populate(self):
+        """
+        Can a passage be properly populated?
+        """
         reference = "John 1:1 - 1:5"
         translation = ESV()
         passage = Passage(reference, translation)
@@ -295,6 +313,9 @@ class PassageTests(unittest.TestCase):
             self.assertTrue(Verse.verse_equal(expected_verses[i], passage.verses[i]))
 
     def test_show(self):
+        """
+        Do passages display their content properly?
+        """
         reference = "1 Peter 1:2 - 1:3"
         translation = ESV()
         passage = Passage(reference, translation)

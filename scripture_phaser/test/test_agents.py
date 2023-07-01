@@ -10,7 +10,13 @@ from scripture_phaser.agents import BBEAPIAgent
 from xdg.BaseDirectory import load_first_config
 
 class AgentsTests(unittest.TestCase):
+    """
+    Test the Agent Object
+    """
     def test_esvapi_agent(self):
+        """
+        Can api.esv.org responses be versified?
+        """
         esv_api_key = dotenv_values(
             load_first_config(App.Name.value) + "/config"
         ).get("ESV_API_KEY", None)
@@ -45,6 +51,9 @@ class AgentsTests(unittest.TestCase):
         self.assertEqual(agent.get(ref), expected_output)
 
     def test_kjvapi_agent(self):
+        """
+        Can bible-api.com responses be versified (KJV)?
+        """
         agent = KJVAPIAgent()
         ref = "1 Peter 1:1-5"
 
@@ -99,6 +108,9 @@ class AgentsTests(unittest.TestCase):
         self.assertEqual(agent.get(ref), expected_split)
 
     def test_webapi_agent(self):
+        """
+        Can bible-api.com responses be versified (WEB)?
+        """
         agent = WEBAPIAgent()
         ref = "1 Peter 1:1-5"
 
@@ -143,6 +155,9 @@ class AgentsTests(unittest.TestCase):
         self.assertEqual(agent.get(ref), expected_split)
 
     def test_bbeapi_agent(self):
+        """
+        Can bible-api.com responses be versified (BBE)?
+        """
         agent = BBEAPIAgent()
         ref = "1 Peter 1:1-5"
 
