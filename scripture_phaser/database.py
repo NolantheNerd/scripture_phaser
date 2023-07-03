@@ -32,18 +32,45 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import sqlite3
+from scripture_phaser.enmus import App
+from xdg.BaseDirectory import save_data_path
 
-class Recital:
-    def __init__(self, passage):
-        self.passage = passage
-        self.status = "INCOMPLETE"
-        self.create()
+class Database:
+    def __init__(self):
+        self.path = save_data_path(App.Name.value) + "/attempt_db"
+        if not os.path.isfile(self.path):
+            self._create_db()
 
-    def create(self):
-        pass
+    def get_cursor(self):
+        return sqlite3.connect(self.path).cursor()
 
-    def grade(self):
-        pass
+    def _create_db(self):
+        cur = self.get_cursor()
+        sql = f"""
+        create table Attempts (
+            ID int,
+            Timestamp text,
+            Mode text,
+            Reference text,
+            Score real,
+            Attempt text,
+            Diff text
+        );
+        """
+        cur.execute(sql)
+        cur.commit()
 
-    def save(self):
-        pass
+    def add_attempt(self, attempt):
+        cur = self.get_cursor()
+        sql = f"insert into Attempts values {attempt._serialize()};"
+        cur.execute(sql)
+        cur.commit()
+
+    def get_attempts(self, selector):
+        cur = self.get_cursor()
+        sql = f"select {selector} from Attempts;"
+        return cur.execute(sql)
+
+    def reset(self):
+        os.remove(self.path)

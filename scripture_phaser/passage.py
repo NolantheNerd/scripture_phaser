@@ -45,9 +45,10 @@ class Passage:
         )
         self.populated = False
 
-    def populate(self):
+    def populate(self, texts=None):
         self.populated = True
-        texts = self.translation.agent.get(self.reference)
+        if texts is None:
+            texts = self.translation.agent.get(self.reference)
         for verse, text in zip(self.verses, texts):
             verse.initialize(text)
 

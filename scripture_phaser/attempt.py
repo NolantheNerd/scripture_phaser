@@ -31,14 +31,36 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-class InvalidReference(Exception):
-    def __init__(self, ref_string):
-        Exception.__init__(self, f"{ref_string} is not a valid Bible reference")
+import os
+import difflib
+import datetime
 
-class InvalidReferenceFormat(Exception):
-    def __init__(self):
-        Exception.__init__(self, "Invalid reference format; make sure there is a space between the book name and chapter number")
+class Attempt:
+    def __init__(self, passage, mode, ident)
+        self.mode = mode
+        self.passage = passage
+        self.reference = self.passage.reference
+        self.ident = ident
 
-class InvalidTranslation(Exception):
-    def __init__(self, translation):
-        Exception.__init__(self, f"{translation} is not a valid translation.")
+    def complete(self, text):
+        self.text = text
+        self.dt = datetime.now()
+        self._grade()
+
+    def _grade(self):
+        result = list(difflib.Differ().compare(self.passage.show(), self.text))
+        self.score = 0 # TODO: Figure out a scoring algorithm
+        self.result = "".join(result)
+
+    def _serialize(self):
+        return f"""
+        (
+        {self.ident},
+        {self.dt},
+        {self.mode},
+        {self.reference},
+        {self.score},
+        {self.text},
+        {self.result}
+        )
+        """
