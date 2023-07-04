@@ -33,7 +33,7 @@
 
 import os
 import sqlite3
-from scripture_phaser.enmus import App
+from scripture_phaser.enums import App
 from xdg.BaseDirectory import save_data_path
 
 class Database:
@@ -41,12 +41,10 @@ class Database:
         self.path = save_data_path(App.Name.value) + "/attempt_db"
         if not os.path.isfile(self.path):
             self._create_db()
-
-    def get_cursor(self):
-        return sqlite3.connect(self.path).cursor()
+        self.con = sqlite3.connect(self.path)
+        self.cur = self.con.cursor()
 
     def _create_db(self):
-        cur = self.get_cursor()
         sql = f"""
         create table Attempts (
             ID int,
@@ -58,19 +56,17 @@ class Database:
             Diff text
         );
         """
-        cur.execute(sql)
-        cur.commit()
+        self.cur.execute(sql)
+        self.cur.commit()
 
     def add_attempt(self, attempt):
-        cur = self.get_cursor()
         sql = f"insert into Attempts values {attempt._serialize()};"
-        cur.execute(sql)
-        cur.commit()
+        self.cur.execute(sql)
+        self.cur.commit()
 
     def get_attempts(self, selector):
-        cur = self.get_cursor()
         sql = f"select {selector} from Attempts;"
-        return cur.execute(sql)
+        return self.cur.execute(sql)
 
     def reset(self):
         os.remove(self.path)

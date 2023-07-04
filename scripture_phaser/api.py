@@ -33,11 +33,12 @@
 
 import random
 from dotenv import dotenv_values
+from scripture_phaser.enums import App
 from scripture_phaser.passage import Passage
 from scripture_phaser.attempt import Attempt
 from scripture_phaser.database import Database
 from scripture_phaser.enums import Translations
-from xdb.BaseDirectory import load_first_config
+from xdg.BaseDirectory import load_first_config
 from scripture_phaser.exceptions import InvalidTranslation
 
 class API:
@@ -55,7 +56,7 @@ class API:
     def random_mode(self):
         return self._random_mode
 
-    @mode.setter
+    @random_mode.setter
     def mode(self, random_mode):
         self._random_mode = random_mode
 
@@ -68,24 +69,25 @@ class API:
 
     @translation.setter
     def translation(self, translation):
-        if translation not in self.list_translations:
+        if translation not in self.list_translations():
             raise InvalidTranslation(translation)
         else:
             self._translation = translation
 
+    def get_random_verse(self):
+        verse = random.choice(self.passage.verses)
+        verse_passage = Passage(verse.reference, self.translation)
+        verse_passage.populate([verse.text])
+        return verse_passage
+
     @property
     def passage(self):
-        if self.random_mode:
-            verse = random.choices(self._passage.verses)
-            random_passage = Passage(verse.reference, self.translation)
-            random_passage.populate([verse.text])
-            return random_passage
-        else:
-            return self._passage
+        return self._passage
 
-    @passages.setter
-    def passage(self, passage):
-        self.passages = Passage(reference, self.translation)
+    @passage.setter
+    def passage(self, reference):
+        self._passage = Passage(reference, self.translation)
+        self._passage.populate()
 
     def new_attempt(self):
         ident = len(self.db) # LOL Fix this

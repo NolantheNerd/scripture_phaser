@@ -31,36 +31,49 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import difflib
-import datetime
+import random
+import unittest
+from scripture_phaser.api import API
+from scripture_phaser.verse import Verse
+from scripture_phaser.passage import Passage
+from scripture_phaser.translations import ESV
+from scripture_phaser.exceptions import InvalidTranslation
 
-class Attempt:
-    def __init__(self, passage, mode, ident):
-        self.mode = mode
-        self.passage = passage
-        self.reference = self.passage.reference
-        self.ident = ident
-
-    def complete(self, text):
-        self.text = text
-        self.dt = datetime.now()
-        self._grade()
-
-    def _grade(self):
-        result = list(difflib.Differ().compare(self.passage.show(), self.text))
-        self.score = 0 # TODO: Figure out a scoring algorithm
-        self.result = "".join(result)
-
-    def _serialize(self):
-        return f"""
-        (
-        {self.ident},
-        {self.dt},
-        {self.mode},
-        {self.reference},
-        {self.score},
-        {self.text},
-        {self.result}
-        )
+class APITests(unittest.TestCase):
+    """
+    Test Backend API
+    """
+    def test_translation_setter(self):
         """
+        Are invalid translation selections rejected?
+        """
+        api = API()
+        with self.assertRaises(InvalidTranslation):
+            bad_translation = "EESV"
+            api.translation = bad_translation
+
+    def test_get_random_verse(self):
+        """
+        Can random verses be selected from a passage?
+        """
+        ref = "John 1:1-5"
+        translation = ESV()
+
+        raw_list = [
+        'In the beginning was the Word, and the Word was with God, and the ' +
+        'Word was God.',
+        'He was in the beginning with God.',
+        'All things were made through him, and without him was not any ' +
+        'thing made that was made.',
+        'In him was life, and the life was the light of men.',
+        'The light shines in the darkness, and the darkness has not overcome it.'
+        ]
+
+        passage = Passage(ref, translation)
+        passage.populate(raw_list)
+
+        api = API()
+        api._passage = passage # "Mocking" the Passage Property
+
+        random.seed(45)
+        self.assertEqual(api.get_random_verse().reference, "John 1:3")
