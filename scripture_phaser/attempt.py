@@ -44,13 +44,22 @@ class Attempt:
 
     def complete(self, text):
         self.text = text
-        self.dt = datetime.now()
+        self.dt = datetime.datetime.now()
         self._grade()
 
     def _grade(self):
-        result = list(difflib.Differ().compare(self.passage.show(), self.text))
-        self.score = 0 # TODO: Figure out a scoring algorithm
-        self.result = "".join(result)
+        ans = self.passage.show()
+        if self.text == ans:
+            self.score = 100
+            self.result = ""
+        else:
+            ans_words = ans.split()
+            text_words = self.text.split()
+            result = list(difflib.Differ().compare(ans_words, text_words))
+            self.score = 100 - len([
+                word for word in result if word.startswith("+ ") or word.startswith("- ")
+            ])
+            self.result = "".join(result)
 
     def _serialize(self):
         return f"""
