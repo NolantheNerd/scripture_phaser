@@ -31,45 +31,28 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import difflib
-import datetime
+import unittest
+from unittest.mock import MagicMock
+from scripture_phaser.attempt import Attempt
 
-class Attempt:
-    def __init__(self, passage, mode, ident):
-        self.mode = mode
-        self.passage = passage
-        self.reference = self.passage.reference
-        self.ident = ident
-
-    def complete(self, text):
-        self.text = text
-        self.dt = datetime.datetime.now()
-        self._grade()
-
-    def _grade(self):
-        ans = self.passage.show()
-        if self.text == ans:
-            self.score = 1
-            self.result = ""
-        else:
-            ans_words = ans.split()
-            text_words = self.text.split()
-            result = list(difflib.Differ().compare(ans_words, text_words))
-            self.score = max(1 - len([
-                word for word in result if word.startswith("+ ") or word.startswith("- ")
-            ]) / len(ans_words), 0)
-            self.result = "".join(result)
-
-    def _serialize(self):
-        return f"""
-        (
-        {self.ident},
-        {self.dt},
-        {self.mode},
-        {self.reference},
-        {self.score},
-        {self.text},
-        {self.result}
-        )
+class AttemptTests(unittest.TestCase):
+    """
+    Test the Attempt Object
+    """
+    def test_grade(self):
         """
+        Can the correct grade be assigned to an attempt?
+        """
+        correct_string = "This is the correct way to write this string."
+        attempt_string = "This is an attempted way to write this string."
+
+        expected_score = 0.555555555555555
+
+        passage = MagicMock()
+        passage.reference = "2 Hesitations 7:490"
+        passage.show.return_value = correct_string
+
+        attempt = Attempt(passage, True, 1)
+        attempt.complete(attempt_string)
+
+        self.assertAlmostEqual(expected_score, attempt.score)
