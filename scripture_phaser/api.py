@@ -34,9 +34,8 @@
 import random
 from dotenv import dotenv_values
 from scripture_phaser.enums import App
+from scripture_phaser.models import Attempt
 from scripture_phaser.passage import Passage
-from scripture_phaser.attempt import Attempt
-from scripture_phaser.database import Database
 from scripture_phaser.enums import Translations
 from xdg.BaseDirectory import load_first_config
 from scripture_phaser.exceptions import InvalidTranslation
@@ -48,7 +47,6 @@ class API:
         )
         self._translation = self.config["TRANSLATION"]
         self._random_mode = False
-        self.db = Database()
         self._passage = None
         self.attempt = None
 

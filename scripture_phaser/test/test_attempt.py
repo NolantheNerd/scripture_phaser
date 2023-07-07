@@ -33,7 +33,7 @@
 
 import unittest
 from unittest.mock import MagicMock
-from scripture_phaser.attempt import Attempt
+from scripture_phaser.models import Attempt
 
 class AttemptTests(unittest.TestCase):
     """
@@ -52,7 +52,10 @@ class AttemptTests(unittest.TestCase):
         passage.reference = "2 Hesitations 7:490"
         passage.show.return_value = correct_string
 
-        attempt = Attempt(passage, True, 1)
-        attempt.complete(attempt_string)
+        attempt = Attempt(True)
+        attempt.save = MagicMock()
+        attempt.save.return_value = None
+
+        attempt.complete(attempt_string, passage)
 
         self.assertAlmostEqual(expected_score, attempt.score)

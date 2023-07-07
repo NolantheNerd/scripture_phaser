@@ -32,44 +32,17 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import difflib
-import datetime
+from pathlib import Path
+from peewee import SqliteDatabase
+from scripture_phaser.enums import App
+from scripture_phaser.models import AttemptDB
+from xdg.BaseDirectory import save_data_path
 
-class Attempt:
-    def __init__(self, passage, mode, ident):
-        self.mode = mode
-        self.passage = passage
-        self.reference = self.passage.reference
-        self.ident = ident
+class Stats:
+    def __init__(self):
+        db_path = Path(save_data_path(App.Name.value) / App.Database.value)
+        if not os.isfile(db_path):
+            SqliteDatabase(db_path).create_tables([AttemptDB])
 
-    def complete(self, text):
-        self.text = text
-        self.dt = datetime.datetime.now()
-        self._grade()
-
-    def _grade(self):
-        ans = self.passage.show()
-        if self.text == ans:
-            self.score = 1
-            self.result = ""
-        else:
-            ans_words = ans.split()
-            text_words = self.text.split()
-            result = list(difflib.Differ().compare(ans_words, text_words))
-            self.score = max(1 - len([
-                word for word in result if word.startswith("+ ") or word.startswith("- ")
-            ]) / len(ans_words), 0)
-            self.result = "".join(result)
-
-    def _serialize(self):
-        return f"""
-        (
-        {self.ident},
-        {self.dt},
-        {self.mode},
-        {self.reference},
-        {self.score},
-        {self.text},
-        {self.result}
-        )
-        """
+    def add_attempt(self, new_attempt):
+        

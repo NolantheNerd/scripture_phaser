@@ -31,42 +31,50 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import sqlite3
+import difflib
+import datetime
+from pathlib import Path
+from peewee import Model
+from peewee import TextField
+from peewee import CharField
+from peewee import FloatField
+from peewee import BooleanField
+from peewee import DateTimeField
+from peewee import SqliteDatabase
 from scripture_phaser.enums import App
 from xdg.BaseDirectory import save_data_path
 
-class Database:
-    def __init__(self):
-        self.path = save_data_path(App.Name.value) + "/attempt_db"
-        if not os.path.isfile(self.path):
-            self._create_db()
-        self.con = sqlite3.connect(self.path)
-        self.cur = self.con.cursor()
+class Attempt(Model):
+    datetime = DateTimeField()
+    random_mode = BooleanField()
+    reference = CharField()
+    score = FloatField()
+    attempt = TextField()
+    diff = TextField()
 
-    def _create_db(self):
-        sql = f"""
-        create table Attempts (
-            ID int,
-            Timestamp text,
-            Mode text,
-            Reference text,
-            Score real,
-            Attempt text,
-            Diff text
-        );
-        """
-        self.cur.execute(sql)
-        self.cur.commit()
+    class Meta:
+        database = SqliteDatabase(
+            Path(save_data_path(App.Name.value)) / App.Database.value
+                 )
 
-    def add_attempt(self, attempt):
-        sql = f"insert into Attempts values {attempt._serialize()};"
-        self.cur.execute(sql)
-        self.cur.commit()
+    def complete(self, text, passage):
+        self.text = text
+        self.dt = datetime.datetime.now()
+        result = self._grade(passage)
+        self.save()
+        return result
 
-    def get_attempts(self, selector):
-        sql = f"select {selector} from Attempts;"
-        return self.cur.execute(sql)
-
-    def reset(self):
-        os.remove(self.path)
+    def _grade(self, passage):
+        ans = passage.show()
+        if self.text == ans:
+            self.score = 1
+            result = ""
+        else:
+            ans_words = ans.split()
+            text_words = self.text.split()
+            result = list(difflib.Differ().compare(ans_words, text_words))
+            self.score = max(1 - len([
+                word for word in result if word.startswith("+ ") or word.startswith("- ")
+            ]) / len(ans_words), 0)
+            result = "".join(result)
+        return result

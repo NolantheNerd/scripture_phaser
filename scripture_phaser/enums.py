@@ -35,6 +35,7 @@ import enum
 
 class App(enum.Enum):
     Name = "scripture_phaser"
+    Database = "scripture_phaser_db"
 
 class Translations(enum.Enum):
     ESV = "English Standard Version"
