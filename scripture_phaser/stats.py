@@ -46,3 +46,12 @@ class Stats:
 
     def reset(self):
         os.remove(self._db_path)
+
+    def total_attempts(self):
+        return Attempt.select().count()
+
+    def total_target_attempts(self, reference):
+        return Attempt.select().where(Attempt.reference == reference).count()
+
+    def average_target_score(self, reference):
+        return Attempt.select(Attempt.score).where(Attempt.reference == reference).avg()
