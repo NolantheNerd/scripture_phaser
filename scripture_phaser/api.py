@@ -34,6 +34,7 @@
 import random
 from dotenv import dotenv_values
 from scripture_phaser.enums import App
+from scripture_phaser.stats import Stats
 from scripture_phaser.models import Attempt
 from scripture_phaser.passage import Passage
 from scripture_phaser.enums import Translations
@@ -48,7 +49,7 @@ class API:
         self._translation = self.config["TRANSLATION"]
         self._random_mode = False
         self._passage = None
-        self.attempt = None
+        self.stats = Stats()
 
     @property
     def random_mode(self):
@@ -87,22 +88,21 @@ class API:
         self._passage = Passage(reference, self.translation)
         self._passage.populate()
 
-    def new_attempt(self):
-        ident = len(self.db) # LOL Fix this
-        passage = self.passage
-        self.attempt = attempt(passage, self.random_mode, ident)
-        return self.attempt.reference
+    def new_recitation(self):
+        if self.random_mode:
+            self.target = self.get_random_verse()
+        else:
+            self.target = self.passage
+        return self.target
 
-    def show_attempt(self):
-        return self.attempt.show()
+    def preview_recitation(self, with_verse=False, with_ref=True):
+        return self.target.show(with_verse=with_verse, with_ref=with_ref)
 
-    def complete_attempt(self, text):
-        self.attempt.complete(text)
-        self.db.add_attempt(self.attempt)
-        self.attempt = None
-
-    def get_stats(self):
-        pass
-
-    def reset_db(self):
-        self.db.reset()
+    def complete_recitation(self, text):
+        attempt = Attempt(
+            random_mode=self.random_mode,
+            reference=self.target.reference,
+        )
+        score, diff = attempt.complete(text)
+        attempt.save()
+        return score, diff

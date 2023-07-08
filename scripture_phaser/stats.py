@@ -35,14 +35,14 @@ import os
 from pathlib import Path
 from peewee import SqliteDatabase
 from scripture_phaser.enums import App
-from scripture_phaser.models import AttemptDB
+from scripture_phaser.models import Attempt
 from xdg.BaseDirectory import save_data_path
 
 class Stats:
     def __init__(self):
-        db_path = Path(save_data_path(App.Name.value) / App.Database.value)
-        if not os.isfile(db_path):
-            SqliteDatabase(db_path).create_tables([AttemptDB])
+        self._db_path = Path(save_data_path(App.Name.value)) / App.Database.value
+        if not os.path.isfile(self._db_path):
+            SqliteDatabase(self._db_path).create_tables([Attempt])
 
-    def add_attempt(self, new_attempt):
-        
+    def reset(self):
+        os.remove(self._db_path)

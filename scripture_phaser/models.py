@@ -57,24 +57,23 @@ class Attempt(Model):
             Path(save_data_path(App.Name.value)) / App.Database.value
                  )
 
-    def complete(self, text, passage):
-        self.text = text
-        self.dt = datetime.datetime.now()
-        result = self._grade(passage)
+    def complete(self, attempt, passage):
+        self.attempt = attempt
+        self.datetime = datetime.datetime.now()
+        self._grade(passage)
         self.save()
-        return result
+        return self.score, self.diff
 
     def _grade(self, passage):
         ans = passage.show()
-        if self.text == ans:
+        if self.attempt == ans:
             self.score = 1
-            result = ""
+            self.diff = ""
         else:
             ans_words = ans.split()
-            text_words = self.text.split()
+            text_words = self.attempt.split()
             result = list(difflib.Differ().compare(ans_words, text_words))
             self.score = max(1 - len([
                 word for word in result if word.startswith("+ ") or word.startswith("- ")
             ]) / len(ans_words), 0)
-            result = "".join(result)
-        return result
+            self.diff = "".join(result)
