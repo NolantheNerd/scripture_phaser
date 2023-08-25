@@ -47,17 +47,17 @@ class API:
             load_first_config(App.Name.value) + "/config"
         )
         self._translation = self.config["TRANSLATION"]
-        self._random_mode = False
+        self._mode = False
         self._passage = None
         self.stats = Stats()
 
     @property
-    def random_mode(self):
-        return self._random_mode
+    def mode(self):
+        return self._mode
 
-    @random_mode.setter
+    @mode.setter
     def mode(self, random_mode):
-        self._random_mode = random_mode
+        self._mode = random_mode
 
     def list_translations(self):
         return [translation.name for translation in Translations]
