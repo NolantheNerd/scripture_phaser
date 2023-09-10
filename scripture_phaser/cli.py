@@ -31,12 +31,22 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import pdb
 import os
 import argparse
+from pathlib import Path
+from dotenv import dotenv_values
 from scripture_phaser.api import API
+from scripture_phaser.enums import App
+from xdg.BaseDirectory import xdg_config_home
+from xdg.BaseDirectory import save_config_path
+from xdg.BaseDirectory import load_first_config
 
 class CLI:
     def __init__(self):
+        pdb.set_trace()
+        self.config = self.load_config()
+
         self.parser = argparse.ArgumentParser(
             description="scripture_phaser helps you to memorize the Word of Truth.",
         )
@@ -44,14 +54,14 @@ class CLI:
             "--tui",
             action="store_true",
             required=False,
-            default=False,
+            default=self.config["tui"],
             help="Interact with scripture_phaser through a TUI instead of the CLI",
             dest="tui"
         )
         self.parser.add_argument(
             "--reference",
-            required=False,
-            defualt=None, # @@@ TODO: Perhaps look up values in the config here instead of None?
+            required=False, # @@@ TODO: Make optional if --tui
+            default=self.config["reference"],
             help="The reference that you want to have scripture_phaser help you to commit to memory",
             dest="reference"
         )
@@ -59,14 +69,14 @@ class CLI:
             "--random-mode",
             action="store_true",
             required=False,
-            default=False,
+            default=self.config["random_mode"],
             help="Use to have scripture_phaser randomly prompt you with single verse from your passage",
             dest="mode"
         )
         self.parser.add_argument(
             "--translation",
             required=False,
-            default=None, # @@@ TODO: Perhaps look up values in the config here instead of None?
+            default=self.config["translation"],
             help="The translation to use when evaluating your submissions",
             dest="translation"
         )
@@ -78,3 +88,30 @@ class CLI:
             help="List available translations",
             dest="list_translations"
         )
+        args = self.parser.parse_args()
+
+    def load_config(self):
+        config_path = Path(save_config_path(App.Name.value))
+        config_path /= "config"
+        if not config_path.exists():
+            with open(config_path, "w") as config_file:
+                for default in App.Defaults.value:
+                    config_file.write(f"{default.name}=\"{default.value}\"\n")
+
+        config = dotenv_values(config_path)
+
+        missing_keys = []
+        for default in App.Defaults.value:
+            key = default.name
+            if key not in config:
+                missing_keys.append(key)
+        if len(missing_keys) > 0:
+            with open(config_path, "a") as config_file:
+                for key in missing_keys:
+                    config_file.write(f"{key}=\"{App.Defaults.value[key].value}\"\n")
+                    config[key] = App.Defaults.value[key].value
+
+        return config
+
+if __name__ == "__main__":
+    obj = CLI()

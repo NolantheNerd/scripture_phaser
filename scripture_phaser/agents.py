@@ -31,6 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import pdb
 import re
 import requests
 from unicodedata import normalize
@@ -183,7 +184,10 @@ class BBEAPIAgent(BaseAPIAgent):
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
 
-class BibleGatewayAgent:
+class BibleGatewayAgent(BaseAPIAgent):
+    # @@@ TODO: Start Here ^^^ Maybe Don't Subclass? It's just unpredictability in terms
+    # of which API will be used to return data in the test_show() test in test_passage().
+    # Maybe hard code the agent to use in the test?
     def __init__(self, agent):
         self.agent = agent
         self.xtcr = WebExtractor(
@@ -194,8 +198,15 @@ class BibleGatewayAgent:
             use_ascii_punctuation=True
         )
 
-    def get(self, ref):
+    def _fetch(self, ref):
+        pdb.set_trace()
         b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(ref)
+        b1 = Bible_Books[b1]
+        c1 += 1
+        v1 += 1
+        b2 = Bible_Books[b2]
+        c2 += 1
+        v2 += 1
 
         if b1 == b2:
             return self.xtcr.get_passage_range(

@@ -49,7 +49,7 @@ from xdg.BaseDirectory import load_first_config
 
 class BaseTranslation:
     def __init__(self, name, source, agent):
-        self.name=name
+        self.name = name
         self.source = source
         self.agent = agent
 
@@ -75,7 +75,7 @@ class ESV(BaseTranslation):
             super().__init__(
                 name=Translations.ESV,
                 source="https://www.esv.org",
-                agent=ESVBibleGatewayAgent
+                agent=ESVBibleGatewayAgent()
             )
 
 class KJV(BaseTranslation):

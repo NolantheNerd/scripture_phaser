@@ -32,23 +32,23 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import random
-from dotenv import dotenv_values
 from scripture_phaser.enums import App
 from scripture_phaser.stats import Stats
 from scripture_phaser.models import Attempt
 from scripture_phaser.passage import Passage
 from scripture_phaser.enums import Translations
-from xdg.BaseDirectory import load_first_config
 from scripture_phaser.exceptions import InvalidTranslation
 
 class API:
-    def __init__(self):
-        self.config = dotenv_values(
-            load_first_config(App.Name.value) + "/config"
-        )
-        self._translation = self.config["TRANSLATION"]
-        self._mode = False
-        self._passage = None
+    def __init__(
+        self,
+        translation=App.Defaults.value["translation"].value,
+        mode=App.Defaults.value["random_mode"].value,
+        passage=None
+    ):
+        self._translation = translation
+        self._mode = mode
+        self._passage = passage
         self.stats = Stats()
 
     @property

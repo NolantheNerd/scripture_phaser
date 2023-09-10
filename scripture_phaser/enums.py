@@ -33,9 +33,15 @@
 
 import enum
 
+class _Defaults(enum.Enum):
+    tui = True
+    translation = "NIV"
+    random_mode = False
+
 class App(enum.Enum):
     Name = "scripture_phaser"
     Database = "scripture_phaser_db"
+    Defaults = _Defaults
 
 class Translations(enum.Enum):
     ESV = "English Standard Version"

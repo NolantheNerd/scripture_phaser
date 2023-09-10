@@ -31,10 +31,59 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-pyxdg
-requests
-python-dotenv
-meaningless
-colour-runner
-peewee
-pytermgui
+import pytermgui as ptg
+from scripture_phaser.api import API
+
+class TUI:
+    def __init__(self):
+        self.api = API()
+
+        window = ptg.window_manager.Window(
+            title="Scripture Phaser",
+            is_noresize=True,
+            is_static=True,
+            allow_fullscreen=True
+        ).center()
+
+        info_cont = ptg.Container()
+
+        mode_button = ptg.Button(
+            f"Random Mode: {self._get_mode_label(self.api.mode)}",
+            self._update_mode
+        )
+        trans_button = ptg.Button(
+            f"Translation: {self.api.translation}",
+            self._update_translation
+        )
+
+        info_cont.set_widgets([mode_button])
+        window.set_widgets([info_cont])
+
+        with ptg.WindowManager() as manager:
+            manager.add(window)
+
+    def _update_mode(self, mode_button):
+        new_mode = not self.api.mode
+        self.api.mode = new_mode
+        mode_button.label = f"Random Mode: {self._get_mode_label(new_mode)}"
+
+    def _get_mode_label(self, mode):
+        if mode:
+            return "On"
+        return "Off"
+
+    def _update_translation(self, translation_button):
+        translation_window = ptg.window_manager.Window(
+            title="Choose Translation",
+            is_noresize=True,
+            is_statis=True,
+            allow_fullscreen=True
+        ).center()
+
+        translation_cont = ptg.Container()
+
+        with ptg.WindowManager() as manager:
+            manager.add(translation_window)
+
+if __name__ == "__main__":
+    tui = TUI()

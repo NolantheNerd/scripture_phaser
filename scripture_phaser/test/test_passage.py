@@ -31,6 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import pdb
 import unittest
 from unittest.mock import MagicMock
 from scripture_phaser.verse import Verse
@@ -349,6 +350,7 @@ class PassageTests(unittest.TestCase):
         """
         Do passages display their content properly?
         """
+        pdb.set_trace()
         reference = "1 Peter 1:2 - 1:3"
         translation = ESV()
         passage = Passage(reference, translation)
