@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import pdb
 import os
 import argparse
 from pathlib import Path
@@ -44,7 +43,6 @@ from xdg.BaseDirectory import load_first_config
 
 class CLI:
     def __init__(self):
-        pdb.set_trace()
         self.config = self.load_config()
 
         self.parser = argparse.ArgumentParser(
@@ -61,7 +59,6 @@ class CLI:
         self.parser.add_argument(
             "--reference",
             required=False, # @@@ TODO: Make optional if --tui
-            default=self.config["reference"],
             help="The reference that you want to have scripture_phaser help you to commit to memory",
             dest="reference"
         )

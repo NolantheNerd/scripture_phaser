@@ -37,6 +37,7 @@ class _Defaults(enum.Enum):
     tui = True
     translation = "NIV"
     random_mode = False
+    esv_api_key = None
 
 class App(enum.Enum):
     Name = "scripture_phaser"

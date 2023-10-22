@@ -60,10 +60,8 @@ class BaseTranslation:
         webbrowser.open(self.source)
 
 class ESV(BaseTranslation):
-    def __init__(self):
-        self.api_key = dotenv_values(
-            load_first_config(App.Name.value) + "/config"
-        ).get("ESV_API_KEY", None)
+    def __init__(self, api_key=None):
+        self.api_key = api_key
 
         if self.api_key is not None:
             super().__init__(

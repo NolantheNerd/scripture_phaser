@@ -31,9 +31,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import pdb
 import unittest
 from unittest.mock import MagicMock
+from scripture_phaser.cli import CLI
+from scripture_phaser.enums import App
 from scripture_phaser.verse import Verse
 from scripture_phaser.passage import Passage
 from scripture_phaser.translations import ESV
@@ -350,9 +351,9 @@ class PassageTests(unittest.TestCase):
         """
         Do passages display their content properly?
         """
-        pdb.set_trace()
+        cli = CLI()
         reference = "1 Peter 1:2 - 1:3"
-        translation = ESV()
+        translation = ESV(api_key=cli.load_config()[App.Defaults.value.esv_api_key.name])
         passage = Passage(reference, translation)
 
         mock_api_return = '[2] according to the foreknowledge of God the Father, ' + \
