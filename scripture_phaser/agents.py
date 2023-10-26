@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import pdb
 import re
 import requests
 from unicodedata import normalize
@@ -199,7 +198,6 @@ class BibleGatewayAgent(BaseAPIAgent):
         )
 
     def _fetch(self, ref):
-        pdb.set_trace()
         b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(ref)
         b1 = Bible_Books[b1]
         c1 += 1

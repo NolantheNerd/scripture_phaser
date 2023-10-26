@@ -31,34 +31,22 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
 import argparse
-from pathlib import Path
-from dotenv import dotenv_values
 from scripture_phaser.api import API
 from scripture_phaser.enums import App
-from xdg.BaseDirectory import xdg_config_home
-from xdg.BaseDirectory import save_config_path
-from xdg.BaseDirectory import load_first_config
+from scripture_phaser.exceptions import InvalidTranslation
 
 class CLI:
     def __init__(self):
-        self.config = self.load_config()
+        self.api = API()
+        self.config = self.api.load_config()
 
         self.parser = argparse.ArgumentParser(
             description="scripture_phaser helps you to memorize the Word of Truth.",
         )
         self.parser.add_argument(
-            "--tui",
-            action="store_true",
-            required=False,
-            default=self.config["tui"],
-            help="Interact with scripture_phaser through a TUI instead of the CLI",
-            dest="tui"
-        )
-        self.parser.add_argument(
             "--reference",
-            required=False, # @@@ TODO: Make optional if --tui
+            required=False,
             help="The reference that you want to have scripture_phaser help you to commit to memory",
             dest="reference"
         )
@@ -87,28 +75,77 @@ class CLI:
         )
         args = self.parser.parse_args()
 
-    def load_config(self):
-        config_path = Path(save_config_path(App.Name.value))
-        config_path /= "config"
-        if not config_path.exists():
-            with open(config_path, "w") as config_file:
-                for default in App.Defaults.value:
-                    config_file.write(f"{default.name}=\"{default.value}\"\n")
+        self.mainloop()
 
-        config = dotenv_values(config_path)
+    def mainloop(self):
+        print("scripture_phaser helps you to memorize the Word of Truth.")
+        print("Copyright (C) 2023 Nolan McMahon")
 
-        missing_keys = []
-        for default in App.Defaults.value:
-            key = default.name
-            if key not in config:
-                missing_keys.append(key)
-        if len(missing_keys) > 0:
-            with open(config_path, "a") as config_file:
-                for key in missing_keys:
-                    config_file.write(f"{key}=\"{App.Defaults.value[key].value}\"\n")
-                    config[key] = App.Defaults.value[key].value
+        while True:
+            user_input = input("> ")
 
-        return config
+            # Exit
+            if user_input == "q":
+                break
+            # Current State
+            elif user_input == "l":
+                if self.api.passage is not None:
+                    print(f"Reference: {self.api.passage.reference}")
+                else:
+                    print("Reference: No reference set")
+                print(f"Translation: {self.api.translation.name}")
+                print(f"Random Mode: {self.api.mode}")
+            # Toggle Mode
+            elif user_input == "m":
+                self.api.mode = not self.api.mode
+            # Set Reference
+            elif user_input == "r":
+                ref_str = input("Reference: ")
+                self.api.passage = ref_str
+            # View Passage
+            elif user_input == "v":
+                if self.api.passage is not None:
+                    print(self.api.passage.show(with_ref=True))
+                else:
+                    print("Reference: No reference set")
+            # Set Translation
+            elif user_input == "t":
+                trn_str = input("Translation: ")
+                try:
+                    self.api.translation = trn_str
+                except InvalidTranslation:
+                    print("Invalid Translation\nChoose one of:\n" + "\n".join(self.api.list_translations()))
+            # View Translations
+            elif user_input == "i":
+                print("\n".join(self.api.list_translations()))
+            # Practice Passage
+            elif user_input == "p":
+                if self.api.reference is None:
+                    print("Reference: No reference set")
+                else:
+                    self.api.new_recitation()
+                    self.api.launch_recitation()
+                    self.api.complete_recitation()
+            # Show Stats
+            elif user_input == "s":
+                pass
+            # Show scripture_phaser about
+            elif user_input == "z":
+                pass
+            # Print Help
+            else:
+                print("scripture_phaser can be controlled from the command line with the following commands:")
+                print("\tl - Lists selected reference, mode and translation")
+                print("\tm - Toggles the mode")
+                print("\tr - Sets the reference")
+                print("\tt - Set the translation")
+                print("\ti - List available translations")
+                print("\tp - Practice the current reference")
+                print("\tv - Preview current reference")
+                print("\ts - View your statistics")
+                print("\th - Prints this help message")
+                print("\tz - Prints information about scripture_phaser")
+                print("\tq - Quits scripture_phaser")
 
 if __name__ == "__main__":
     obj = CLI()

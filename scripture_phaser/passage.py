@@ -48,7 +48,9 @@ class Passage:
     def populate(self, texts=None):
         self.populated = True
         if texts is None:
-            texts = self.translation.agent.get(self.reference)
+            texts = self.translation.agent.get(
+                self.clean_reference(self.reference, for_verse_selection=True)
+            )
         for verse, text in zip(self.verses, texts):
             verse.initialize(text)
 
@@ -273,7 +275,7 @@ class Passage:
 
         first_verse = Verse(book1, chapter1, verse1)
         last_verse = Verse(book2, chapter2, verse2)
-        cls.validate(first_verse, last_verse)
+        cls.validate(ref, first_verse, last_verse)
 
         if Verse.verse_equal(first_verse, last_verse):
             return [first_verse]
@@ -289,7 +291,7 @@ class Passage:
         return verses
 
     @classmethod
-    def validate(cls, start_verse, end_verse):
+    def validate(cls, ref, start_verse, end_verse):
         if (
             not start_verse.valid or \
             not end_verse.valid or \

@@ -34,26 +34,29 @@
 import enum
 
 class _Defaults(enum.Enum):
-    tui = True
-    translation = "NIV"
-    random_mode = False
-    esv_api_key = None
+    Translation = "NIV"
+    Random_Mode = False
+    ESV_API_Key = None
 
 class App(enum.Enum):
     Name = "scripture_phaser"
     Database = "scripture_phaser_db"
     Defaults = _Defaults
+    Translation = "translation"
+    Random_Mode = "random_mode"
+    ESV_API_Key = "esv_api_key"
+    Reference = "reference"
 
 class Translations(enum.Enum):
-    ESV = "English Standard Version"
-    NIV = "New International Version"
-    KJV = "King James Version"
-    NKJV = "New King James Version"
-    NLT = "New Living Translation"
-    NASB = "New American Standard Bible"
-    NRSV = "New Revised Standard Version"
-    WEB = "World English Bible"
-    BBE = "Bible in Basic English"
+    ESV = "English Standard Version (ESV)"
+    NIV = "New International Version (NIV)"
+    KJV = "King James Version (KJV)"
+    NKJV = "New King James Version (NKJV)"
+    NLT = "New Living Translation (NLT)"
+    NASB = "New American Standard Bible (NASB)"
+    NRSV = "New Revised Standard Version (NRSV)"
+    WEB = "World English Bible (WEB)"
+    BBE = "Bible in Basic English (BBE)"
 
 class Agents(enum.Enum):
     ESVBGW = "ESV"

@@ -65,13 +65,13 @@ class ESV(BaseTranslation):
 
         if self.api_key is not None:
             super().__init__(
-                name=Translations.ESV,
+                name=Translations.ESV.value,
                 source="https://www.esv.org",
                 agent=ESVAPIAgent(self.api_key)
             )
         else:
             super().__init__(
-                name=Translations.ESV,
+                name=Translations.ESV.value,
                 source="https://www.esv.org",
                 agent=ESVBibleGatewayAgent()
             )
@@ -79,7 +79,7 @@ class ESV(BaseTranslation):
 class KJV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name=Translations.KJV,
+            name=Translations.KJV.value,
             source="https://www.kingjamesbibleonline.org/",
             agent=KJVAPIAgent()
         )
@@ -87,7 +87,7 @@ class KJV(BaseTranslation):
 class WEB(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name=Translations.WEB,
+            name=Translations.WEB.value,
             source="https://worldenglish.bible/",
             agent=WEBAPIAgent()
         )
@@ -95,7 +95,7 @@ class WEB(BaseTranslation):
 class BBE(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name=Translations.BBE,
+            name=Translations.BBE.value,
             source="https://www.o-bible.com/bbe.html",
             agent=BBEAPIAgent()
         )
@@ -103,7 +103,7 @@ class BBE(BaseTranslation):
 class NIV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name=Translations.NIV,
+            name=Translations.NIV.value,
             source="https://thenivbible.com",
             agent=NIVBibleGatewayAgent()
         )
@@ -111,7 +111,7 @@ class NIV(BaseTranslation):
 class NKJV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name=Translations.NKJV,
+            name=Translations.NKJV.value,
             source="https://www.thomasnelsonbibles.com/nkjv-bible/",
             agent=NKJVBibleGatewayAgent()
         )
@@ -119,7 +119,7 @@ class NKJV(BaseTranslation):
 class NLT(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name=Translations.NLT,
+            name=Translations.NLT.value,
             source="https://nlt.to/",
             agent=NLTBibleGatewayAgent()
         )
@@ -127,7 +127,7 @@ class NLT(BaseTranslation):
 class NASB(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name=Translations.NASB,
+            name=Translations.NASB.value,
             source="https://www.lockman.org/new-american-standard-bible-nasb/",
             agent=NASBBibleGatewayAgent()
         )
@@ -135,7 +135,7 @@ class NASB(BaseTranslation):
 class NRSV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name=Translations.RSV,
+            name=Translations.RSV.value,
             source="https://www.friendshippress.org/pages/about-the-nrsvue",
             agent=NRSVBibleGatewayAgent()
         )

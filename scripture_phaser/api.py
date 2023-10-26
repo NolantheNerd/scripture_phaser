@@ -31,25 +31,73 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
 import random
+import subprocess
+from pathlib import Path
+from dotenv import dotenv_values
+from xdg.BaseDirectory import xdg_config_home
+from xdg.BaseDirectory import save_config_path
+from xdg.BaseDirectory import load_first_config
 from scripture_phaser.enums import App
 from scripture_phaser.stats import Stats
 from scripture_phaser.models import Attempt
 from scripture_phaser.passage import Passage
 from scripture_phaser.enums import Translations
 from scripture_phaser.exceptions import InvalidTranslation
+from scripture_phaser.translations import ESV
+from scripture_phaser.translations import NIV
+from scripture_phaser.translations import KJV
+from scripture_phaser.translations import WEB
+from scripture_phaser.translations import BBE
+from scripture_phaser.translations import NKJV
+from scripture_phaser.translations import NLT
+from scripture_phaser.translations import NASB
+from scripture_phaser.translations import NRSV
 
 class API:
     def __init__(
         self,
-        translation=App.Defaults.value["translation"].value,
-        mode=App.Defaults.value["random_mode"].value,
+        translation=App.Defaults.value[App.Translation.name].value,
+        mode=App.Defaults.value[App.Random_Mode.name].value,
         passage=None
     ):
-        self._translation = translation
+        self._translation = globals()[translation]()
         self._mode = mode
         self._passage = passage
         self.stats = Stats()
+
+    def load_config(self):
+        config_path = Path(save_config_path(App.Name.value))
+        config_path /= "config"
+        if not config_path.exists():
+            with open(config_path, "w") as config_file:
+                for default in App.Defaults.value:
+                    config_file.write(f"{default.name}=\"{default.value}\"\n")
+
+        self.config = dotenv_values(config_path)
+
+        missing_keys = []
+        for default in App.Defaults.value:
+            key = default.name
+            if key not in self.config:
+                missing_keys.append(key)
+        if len(missing_keys) > 0:
+            with open(config_path, "a") as config_file:
+                for key in missing_keys:
+                    config_file.write(f"{key}=\"{App.Defaults.value[key].value}\"\n")
+                    self.config[key] = App.Defaults.value[key].value
+
+        if App.Translation.name in self.config:
+            self.translation = self.config[App.Translation.name]
+        if App.Random_Mode.name in self.config:
+            self.mode = self.config[App.Random_Mode.name]
+        if App.Reference.name in self.config:
+            self.passage = self.config[App.Reference.name]
+
+    def save_config(self):
+        config_path = Path(save_config_path(App.Name.value))
+        config_path /= "config"
 
     @property
     def mode(self):
@@ -71,7 +119,7 @@ class API:
         if translation not in self.list_translations():
             raise InvalidTranslation(translation)
         else:
-            self._translation = translation
+            self._translation = globals()[translation]()
 
     def get_random_verse(self):
         verse = random.choice(self.passage.verses)
@@ -89,11 +137,16 @@ class API:
         self._passage.populate()
 
     def new_recitation(self):
-        if self.random_mode:
+        if self.mode:
             self.target = self.get_random_verse()
         else:
             self.target = self.passage
         return self.target
+
+    def launch_recitation(self):
+        # @@@ TODO: Check that EDITOR is set else try other common programs?
+        editor = os.environ["EDITOR"]
+        subprocess.run([editor, f"{self.target.reference}"])
 
     def preview_recitation(self, with_verse=False, with_ref=True):
         return self.target.show(with_verse=with_verse, with_ref=with_ref)
