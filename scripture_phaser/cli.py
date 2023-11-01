@@ -54,14 +54,14 @@ class CLI:
             "--random-mode",
             action="store_true",
             required=False,
-            default=self.config["random_mode"],
+            default=False,
             help="Use to have scripture_phaser randomly prompt you with single verse from your passage",
             dest="mode"
         )
         self.parser.add_argument(
             "--translation",
             required=False,
-            default=self.config["translation"],
+            default=None,
             help="The translation to use when evaluating your submissions",
             dest="translation"
         )
@@ -82,59 +82,85 @@ class CLI:
         print("Copyright (C) 2023 Nolan McMahon")
 
         while True:
-            user_input = input("> ")
+            user_input = input("> ").strip().lower()
 
             # Exit
-            if user_input == "q":
+            if user_input == "q" or user_input == "quit":
                 break
+
+            # Get Config
+            elif user_input == "g" or user_input == "get":
+                self.api.load_config()
+                print("Configuration loaded!")
+
+            # Write Config
+            elif user_input == "w" or user_input == "write":
+                self.api.save_config()
+                print("Current configuration saved!")
+
             # Current State
-            elif user_input == "l":
+            elif user_input == "l" or user_input == "list":
                 if self.api.passage is not None:
                     print(f"Reference: {self.api.passage.reference}")
                 else:
                     print("Reference: No reference set")
                 print(f"Translation: {self.api.translation.name}")
                 print(f"Random Mode: {self.api.mode}")
+                if App.esv_api_key.name in self.api.config and \
+                        self.api.config[App.esv_api_key.name] != "None":
+                    print(f"API Key for ESV.org Found")
+
             # Toggle Mode
-            elif user_input == "m":
+            elif user_input == "m" or user_input == "mode":
                 self.api.mode = not self.api.mode
+                print(f"Toggled random mode to {self.api.mode}")
+
             # Set Reference
-            elif user_input == "r":
+            elif user_input == "r" or user_input == "reference":
                 ref_str = input("Reference: ")
                 self.api.passage = ref_str
+
             # View Passage
-            elif user_input == "v":
+            elif user_input == "v" or user_input == "view":
                 if self.api.passage is not None:
                     print(self.api.passage.show(with_ref=True))
                 else:
                     print("Reference: No reference set")
+
             # Set Translation
-            elif user_input == "t":
+            elif user_input == "t" or user_input == "translation":
                 trn_str = input("Translation: ")
                 try:
                     self.api.translation = trn_str
                 except InvalidTranslation:
                     print("Invalid Translation\nChoose one of:\n" + "\n".join(self.api.list_translations()))
+
             # View Translations
-            elif user_input == "i":
+            elif user_input == "i" or user_input == "inquire":
                 print("\n".join(self.api.list_translations()))
+
             # Practice Passage
-            elif user_input == "p":
+            elif user_input == "p" or user_input == "practice":
                 if self.api.reference is None:
                     print("Reference: No reference set")
                 else:
                     self.api.new_recitation()
                     self.api.launch_recitation()
                     self.api.complete_recitation()
+
             # Show Stats
-            elif user_input == "s":
+            elif user_input == "s" or user_input == "stats":
                 pass
+
             # Show scripture_phaser about
-            elif user_input == "z":
+            elif user_input == "z" or user_input == "about":
                 pass
+
             # Print Help
             else:
                 print("scripture_phaser can be controlled from the command line with the following commands:")
+                print("\tg - Reload the configuration file")
+                print("\tw - Save the current configuration")
                 print("\tl - Lists selected reference, mode and translation")
                 print("\tm - Toggles the mode")
                 print("\tr - Sets the reference")

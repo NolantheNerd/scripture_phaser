@@ -34,18 +34,19 @@
 import enum
 
 class _Defaults(enum.Enum):
-    Translation = "NIV"
-    Random_Mode = False
-    ESV_API_Key = None
+    translation = "NIV"
+    random_mode = False
+    esv_api_key = None
+    reference = None
 
 class App(enum.Enum):
     Name = "scripture_phaser"
     Database = "scripture_phaser_db"
     Defaults = _Defaults
-    Translation = "translation"
-    Random_Mode = "random_mode"
-    ESV_API_Key = "esv_api_key"
-    Reference = "reference"
+    translation = "translation"
+    random_mode = "random_mode"
+    esv_api_key = "esv_api_key"
+    reference = "reference"
 
 class Translations(enum.Enum):
     ESV = "English Standard Version (ESV)"

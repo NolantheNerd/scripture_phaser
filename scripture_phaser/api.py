@@ -56,16 +56,9 @@ from scripture_phaser.translations import NASB
 from scripture_phaser.translations import NRSV
 
 class API:
-    def __init__(
-        self,
-        translation=App.Defaults.value[App.Translation.name].value,
-        mode=App.Defaults.value[App.Random_Mode.name].value,
-        passage=None
-    ):
-        self._translation = globals()[translation]()
-        self._mode = mode
-        self._passage = passage
+    def __init__(self):
         self.stats = Stats()
+        self.load_config()
 
     def load_config(self):
         config_path = Path(save_config_path(App.Name.value))
@@ -88,16 +81,24 @@ class API:
                     config_file.write(f"{key}=\"{App.Defaults.value[key].value}\"\n")
                     self.config[key] = App.Defaults.value[key].value
 
-        if App.Translation.name in self.config:
-            self.translation = self.config[App.Translation.name]
-        if App.Random_Mode.name in self.config:
-            self.mode = self.config[App.Random_Mode.name]
-        if App.Reference.name in self.config:
-            self.passage = self.config[App.Reference.name]
+        if App.translation.name in self.config:
+            self.translation = self.config[App.translation.name]
+        else:
+            self.translation = App.Defaults.translation.value
+        if App.random_mode.name in self.config:
+            self.mode = self.config[App.random_mode.name]
+        if App.reference.name in self.config:
+            self.passage = self.config[App.reference.name]
 
     def save_config(self):
         config_path = Path(save_config_path(App.Name.value))
         config_path /= "config"
+
+        os.remove(config_path)
+
+        with open(config_path, "w") as config_file:
+            for key in self.config.keys():
+                config_file.write(f"{key}=\"{self.config[key]}\"\n")
 
     @property
     def mode(self):
@@ -105,7 +106,11 @@ class API:
 
     @mode.setter
     def mode(self, random_mode):
-        self._mode = random_mode
+        if random_mode == "False" or not random_mode:
+            self._mode = False
+        else:
+            self._mode = True
+        self.config[App.random_mode.name] = self._mode
 
     def list_translations(self):
         return [translation.name for translation in Translations]
@@ -120,6 +125,7 @@ class API:
             raise InvalidTranslation(translation)
         else:
             self._translation = globals()[translation]()
+            self.config[App.translation.name] = translation
 
     def get_random_verse(self):
         verse = random.choice(self.passage.verses)
@@ -133,8 +139,12 @@ class API:
 
     @passage.setter
     def passage(self, reference):
-        self._passage = Passage(reference, self.translation)
-        self._passage.populate()
+        if reference == "" or reference == "None":
+            self._passage = None
+        else:
+            self._passage = Passage(reference, self.translation)
+            self._passage.populate()
+            self.config[App.reference.name] = self._passage.reference
 
     def new_recitation(self):
         if self.mode:

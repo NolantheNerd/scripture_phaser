@@ -354,7 +354,7 @@ class PassageTests(unittest.TestCase):
         api = API()
         api.load_config()
         reference = "1 Peter 1:2 - 1:3"
-        translation = ESV(api_key=api.config[App.ESV_API_Key.name])
+        translation = ESV(api_key=api.config[App.esv_api_key.name])
         passage = Passage(reference, translation)
 
         mock_api_return = '[2] according to the foreknowledge of God the Father, ' + \
