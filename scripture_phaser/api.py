@@ -34,6 +34,8 @@
 import os
 import random
 import subprocess
+from sys import exit
+from shutil import which
 from pathlib import Path
 from dotenv import dotenv_values
 from xdg.BaseDirectory import xdg_config_home
@@ -44,6 +46,7 @@ from scripture_phaser.stats import Stats
 from scripture_phaser.models import Attempt
 from scripture_phaser.passage import Passage
 from scripture_phaser.enums import Translations
+from scripture_phaser.exceptions import EditorNotFound
 from scripture_phaser.exceptions import InvalidTranslation
 from scripture_phaser.translations import ESV
 from scripture_phaser.translations import NIV
@@ -154,8 +157,28 @@ class API:
         return self.target
 
     def launch_recitation(self):
-        # @@@ TODO: Check that EDITOR is set else try other common programs?
-        editor = os.environ["EDITOR"]
+        try:
+            editor = os.environ["EDITOR"]
+        except KeyError:
+            try:
+                # Try Gedit
+                if which("gedit") is not None:
+                    editor = "gedit"
+                # Try Nano
+                elif which("nano") is not None:
+                    editor = "nano"
+                # Try Neovim
+                elif which("nvim") is not None:
+                    editor = "nvim"
+                # Try Vim
+                elif which("vim") is not None:
+                    editor = "vim"
+                else:
+                    raise EditorNotFound()
+            except EditorNotFound:
+                print("Text editor not found; set the 'EDITOR' environmental variable and try again")
+                exit()
+
         subprocess.run([editor, f"{self.target.reference}"])
 
     def preview_recitation(self, with_verse=False, with_ref=True):

@@ -141,7 +141,7 @@ class CLI:
 
             # Practice Passage
             elif user_input == "p" or user_input == "practice":
-                if self.api.reference is None:
+                if self.api.passage is None:
                     print("Reference: No reference set")
                 else:
                     self.api.new_recitation()
