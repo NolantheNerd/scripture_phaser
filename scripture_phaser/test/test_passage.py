@@ -352,7 +352,6 @@ class PassageTests(unittest.TestCase):
         Do passages display their content properly?
         """
         api = API()
-        api.load_config()
         reference = "1 Peter 1:2 - 1:3"
         translation = ESV(api_key=api.config[App.esv_api_key.name])
         passage = Passage(reference, translation)

@@ -33,16 +33,16 @@
 
 import enum
 
-class _Defaults(enum.Enum):
-    translation = "NIV"
-    random_mode = False
-    esv_api_key = None
-    reference = None
+class AppDefaults:
+    def __init__(self):
+        self.translation = "NIV"
+        self.random_mode = False
+        self.esv_api_key = None
+        self.reference = None
 
 class App(enum.Enum):
     Name = "scripture_phaser"
     Database = "scripture_phaser_db"
-    Defaults = _Defaults
     translation = "translation"
     random_mode = "random_mode"
     esv_api_key = "esv_api_key"

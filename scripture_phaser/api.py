@@ -42,6 +42,7 @@ from xdg.BaseDirectory import xdg_config_home
 from xdg.BaseDirectory import save_config_path
 from xdg.BaseDirectory import load_first_config
 from scripture_phaser.enums import App
+from scripture_phaser.enums import AppDefaults
 from scripture_phaser.stats import Stats
 from scripture_phaser.models import Attempt
 from scripture_phaser.passage import Passage
@@ -68,20 +69,19 @@ class API:
         config_path /= "config"
         if not config_path.exists():
             with open(config_path, "w") as config_file:
-                for default in App.Defaults.value:
-                    config_file.write(f"{default.name}=\"{default.value}\"\n")
+                for default_key, default_value in vars(AppDefaults()).items():
+                    config_file.write(f"{default_key}=\"{default_value}\"\n")
 
         self.config = dotenv_values(config_path)
 
         missing_keys = []
-        for default in App.Defaults.value:
-            key = default.name
-            if key not in self.config:
-                missing_keys.append(key)
+        for default_key in vars(AppDefaults()):
+            if default_key not in self.config:
+                missing_keys.append(default_key)
         if len(missing_keys) > 0:
             with open(config_path, "a") as config_file:
                 for key in missing_keys:
-                    config_file.write(f"{key}=\"{App.Defaults.value[key].value}\"\n")
+                    config_file.write(f"{key}=\"{getattr(AppDefaults(), key)}\"\n")
                     self.config[key] = App.Defaults.value[key].value
 
         if App.translation.name in self.config:
