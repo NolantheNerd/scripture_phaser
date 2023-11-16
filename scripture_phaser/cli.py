@@ -122,10 +122,7 @@ class CLI:
 
             # View Passage
             elif user_input == "v" or user_input == "view":
-                if self.api.passage is not None:
-                    print(self.api.passage.show(with_ref=True))
-                else:
-                    print("Reference: No reference set")
+                self.api.view_passage()
 
             # Set Translation
             elif user_input == "t" or user_input == "translation":

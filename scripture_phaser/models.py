@@ -61,7 +61,7 @@ class Attempt(Model):
         self.attempt = attempt
         self.datetime = datetime.datetime.now()
         self._grade(passage)
-        self.save()
+        #self.save()
         return self.score, self.diff
 
     def _grade(self, passage):

@@ -149,6 +149,12 @@ class API:
             self._passage.populate()
             self.config[App.reference.name] = self._passage.reference
 
+    def view_passage(self):
+        if self.passage is not None:
+            print(self.passage.show(with_ref=True))
+        else:
+            print("Reference: No reference set")
+
     def new_recitation(self):
         if self.mode:
             self.target = self.get_random_verse()
@@ -179,16 +185,18 @@ class API:
                 print("Text editor not found; set the 'EDITOR' environmental variable and try again")
                 exit()
 
-        subprocess.run([editor, f"{self.target.reference}"])
+        self.filename = f"{self.target.reference}"
+        subprocess.run([editor, self.filename])
 
-    def preview_recitation(self, with_verse=False, with_ref=True):
-        return self.target.show(with_verse=with_verse, with_ref=with_ref)
-
-    def complete_recitation(self, text):
+    def complete_recitation(self):
+        with open(self.filename, "r") as file:
+            text = file.readlines()
+            text = "".join(text)
+        os.remove(self.filename)
         attempt = Attempt(
-            random_mode=self.random_mode,
+            random_mode=self.mode,
             reference=self.target.reference,
         )
-        score, diff = attempt.complete(text)
-        attempt.save()
+        score, diff = attempt.complete(text, self.passage)
+        #attempt.save()
         return score, diff

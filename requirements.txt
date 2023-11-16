@@ -37,4 +37,3 @@ python-dotenv
 meaningless
 colour-runner
 peewee
-pytermgui
