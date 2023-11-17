@@ -34,6 +34,7 @@
 import argparse
 from scripture_phaser.api import API
 from scripture_phaser.enums import App
+from scripture_phaser.models import Attempt
 from scripture_phaser.exceptions import InvalidTranslation
 
 class CLI:

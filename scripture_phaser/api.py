@@ -38,9 +38,8 @@ from sys import exit
 from shutil import which
 from pathlib import Path
 from dotenv import dotenv_values
-from xdg.BaseDirectory import xdg_config_home
+from xdg.BaseDirectory import save_cache_path
 from xdg.BaseDirectory import save_config_path
-from xdg.BaseDirectory import load_first_config
 from scripture_phaser.enums import App
 from scripture_phaser.enums import AppDefaults
 from scripture_phaser.stats import Stats
@@ -62,26 +61,27 @@ from scripture_phaser.translations import NRSV
 class API:
     def __init__(self):
         self.stats = Stats()
+        self.config_path = Path(save_config_path(App.Name.value))
+        self.cache_path = Path(save_cache_path(App.Name.value))
         self.load_config()
 
     def load_config(self):
-        config_path = Path(save_config_path(App.Name.value))
-        config_path /= "config"
-        if not config_path.exists():
-            with open(config_path, "w") as config_file:
+        config_file = self.config_path / "config"
+        if not config_file.exists():
+            with open(config_file, "w") as file:
                 for default_key, default_value in vars(AppDefaults()).items():
-                    config_file.write(f"{default_key}=\"{default_value}\"\n")
+                    file.write(f"{default_key}=\"{default_value}\"\n")
 
-        self.config = dotenv_values(config_path)
+        self.config = dotenv_values(config_file)
 
         missing_keys = []
         for default_key in vars(AppDefaults()):
             if default_key not in self.config:
                 missing_keys.append(default_key)
         if len(missing_keys) > 0:
-            with open(config_path, "a") as config_file:
+            with open(config_file, "a") as file:
                 for key in missing_keys:
-                    config_file.write(f"{key}=\"{getattr(AppDefaults(), key)}\"\n")
+                    file.write(f"{key}=\"{getattr(AppDefaults(), key)}\"\n")
                     self.config[key] = App.Defaults.value[key].value
 
         if App.translation.name in self.config:
@@ -94,14 +94,13 @@ class API:
             self.passage = self.config[App.reference.name]
 
     def save_config(self):
-        config_path = Path(save_config_path(App.Name.value))
-        config_path /= "config"
+        config_file = self.config_path / "config"
 
-        os.remove(config_path)
+        os.remove(config_file)
 
-        with open(config_path, "w") as config_file:
+        with open(config_file, "w") as file:
             for key in self.config.keys():
-                config_file.write(f"{key}=\"{self.config[key]}\"\n")
+                file.write(f"{key}=\"{self.config[key]}\"\n")
 
     @property
     def mode(self):
@@ -188,7 +187,7 @@ class API:
                 print("Text editor not found; set the 'EDITOR' environmental variable and try again")
                 exit()
 
-        self.filename = f"{self.target.reference}"
+        self.filename = self.cache_path / f"{self.target.reference}"
         subprocess.run([editor, self.filename])
 
     def complete_recitation(self):
