@@ -114,6 +114,7 @@ class API:
         else:
             self._mode = True
         self.config[App.random_mode.name] = self._mode
+        self.save_config()
 
     def list_translations(self):
         return [translation.name for translation in Translations]
@@ -129,6 +130,7 @@ class API:
         else:
             self._translation = globals()[translation]()
             self.config[App.translation.name] = translation
+            self.save_config()
 
     def get_random_verse(self):
         verse = random.choice(self.passage.verses)
@@ -148,6 +150,7 @@ class API:
             self._passage = Passage(reference, self.translation)
             self._passage.populate()
             self.config[App.reference.name] = self._passage.reference
+            self.save_config()
 
     def view_passage(self):
         if self.passage is not None:
