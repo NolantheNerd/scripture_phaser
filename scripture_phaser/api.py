@@ -63,26 +63,7 @@ class API:
         self.stats = Stats()
         self.config_path = Path(save_config_path(App.Name.value))
         self.cache_path = Path(save_cache_path(App.Name.value))
-        self.load_config()
-
-    def load_config(self):
-        config_file = self.config_path / "config"
-        if not config_file.exists():
-            with open(config_file, "w") as file:
-                for default_key, default_value in vars(AppDefaults()).items():
-                    file.write(f"{default_key}=\"{default_value}\"\n")
-
-        self.config = dotenv_values(config_file)
-
-        missing_keys = []
-        for default_key in vars(AppDefaults()):
-            if default_key not in self.config:
-                missing_keys.append(default_key)
-        if len(missing_keys) > 0:
-            with open(config_file, "a") as file:
-                for key in missing_keys:
-                    file.write(f"{key}=\"{getattr(AppDefaults(), key)}\"\n")
-                    self.config[key] = App.Defaults.value[key].value
+        self.config = self.load_config()
 
         if App.translation.name in self.config:
             self.translation = self.config[App.translation.name]
@@ -93,14 +74,40 @@ class API:
         if App.reference.name in self.config:
             self.passage = self.config[App.reference.name]
 
-    def save_config(self):
-        config_file = self.config_path / "config"
+    @staticmethod
+    def load_config():
+        config_path = Path(save_config_path(App.Name.value))
+        config_file = config_path / "config"
+        if not config_file.exists():
+            with open(config_file, "w") as file:
+                for default_key, default_value in vars(AppDefaults()).items():
+                    file.write(f"{default_key}=\"{default_value}\"\n")
+
+        config = dotenv_values(config_file)
+
+        missing_keys = []
+        for default_key in vars(AppDefaults()):
+            if default_key not in config:
+                missing_keys.append(default_key)
+        if len(missing_keys) > 0:
+            with open(config_file, "a") as file:
+                for key in missing_keys:
+                    file.write(f"{key}=\"{getattr(AppDefaults(), key)}\"\n")
+                    config[key] = App.Defaults.value[key].value
+
+
+        return config
+
+    @staticmethod
+    def save_config(config):
+        config_path = Path(save_config_path(App.Name.value))
+        config_file = config_path / "config"
 
         os.remove(config_file)
 
         with open(config_file, "w") as file:
-            for key in self.config.keys():
-                file.write(f"{key}=\"{self.config[key]}\"\n")
+            for key in config.keys():
+                file.write(f"{key}=\"{config[key]}\"\n")
 
     @property
     def mode(self):
@@ -113,7 +120,7 @@ class API:
         else:
             self._mode = True
         self.config[App.random_mode.name] = self._mode
-        self.save_config()
+        self.save_config(self.config)
 
     def list_translations(self):
         return [translation.name for translation in Translations]
@@ -129,7 +136,7 @@ class API:
         else:
             self._translation = globals()[translation]()
             self.config[App.translation.name] = translation
-            self.save_config()
+            self.save_config(self.config)
 
     def get_random_verse(self):
         verse = random.choice(self.passage.verses)
@@ -149,7 +156,7 @@ class API:
             self._passage = Passage(reference, self.translation)
             self._passage.populate()
             self.config[App.reference.name] = self._passage.reference
-            self.save_config()
+            self.save_config(self.config)
 
     def view_passage(self):
         if self.passage is not None:
@@ -195,10 +202,10 @@ class API:
             text = file.readlines()
             text = "".join(text)
         os.remove(self.filename)
-        attempt = Attempt(
+        attempt = Attempt.create(
             random_mode=self.mode,
             reference=self.target.reference,
         )
         score, diff = attempt.complete(text, self.passage)
-        #attempt.save()
+        attempt.save()
         return score, diff

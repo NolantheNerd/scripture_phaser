@@ -144,14 +144,11 @@ class CLI:
                 else:
                     self.api.new_recitation()
                     self.api.launch_recitation()
-                    self.api.complete_recitation()
+                    score, diff = self.api.complete_recitation()
+                    print(score, diff)
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
-                pass
-
-            # Show scripture_phaser about
-            elif user_input == "z" or user_input == "about":
                 pass
 
             # Print Help
@@ -168,7 +165,6 @@ class CLI:
                 print("\tv - Preview current reference")
                 print("\ts - View your statistics")
                 print("\th - Prints this help message")
-                print("\tz - Prints information about scripture_phaser")
                 print("\tq - Quits scripture_phaser")
 
 if __name__ == "__main__":
