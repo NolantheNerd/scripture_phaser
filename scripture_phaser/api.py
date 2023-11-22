@@ -74,6 +74,9 @@ class API:
         if App.reference.name in self.config:
             self.passage = self.config[App.reference.name]
 
+        if not Attempt.table_exists():
+            Attempt.create_table()
+
     @staticmethod
     def load_config():
         config_path = Path(save_config_path(App.Name.value))
@@ -209,3 +212,9 @@ class API:
         score, diff = attempt.complete(text, self.passage)
         attempt.save()
         return score, diff
+
+    @staticmethod
+    def reset_db():
+        if Attempt.table_exists():
+            Attempt.drop_table()
+        Attempt.create_table()

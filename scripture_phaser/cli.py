@@ -151,6 +151,15 @@ class CLI:
             elif user_input == "s" or user_input == "stats":
                 pass
 
+            # Reset Statistics
+            elif user_input == "z" or user_input == "reset":
+                confirmation = input(
+                    "Are you sure that you want to reset your statistics? [y/N] "
+                ).strip().lower()
+                if confirmation == "y" or confirmation == "yes":
+                    self.api.reset_db()
+                    print("Statistics reset")
+
             # Print Help
             else:
                 print("scripture_phaser can be controlled from the command line with the following commands:")
@@ -165,6 +174,7 @@ class CLI:
                 print("\tv - Preview current reference")
                 print("\ts - View your statistics")
                 print("\th - Prints this help message")
+                print("\tz - Reset statistics")
                 print("\tq - Quits scripture_phaser")
 
 if __name__ == "__main__":

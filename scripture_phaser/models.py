@@ -45,12 +45,12 @@ from scripture_phaser.enums import App
 from xdg.BaseDirectory import save_data_path
 
 class Attempt(Model):
-    datetime = DateTimeField()
+    datetime = DateTimeField(null=True)
     random_mode = BooleanField()
     reference = CharField()
-    score = FloatField()
-    attempt = TextField()
-    diff = TextField()
+    score = FloatField(null=True)
+    attempt = TextField(null=True)
+    diff = TextField(null=True)
 
     class Meta:
         database = SqliteDatabase(
@@ -61,7 +61,7 @@ class Attempt(Model):
         self.attempt = attempt
         self.datetime = datetime.datetime.now()
         self._grade(passage)
-        #self.save()
+        self.save()
         return self.score, self.diff
 
     def _grade(self, passage):
