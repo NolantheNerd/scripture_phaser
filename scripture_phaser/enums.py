@@ -38,7 +38,7 @@ class AppDefaults:
         self.translation = "NIV"
         self.random_mode = False
         self.esv_api_key = None
-        self.reference = None
+        self.reference = "None"
 
 class App(enum.Enum):
     Name = "scripture_phaser"

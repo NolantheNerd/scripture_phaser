@@ -33,8 +33,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
 import unittest
+from pathlib import Path
+from xdg.BaseDirectory import save_config_path
 from colour_runner.runner import ColourTextTestRunner
+from scripture_phaser.enums import App
 from scripture_phaser.test.test_agents import AgentsTests
 from scripture_phaser.test.test_passage import PassageTests
 from scripture_phaser.test.test_verse import VerseTests
@@ -64,4 +68,15 @@ suite.addTest(APITests("test_get_random_verse"))
 suite.addTest(AttemptTests("test_grade"))
 
 if __name__ == "__main__":
-    ColourTextTestRunner(verbosity=2).run(suite)
+    try:
+        config_path = Path(save_config_path(App.Name.value))
+        config_file = config_path / "config"
+        temp_config_file = config_path / "config_TEST"
+        if config_file.exists():
+            os.rename(config_file, temp_config_file)
+
+        ColourTextTestRunner(verbosity=2).run(suite)
+
+    finally:
+        if temp_config_file.exists():
+            os.rename(temp_config_file, config_file)

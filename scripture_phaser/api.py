@@ -96,7 +96,7 @@ class API:
             with open(config_file, "a") as file:
                 for key in missing_keys:
                     file.write(f"{key}=\"{getattr(AppDefaults(), key)}\"\n")
-                    config[key] = App.Defaults.value[key].value
+                    config[key] = getattr(AppDefaults(), key)
 
 
         return config
