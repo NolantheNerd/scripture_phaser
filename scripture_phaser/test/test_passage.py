@@ -33,7 +33,6 @@
 
 import unittest
 from unittest.mock import MagicMock
-from scripture_phaser.api import API
 from scripture_phaser.enums import App
 from scripture_phaser.verse import Verse
 from scripture_phaser.passage import Passage
@@ -351,9 +350,9 @@ class PassageTests(unittest.TestCase):
         """
         Do passages display their content properly?
         """
-        api = API()
+        mock_esv_api_key = "thisisafakeapikey"
         reference = "1 Peter 1:2 - 1:3"
-        translation = ESV(api_key=api.config[App.esv_api_key.name])
+        translation = ESV(api_key=mock_esv_api_key)
         passage = Passage(reference, translation)
 
         mock_api_return = '[2] according to the foreknowledge of God the Father, ' + \
