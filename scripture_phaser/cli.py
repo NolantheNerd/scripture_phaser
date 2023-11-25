@@ -46,37 +46,31 @@ class CLI:
             description="scripture_phaser helps you to memorize the Word of Truth.",
         )
         self.parser.add_argument(
-            "--reference",
-            required=False,
-            help="The reference that you want to have scripture_phaser help you to commit to memory",
-            dest="reference"
-        )
-        self.parser.add_argument(
-            "--random-mode",
+            "--version",
             action="store_true",
             required=False,
             default=False,
-            help="Use to have scripture_phaser randomly prompt you with single verse from your passage",
-            dest="mode"
+            help="show the version number and release date",
+            dest="version"
         )
         self.parser.add_argument(
-            "--translation",
-            required=False,
-            default=None,
-            help="The translation to use when evaluating your submissions",
-            dest="translation"
-        )
-        self.parser.add_argument(
-            "--list-translations",
+            "--license",
             action="store_true",
             required=False,
             default=False,
-            help="List available translations",
-            dest="list_translations"
+            help="show the license",
+            dest="license"
         )
         args = self.parser.parse_args()
 
-        self.mainloop()
+        if getattr(args, "version"):
+            print(f"{App.Name.value} version {App.version.value}, Release Date: {App.release_date.value}")
+
+        if getattr(args, "license"):
+            print(App.license.value)
+
+        if not getattr(args, "version") and not getattr(args, "license"):
+            self.mainloop()
 
     def mainloop(self):
         print("scripture_phaser helps you to memorize the Word of Truth.")
@@ -135,6 +129,7 @@ class CLI:
 
             # View Translations
             elif user_input == "i" or user_input == "inquire":
+                print("Available Translations:")
                 print("\n".join(self.api.list_translations()))
 
             # Practice Passage

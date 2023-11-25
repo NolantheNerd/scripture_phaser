@@ -183,16 +183,12 @@ class API:
             editor = os.environ["EDITOR"]
         except KeyError:
             try:
-                # Try Gedit
                 if which("gedit") is not None:
                     editor = "gedit"
-                # Try Nano
                 elif which("nano") is not None:
                     editor = "nano"
-                # Try Neovim
                 elif which("nvim") is not None:
                     editor = "nvim"
-                # Try Vim
                 elif which("vim") is not None:
                     editor = "vim"
                 else:
