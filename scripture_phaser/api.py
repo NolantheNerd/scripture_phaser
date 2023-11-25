@@ -57,6 +57,7 @@ from scripture_phaser.translations import NKJV
 from scripture_phaser.translations import NLT
 from scripture_phaser.translations import NASB
 from scripture_phaser.translations import NRSV
+from scripture_phaser.exceptions import InvalidReference
 
 class API:
     def __init__(self):
@@ -157,9 +158,12 @@ class API:
             self._passage = None
             self.config[App.reference.name] = "None"
         else:
-            self._passage = Passage(reference, self.translation)
-            self._passage.populate()
-            self.config[App.reference.name] = self._passage.reference
+            try:
+                self._passage = Passage(reference, self.translation)
+                self._passage.populate()
+                self.config[App.reference.name] = self._passage.reference
+            except InvalidReference as e:
+                print(e.__str__())
 
         self.save_config(self.config)
 
