@@ -37,6 +37,7 @@ from scripture_phaser.enums import App
 from scripture_phaser.verse import Verse
 from scripture_phaser.passage import Passage
 from scripture_phaser.translations import ESV
+from scripture_phaser.exceptions import InvalidReference
 
 class PassageTests(unittest.TestCase):
     """
@@ -233,6 +234,22 @@ class PassageTests(unittest.TestCase):
         self.assertEqual(eb2, b2)
         self.assertEqual(ec2, c2)
         self.assertEqual(ev2, v2)
+
+        verse_string13 = "Billy"
+        with self.assertRaises(InvalidReference):
+            Passage.interpret_reference(verse_string13)
+
+        verse_string14 = "Genesis 1:1 - Billy"
+        with self.assertRaises(InvalidReference):
+            Passage.interpret_reference(verse_string14)
+
+        verse_string15 = "Zedekiah 14:7 - Leviticus 1:5"
+        with self.assertRaises(InvalidReference):
+            Passage.interpret_reference(verse_string15)
+
+        verse_string16 = "Zedekiah 14:7 - JimBob 11:109"
+        with self.assertRaises(InvalidReference):
+            Passage.interpret_reference(verse_string15)
 
     def test_reference_to_verses(self):
         """

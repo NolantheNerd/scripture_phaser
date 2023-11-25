@@ -168,6 +168,10 @@ class Passage:
                     i += 1
                 book1 = book2 = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
 
+                # Book Name is not in the Bible (Billy)
+                if book1 == -1:
+                    raise InvalidReference(ref)
+
                 # Get Chapter:Verse Split
                 loc_components = split_components[-1].split(":")
 
@@ -197,6 +201,10 @@ class Passage:
                 while i < len(split_components) and split_components[i].isalpha():
                     i += 1
                 book1 = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
+
+                # Book Name is not in the Bible (Billy)
+                if book1 == -1:
+                    raise InvalidReference(ref)
 
                 # Get Chapter:Verse Split (if part of reference isn't book name)
                 if not split_components[-1].isalpha():
@@ -233,6 +241,10 @@ class Passage:
                 # Second Book is Not Specified [John 1:1 - 1:2]
                 else:
                     book2 = book1
+
+                # Book Name is not in the Bible (Billy)
+                if book2 == -1:
+                    raise InvalidReference(ref)
 
                 # Get Chapter:Verse Split (if part of reference isn't book name)
                 if not split_components[-1].isalpha():
