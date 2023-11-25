@@ -201,10 +201,14 @@ class API:
         subprocess.run([editor, self.filename])
 
     def complete_recitation(self):
-        with open(self.filename, "r") as file:
-            text = file.readlines()
-            text = "".join(text)
-        os.remove(self.filename)
+        if not self.filename.exists():
+            text = ""
+        else:
+            with open(self.filename, "r") as file:
+                text = file.readlines()
+                text = "".join(text)
+            os.remove(self.filename)
+
         attempt = Attempt.create(
             random_mode=self.mode,
             reference=self.target.reference,
