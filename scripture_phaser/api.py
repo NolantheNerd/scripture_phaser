@@ -153,13 +153,15 @@ class API:
 
     @passage.setter
     def passage(self, reference):
-        if reference == "" or reference == "None":
+        if reference.strip() == "" or reference == "None":
             self._passage = None
+            self.config[App.reference.name] = "None"
         else:
             self._passage = Passage(reference, self.translation)
             self._passage.populate()
             self.config[App.reference.name] = self._passage.reference
-            self.save_config(self.config)
+
+        self.save_config(self.config)
 
     def view_passage(self):
         if self.passage is not None:
