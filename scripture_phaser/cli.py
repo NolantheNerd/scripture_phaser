@@ -142,9 +142,7 @@ class CLI:
                 if self.api.passage is None:
                     print("Reference: No reference set")
                 else:
-                    self.api.new_recitation()
-                    self.api.launch_recitation()
-                    score, diff = self.api.complete_recitation()
+                    score, diff = self.api.recitation()
                     print(score, diff)
 
             # Show Stats

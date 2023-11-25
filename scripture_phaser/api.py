@@ -169,14 +169,12 @@ class API:
         else:
             print("Reference: No reference set")
 
-    def new_recitation(self):
+    def recitation(self):
         if self.mode:
             self.target = self.get_random_verse()
         else:
             self.target = self.passage
-        return self.target
 
-    def launch_recitation(self):
         try:
             editor = os.environ["EDITOR"]
         except KeyError:
@@ -202,7 +200,6 @@ class API:
         self.filename = self.cache_path / f"{self.target.reference}"
         subprocess.run([editor, self.filename])
 
-    def complete_recitation(self):
         if not self.filename.exists():
             text = ""
         else:
