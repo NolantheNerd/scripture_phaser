@@ -31,22 +31,9 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-from pathlib import Path
-from peewee import SqliteDatabase
-from scripture_phaser.enums import App
 from scripture_phaser.models import Attempt
-from xdg.BaseDirectory import save_data_path
 
 class Stats:
-    def __init__(self):
-        self._db_path = Path(save_data_path(App.Name.value)) / App.Database.value
-        if not os.path.isfile(self._db_path):
-            SqliteDatabase(self._db_path).create_tables([Attempt])
-
-    def reset(self):
-        os.remove(self._db_path)
-
     def total_attempts(self):
         return Attempt.select().count()
 
@@ -54,4 +41,5 @@ class Stats:
         return Attempt.select().where(Attempt.reference == reference).count()
 
     def average_target_score(self, reference):
-        return Attempt.select(Attempt.score).where(Attempt.reference == reference).avg()
+        scores = [a.score for a in Attempt.select(Attempt.score).where(Attempt.reference == reference)]
+        return sum(scores) / len(scores)
