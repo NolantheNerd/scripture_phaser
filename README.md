@@ -1,8 +1,4 @@
-=> ../index.gmi Home
-
 # Scripture Phaser
-
-=> gemini://git.nolanmcmahon.net Source Code
 
 scripture_phaser helps you to memorize the Word of Truth.
 
