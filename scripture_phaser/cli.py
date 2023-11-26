@@ -35,6 +35,7 @@ import argparse
 from scripture_phaser.api import API
 from scripture_phaser.enums import App
 from scripture_phaser.models import Attempt
+from scripture_phaser.enums import TermColours as TC
 from scripture_phaser.exceptions import InvalidTranslation
 
 class CLI:
@@ -42,10 +43,10 @@ class CLI:
         self.api = API()
         self.config = self.api.load_config()
 
-        self.parser = argparse.ArgumentParser(
-            description="scripture_phaser helps you to memorize the Word of Truth.",
+        parser = argparse.ArgumentParser(
+            description="scripture_phaser helps you to memorize the Word of Truth."
         )
-        self.parser.add_argument(
+        parser.add_argument(
             "--version",
             action="store_true",
             required=False,
@@ -53,7 +54,7 @@ class CLI:
             help="show the version number and release date",
             dest="version"
         )
-        self.parser.add_argument(
+        parser.add_argument(
             "--license",
             action="store_true",
             required=False,
@@ -61,7 +62,7 @@ class CLI:
             help="show the license",
             dest="license"
         )
-        args = self.parser.parse_args()
+        args = parser.parse_args()
 
         if getattr(args, "version"):
             print(f"{App.Name.value} version {App.version.value}, Release Date: {App.release_date.value}")
@@ -73,8 +74,8 @@ class CLI:
             self.mainloop()
 
     def mainloop(self):
-        print("scripture_phaser helps you to memorize the Word of Truth.")
-        print("Copyright (C) 2023 Nolan McMahon")
+        print(f"{TC.PINK}scripture_phaser helps you to memorize the Word of Truth.{TC.WHITE}")
+        print(f"{TC.PINK}Copyright (C) 2023 Nolan McMahon{TC.WHITE}")
 
         while True:
             user_input = input("> ").strip().lower()
@@ -86,89 +87,95 @@ class CLI:
             # Get Config
             elif user_input == "g" or user_input == "get":
                 self.api.load_config()
-                print("Configuration loaded!")
+                print(f"{TC.PINK}Configuration loaded!{TC.WHITE}")
 
             # Write Config
             elif user_input == "w" or user_input == "write":
-                self.api.save_config()
-                print("Current configuration saved!")
+                self.api.save_config(self.api.config)
+                print(f"{TC.PINK}Current configuration saved!{TC.WHITE}")
 
             # Current State
             elif user_input == "l" or user_input == "list":
                 if self.api.passage is not None:
-                    print(f"Reference: {self.api.passage.reference}")
+                    print(f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference}{TC.WHITE}")
                 else:
-                    print("Reference: No reference set")
-                print(f"Translation: {self.api.translation.name}")
-                print(f"Random Mode: {self.api.mode}")
+                    print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
+                print(f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation.name}{TC.WHITE}")
+                print(f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.mode}{TC.WHITE}")
                 if App.esv_api_key.name in self.api.config and \
                         self.api.config[App.esv_api_key.name] != "None":
-                    print(f"API Key for ESV.org Found")
+                    print(f"{TC.PINK}API Key for ESV.org Found{TC.WHITE}")
 
             # Toggle Mode
             elif user_input == "m" or user_input == "mode":
                 self.api.mode = not self.api.mode
-                print(f"Toggled random mode to {self.api.mode}")
+                print(f"{TC.PINK}Toggled random mode to {TC.YELLOW}{self.api.mode}{TC.WHITE}")
 
             # Set Reference
             elif user_input == "r" or user_input == "reference":
-                ref_str = input("Reference: ")
+                ref_str = input(f"{TC.PINK}Reference: {TC.WHITE}")
                 self.api.passage = ref_str
 
             # View Passage
             elif user_input == "v" or user_input == "view":
-                self.api.view_passage()
+                text = self.api.view_passage()
+                if len(text) > 0:
+                    print(f"{TC.CYAN}{text}{TC.WHITE}")
+                else:
+                    print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
 
             # Set Translation
             elif user_input == "t" or user_input == "translation":
-                trn_str = input("Translation: ")
+                trn_str = input(f"{TC.PINK}Translation: {TC.WHITE}")
                 try:
                     self.api.translation = trn_str
                 except InvalidTranslation:
-                    print("Invalid Translation\nChoose one of:\n" + "\n".join(self.api.list_translations()))
+                    print(f"{TC.RED}Invalid Translation\n{TC.PINK}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.list_translations()) + f"{TC.WHITE}")
 
             # View Translations
             elif user_input == "i" or user_input == "inquire":
-                print("Available Translations:")
-                print("\n".join(self.api.list_translations()))
+                print(f"{TC.PINK}Available Translations:{TC.WHITE}")
+                print(f"{TC.BLUE}" + "\n".join(self.api.list_translations()) + f"{TC.WHITE}")
 
             # Practice Passage
             elif user_input == "p" or user_input == "practice":
                 if self.api.passage is None:
-                    print("Reference: No reference set")
+                    print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
                 else:
                     score, diff = self.api.recitation()
                     print(score, diff)
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
-                pass
+                print(self.api.stats.total_attempts())
+                print(self.api.stats.total_target_attempts(self.api.passage.reference))
+                print(self.api.stats.average_target_score(self.api.passage.reference))
 
             # Reset Statistics
             elif user_input == "z" or user_input == "reset":
                 confirmation = input(
-                    "Are you sure that you want to reset your statistics? [y/N] "
+                    f"Are you sure that you want to reset your statistics? [{TC.RED}y{TC.WHITE}/{TC.GREEN}N{TC.WHITE}] "
                 ).strip().lower()
                 if confirmation == "y" or confirmation == "yes":
                     self.api.reset_db()
-                    print("Statistics reset")
+                    print(f"{TC.PINK}Statistics reset{TC.WHITE}")
 
             # Print Help
             else:
-                print("scripture_phaser can be controlled from the command line with the following commands:")
-                print("\tg - Reload the configuration file")
-                print("\tw - Save the current configuration")
-                print("\tl - Lists selected reference, mode and translation")
-                print("\tm - Toggles the mode")
-                print("\tr - Sets the reference")
-                print("\tt - Set the translation")
-                print("\ti - List available translations")
-                print("\tp - Practice the current reference")
-                print("\tv - Preview current reference")
-                print("\ts - View your statistics")
-                print("\th - Prints this help message")
-                print("\tz - Reset statistics")
-                print("\tq - Quits scripture_phaser")
+                print(f"{TC.PINK}scripture_phaser can be controlled from the command line with the following commands:{TC.WHITE}")
+                print(f"\t{TC.BLUE}g{TC.WHITE} - {TC.YELLOW}Reload the configuration file{TC.WHITE}")
+                print(f"\t{TC.BLUE}w{TC.WHITE} - {TC.YELLOW}Save the current configuration{TC.WHITE}")
+                print(f"\t{TC.BLUE}l{TC.WHITE} - {TC.YELLOW}Lists selected reference, mode and translation{TC.WHITE}")
+                print(f"\t{TC.BLUE}m{TC.WHITE} - {TC.YELLOW}Toggles the mode{TC.WHITE}")
+                print(f"\t{TC.BLUE}r{TC.WHITE} - {TC.YELLOW}Sets the reference{TC.WHITE}")
+                print(f"\t{TC.BLUE}t{TC.WHITE} - {TC.YELLOW}Set the translation{TC.WHITE}")
+                print(f"\t{TC.BLUE}i{TC.WHITE} - {TC.YELLOW}List available translations{TC.WHITE}")
+                print(f"\t{TC.BLUE}p{TC.WHITE} - {TC.YELLOW}Practice the current reference{TC.WHITE}")
+                print(f"\t{TC.BLUE}v{TC.WHITE} - {TC.YELLOW}Preview current reference")
+                print(f"\t{TC.BLUE}s{TC.WHITE} - {TC.YELLOW}View your statistics")
+                print(f"\t{TC.BLUE}h{TC.WHITE} - {TC.YELLOW}Prints this help message")
+                print(f"\t{TC.BLUE}z{TC.WHITE} - {TC.YELLOW}Reset statistics")
+                print(f"\t{TC.BLUE}q{TC.WHITE} - {TC.YELLOW}Quits scripture_phaser{TC.WHITE}")
 
 if __name__ == "__main__":
     obj = CLI()

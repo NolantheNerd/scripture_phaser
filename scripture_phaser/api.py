@@ -169,9 +169,9 @@ class API:
 
     def view_passage(self):
         if self.passage is not None:
-            print(self.passage.show(with_ref=True))
+            return self.passage.show(with_ref=True)
         else:
-            print("Reference: No reference set")
+            return ""
 
     def recitation(self):
         if self.mode:
