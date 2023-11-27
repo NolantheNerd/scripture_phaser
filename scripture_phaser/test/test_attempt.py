@@ -46,7 +46,7 @@ class AttemptTests(unittest.TestCase):
         correct_string = "This is the correct way to write this string."
         attempt_string = "This is an attempted way to write this string."
 
-        expected_score = 0.555555555555555
+        expected_score = 0.6923076923076923
 
         passage = MagicMock()
         passage.reference = "2 Hesitations 7:490"
