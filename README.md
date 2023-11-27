@@ -42,7 +42,7 @@ In one particular segment of the show, the characters are parodying an away miss
 
 The entire episode was released for free by Focus on the Family as a part of an episode of "The Official Adventures in Odyssey Podcast".
 
-=> https://www.oneplace.com/ministries/the-official-adventures-in-odyssey-podcast/player/june-13-2007-free-adventures-in-odyssey-episode-hidden-in-my-heart-798810.html Link to The Podcast Episode
+[Link to The Podcast Episode](https://www.oneplace.com/ministries/the-official-adventures-in-odyssey-podcast/player/june-13-2007-free-adventures-in-odyssey-episode-hidden-in-my-heart-798810.html)
 
 The "Sky Trip" portion of the episode starts at 12:28, if you want to skip directly to it.
 
