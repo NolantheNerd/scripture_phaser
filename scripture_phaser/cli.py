@@ -143,7 +143,15 @@ class CLI:
                     print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
                 else:
                     score, diff = self.api.recitation()
-                    print(score, diff)
+
+                    if score == 1.0:
+                        print(f"{TC.GREEN}Perfect!{TC.WHITE}")
+                    elif score > 0.75:
+                        print(f"{TC.PINK}Not bad: {TC.GREEN}{round(score * 100, 0)}%{TC.WHITE}")
+                        print(f"{TC.CYAN}{diff}{TC.WHITE}")
+                    else:
+                        print(f"{TC.RED}Not quite...{TC.WHITE}")
+                        print(f"{TC.CYAN}{diff}{TC.WHITE}")
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":

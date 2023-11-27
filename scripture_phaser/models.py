@@ -42,6 +42,7 @@ from peewee import BooleanField
 from peewee import DateTimeField
 from peewee import SqliteDatabase
 from scripture_phaser.enums import App
+from scripture_phaser.enums import TermColours as TC
 from xdg.BaseDirectory import save_data_path
 
 class Attempt(Model):
@@ -70,10 +71,30 @@ class Attempt(Model):
             self.score = 1
             self.diff = ""
         else:
-            ans_words = ans.split()
-            text_words = self.attempt.split()
-            result = list(difflib.Differ().compare(ans_words, text_words))
-            self.score = max(1 - len([
-                word for word in result if word.startswith("+ ") or word.startswith("- ")
-            ]) / len(ans_words), 0)
-            self.diff = "".join(result)
+            self.diff = ""
+            n_correct_chars, n_incorrect_chars = 0, 0
+            result = difflib.SequenceMatcher(a=self.attempt, b=ans).get_opcodes()
+            for tag, i1, i2, j1, j2 in result:
+                if tag == "replace":
+                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
+                    segment = f"{TC.RED}{self.attempt[i1:i2]}{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    self.diff += segment
+                elif tag == "delete":
+                    n_incorrect_chars += i2 - i1
+                    segment = f"{TC.RED}{self.attempt[i1:i2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    self.diff += segment
+                elif tag == "insert":
+                    n_incorrect_chars += j2 - j1
+                    segment = f"{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    self.diff += segment
+                elif tag == "equal":
+                    n_correct_chars += i2 - i1
+                    self.diff += f"{TC.CYAN}{self.attempt[i1:i2]}{TC.WHITE}"
+
+            self.score = n_correct_chars / (n_correct_chars + n_incorrect_chars)

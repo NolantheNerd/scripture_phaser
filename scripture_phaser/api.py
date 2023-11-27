@@ -206,6 +206,15 @@ class API:
             with open(self.filename, "r") as file:
                 text = file.readlines()
                 text = "".join(text)
+
+            # Vim Automatically Adds a Newline at the End of the File when
+            # you save it. (Unless you set :nofixeol and set :nofixendofline -
+            # in which case, this fix won't work - TODO Think about the case 
+            # where the correct recitation ends with a \n and the user has set
+            # these options...)
+            if (editor == "vim" or editor == "nvim") and text[-1] == "\n":
+                text = text[:-1]
+
             os.remove(self.filename)
 
         attempt = Attempt.create(
