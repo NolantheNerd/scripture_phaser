@@ -34,7 +34,7 @@ classifiers = [
 ]
 
 [project.scripts]
-scripture_phaser = "src.scripture_phaser:CLI"
+scripture_phaser = "src:scripture_phaser"
 
 [project.urls]
 Homepage = "https://nolanmcmahon.net/projects/scripture_phaser.html"

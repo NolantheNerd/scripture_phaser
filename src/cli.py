@@ -194,6 +194,3 @@ class CLI:
                 print(f"\t{TC.BLUE}h{TC.WHITE} - {TC.YELLOW}Prints this help message")
                 print(f"\t{TC.BLUE}z{TC.WHITE} - {TC.YELLOW}Reset statistics")
                 print(f"\t{TC.BLUE}q{TC.WHITE} - {TC.YELLOW}Quits{TC.WHITE}")
-
-if __name__ == "__main__":
-    obj = CLI()
