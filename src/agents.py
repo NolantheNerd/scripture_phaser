@@ -1,9 +1,9 @@
-# helps you to memorize the Word of Truth.
+# scripture_phaser helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of.
+# This file is part of scripture_phaser.
 #
-# is licensed under the terms of the BSD 3-Clause License
+# scripture_phaser is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
