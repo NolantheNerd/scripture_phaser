@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,18 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-.env
-__pycache__
-dist
+class InvalidReference(Exception):
+    def __init__(self, ref_string):
+        Exception.__init__(self, f"{ref_string} is not a valid Bible reference")
+
+class InvalidReferenceFormat(Exception):
+    def __init__(self):
+        Exception.__init__(self, "Invalid reference format; make sure there is a space between the book name and chapter number")
+
+class InvalidTranslation(Exception):
+    def __init__(self, translation):
+        Exception.__init__(self, f"{translation} is not a valid translation")
+
+class EditorNotFound(Exception):
+    def __init__(self):
+        Exception.__init__(self)

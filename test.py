@@ -1,11 +1,11 @@
 #!/usr/share/python
 
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -38,12 +38,12 @@ import unittest
 from pathlib import Path
 from xdg.BaseDirectory import save_config_path
 from colour_runner.runner import ColourTextTestRunner
-from scripture_phaser.enums import App
-from scripture_phaser.test.test_agents import AgentsTests
-from scripture_phaser.test.test_passage import PassageTests
-from scripture_phaser.test.test_verse import VerseTests
-from scripture_phaser.test.test_api import APITests
-from scripture_phaser.test.test_attempt import AttemptTests
+from src.enums import App
+from test.test_agents import AgentsTests
+from test.test_passage import PassageTests
+from test.test_verse import VerseTests
+from test.test_api import APITests
+from test.test_attempt import AttemptTests
 
 suite = unittest.TestSuite()
 

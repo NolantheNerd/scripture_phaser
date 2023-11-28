@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -34,13 +34,13 @@
 import re
 import requests
 from unicodedata import normalize
-from scripture_phaser.enums import Agents
-from scripture_phaser.enums import Translations
-from scripture_phaser.verse import Verse
-from scripture_phaser.enums import Bible
-from scripture_phaser.enums import Bible_Books
-from scripture_phaser.enums import Reverse_Bible_Books
-from scripture_phaser.passage import Passage
+from src.enums import Agents
+from src.enums import Translations
+from src.verse import Verse
+from src.enums import Bible
+from src.enums import Bible_Books
+from src.enums import Reverse_Bible_Books
+from src.passage import Passage
 from meaningless.bible_web_extractor import WebExtractor
 
 class BaseAPIAgent:

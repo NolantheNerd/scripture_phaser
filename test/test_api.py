@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -31,58 +31,49 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import random
 import unittest
-from scripture_phaser.verse import Verse
+from src.api import API
+from src.verse import Verse
+from src.passage import Passage
+from src.translations import ESV
+from src.exceptions import InvalidTranslation
 
-class VerseTests(unittest.TestCase):
+class APITests(unittest.TestCase):
     """
-    Test the Verse Object
+    Test Backend API
     """
-    def test_validate(self):
+    def test_translation_setter(self):
         """
-        Are illegitimate verses uninstantiatable?
+        Are invalid translation selections rejected?
         """
-        # Job 1:1
-        ref1 = Verse(17, 0, 0)
-        # Psalm 151:1
-        ref2 = Verse(18, 150, 0)
-        # 1 Samuel 1:200
-        ref3 = Verse(8, 0, 200)
-        # 3 John 1:5
-        ref4 = Verse(63, 0, 4)
-        # Steven 1:1
-        ref5 = Verse(-1, 0, 0)
+        api = API()
+        with self.assertRaises(InvalidTranslation):
+            bad_translation = "EESV"
+            api.translation = bad_translation
 
-        self.assertTrue(Verse.validate(ref1))
-        self.assertFalse(Verse.validate(ref2))
-        self.assertFalse(Verse.validate(ref3))
-        self.assertTrue(Verse.validate(ref4))
-        self.assertFalse(Verse.validate(ref5))
-
-    def test_show(self):
+    def test_get_random_verse(self):
         """
-        Do verses preview correctly?
+        Can random verses be selected from a passage?
         """
-        # John 11:35
-        text = "Jesus wept."
-        verse = Verse(42, 10, 34, text)
+        ref = "John 1:1-5"
+        translation = ESV()
 
-        self.assertEqual(
-            verse.show(),
-            text
-        )
+        raw_list = [
+        'In the beginning was the Word, and the Word was with God, and the ' +
+        'Word was God.',
+        'He was in the beginning with God.',
+        'All things were made through him, and without him was not any ' +
+        'thing made that was made.',
+        'In him was life, and the life was the light of men.',
+        'The light shines in the darkness, and the darkness has not overcome it.'
+        ]
 
-        self.assertEqual(
-            verse.show(with_verse=True),
-            f"[35] {text}"
-        )
+        passage = Passage(ref, translation)
+        passage.populate(raw_list)
 
-        self.assertEqual(
-            verse.show(with_ref=True),
-            f"{text} - John 11:35"
-        )
+        api = API()
+        api._passage = passage # "Mocking" the Passage Property
 
-        self.assertEqual(
-            verse.show(with_verse=True, with_ref=True),
-            f"[35] {text} - John 11:35"
-        )
+        random.seed(45)
+        self.assertEqual(api.get_random_verse().reference, "John 1:3")

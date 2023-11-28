@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -34,12 +34,12 @@
 import unittest
 from dotenv import dotenv_values
 from unittest.mock import MagicMock
-from scripture_phaser.enums import App
-from scripture_phaser.verse import Verse
-from scripture_phaser.agents import ESVAPIAgent
-from scripture_phaser.agents import KJVAPIAgent
-from scripture_phaser.agents import WEBAPIAgent
-from scripture_phaser.agents import BBEAPIAgent
+from src.enums import App
+from src.verse import Verse
+from src.agents import ESVAPIAgent
+from src.agents import KJVAPIAgent
+from src.agents import WEBAPIAgent
+from src.agents import BBEAPIAgent
 from xdg.BaseDirectory import load_first_config
 
 class AgentsTests(unittest.TestCase):

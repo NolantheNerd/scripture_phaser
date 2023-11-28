@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -85,14 +85,14 @@ class AppDefaults:
         self.reference = "None"
 
 class App(enum.Enum):
-    Name = "scripture_phaser"
-    Database = "scripture_phaser_db"
+    Name = "
+    Database = _db"
     translation = "translation"
     random_mode = "random_mode"
     esv_api_key = "esv_api_key"
     reference = "reference"
     license = license_text
-    version = "0.1"
+    version = "1.0"
     release_date = "2023-11-25"
 
 class Translations(enum.Enum):

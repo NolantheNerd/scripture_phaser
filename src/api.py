@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -40,24 +40,24 @@ from pathlib import Path
 from dotenv import dotenv_values
 from xdg.BaseDirectory import save_cache_path
 from xdg.BaseDirectory import save_config_path
-from scripture_phaser.enums import App
-from scripture_phaser.enums import AppDefaults
-from scripture_phaser.stats import Stats
-from scripture_phaser.models import Attempt
-from scripture_phaser.passage import Passage
-from scripture_phaser.enums import Translations
-from scripture_phaser.exceptions import EditorNotFound
-from scripture_phaser.exceptions import InvalidTranslation
-from scripture_phaser.translations import ESV
-from scripture_phaser.translations import NIV
-from scripture_phaser.translations import KJV
-from scripture_phaser.translations import WEB
-from scripture_phaser.translations import BBE
-from scripture_phaser.translations import NKJV
-from scripture_phaser.translations import NLT
-from scripture_phaser.translations import NASB
-from scripture_phaser.translations import NRSV
-from scripture_phaser.exceptions import InvalidReference
+from src.enums import App
+from src.enums import AppDefaults
+from src.stats import Stats
+from src.models import Attempt
+from src.passage import Passage
+from src.enums import Translations
+from src.exceptions import EditorNotFound
+from src.exceptions import InvalidTranslation
+from src.translations import ESV
+from src.translations import NIV
+from src.translations import KJV
+from src.translations import WEB
+from src.translations import BBE
+from src.translations import NKJV
+from src.translations import NLT
+from src.translations import NASB
+from src.translations import NRSV
+from src.exceptions import InvalidReference
 
 class API:
     def __init__(self):

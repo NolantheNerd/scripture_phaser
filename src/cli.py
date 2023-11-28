@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -32,11 +32,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import argparse
-from scripture_phaser.api import API
-from scripture_phaser.enums import App
-from scripture_phaser.models import Attempt
-from scripture_phaser.enums import TermColours as TC
-from scripture_phaser.exceptions import InvalidTranslation
+from src.api import API
+from src.enums import App
+from src.models import Attempt
+from src.enums import TermColours as TC
+from src.exceptions import InvalidTranslation
 
 class CLI:
     def __init__(self):
@@ -44,7 +44,7 @@ class CLI:
         self.config = self.api.load_config()
 
         parser = argparse.ArgumentParser(
-            description="scripture_phaser helps you to memorize the Word of Truth."
+            description= helps you to memorize the Word of Truth."
         )
         parser.add_argument(
             "--version",
@@ -74,7 +74,7 @@ class CLI:
             self.mainloop()
 
     def mainloop(self):
-        print(f"{TC.PINK}scripture_phaser helps you to memorize the Word of Truth.{TC.WHITE}")
+        print(f"{TC.PINK helps you to memorize the Word of Truth.{TC.WHITE}")
         print(f"{TC.PINK}Copyright (C) 2023 Nolan McMahon{TC.WHITE}")
 
         while True:
@@ -180,7 +180,7 @@ class CLI:
 
             # Print Help
             else:
-                print(f"{TC.PINK}scripture_phaser can be controlled from the command line with the following commands:{TC.WHITE}")
+                print(f"{TC.PINK can be controlled from the command line with the following commands:{TC.WHITE}")
                 print(f"\t{TC.BLUE}g{TC.WHITE} - {TC.YELLOW}Reload the configuration file{TC.WHITE}")
                 print(f"\t{TC.BLUE}w{TC.WHITE} - {TC.YELLOW}Save the current configuration{TC.WHITE}")
                 print(f"\t{TC.BLUE}l{TC.WHITE} - {TC.YELLOW}Lists selected reference, mode and translation{TC.WHITE}")
@@ -193,7 +193,7 @@ class CLI:
                 print(f"\t{TC.BLUE}s{TC.WHITE} - {TC.YELLOW}View your statistics")
                 print(f"\t{TC.BLUE}h{TC.WHITE} - {TC.YELLOW}Prints this help message")
                 print(f"\t{TC.BLUE}z{TC.WHITE} - {TC.YELLOW}Reset statistics")
-                print(f"\t{TC.BLUE}q{TC.WHITE} - {TC.YELLOW}Quits scripture_phaser{TC.WHITE}")
+                print(f"\t{TC.BLUE}q{TC.WHITE} - {TC.YELLOW}Quits{TC.WHITE}")
 
 if __name__ == "__main__":
     obj = CLI()

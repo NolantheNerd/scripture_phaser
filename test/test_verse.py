@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -31,18 +31,58 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-class InvalidReference(Exception):
-    def __init__(self, ref_string):
-        Exception.__init__(self, f"{ref_string} is not a valid Bible reference")
+import unittest
+from src.verse import Verse
 
-class InvalidReferenceFormat(Exception):
-    def __init__(self):
-        Exception.__init__(self, "Invalid reference format; make sure there is a space between the book name and chapter number")
+class VerseTests(unittest.TestCase):
+    """
+    Test the Verse Object
+    """
+    def test_validate(self):
+        """
+        Are illegitimate verses uninstantiatable?
+        """
+        # Job 1:1
+        ref1 = Verse(17, 0, 0)
+        # Psalm 151:1
+        ref2 = Verse(18, 150, 0)
+        # 1 Samuel 1:200
+        ref3 = Verse(8, 0, 200)
+        # 3 John 1:5
+        ref4 = Verse(63, 0, 4)
+        # Steven 1:1
+        ref5 = Verse(-1, 0, 0)
 
-class InvalidTranslation(Exception):
-    def __init__(self, translation):
-        Exception.__init__(self, f"{translation} is not a valid translation")
+        self.assertTrue(Verse.validate(ref1))
+        self.assertFalse(Verse.validate(ref2))
+        self.assertFalse(Verse.validate(ref3))
+        self.assertTrue(Verse.validate(ref4))
+        self.assertFalse(Verse.validate(ref5))
 
-class EditorNotFound(Exception):
-    def __init__(self):
-        Exception.__init__(self)
+    def test_show(self):
+        """
+        Do verses preview correctly?
+        """
+        # John 11:35
+        text = "Jesus wept."
+        verse = Verse(42, 10, 34, text)
+
+        self.assertEqual(
+            verse.show(),
+            text
+        )
+
+        self.assertEqual(
+            verse.show(with_verse=True),
+            f"[35] {text}"
+        )
+
+        self.assertEqual(
+            verse.show(with_ref=True),
+            f"{text} - John 11:35"
+        )
+
+        self.assertEqual(
+            verse.show(with_verse=True, with_ref=True),
+            f"[35] {text} - John 11:35"
+        )

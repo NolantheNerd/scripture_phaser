@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scripture_phaser"
+version = "1.0"
+dependencies = [
+	"pyxdg==0.28",
+	"requests==2.31.0",
+	"python-dotenv==1.0.0",
+	"meaninless==1.0.0",
+	"peewee==3.17.0",
+	"colour-runner==0.1.1"
+]
+requires-python = ">=3.8"
+authors = [
+  { name="Nolan McMahon", email="nolan@nolanmcmahon.net" },
+]
+description = "scripture_phaser helps you to memorize the Word of Truth."
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["Bible", "scripture", "memorization", "cli"]
+classifiers = [
+	"Development Status :: 5 - Production/Stable",
+	"Environment :: Console",
+	"Intended Audience :: End Users/Desktop",
+	"Intended Audience :: Religion",
+	"License :: OSI Approved :: BSD License",
+	"Natural Language :: English",
+	"Operating System :: Unix",
+	"Programming Language :: Python",
+	"Topic :: Religion"
+]
+
+[project.scripts]
+scripture_phaser = "src.scripture_phaser:CLI"
+
+[project.urls]
+Homepage = "https://nolanmcmahon.net/projects/scripture_phaser.html"
+Repository = "https://github.com/NolantheNerd/scripture_phaser"

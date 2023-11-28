@@ -1,9 +1,9 @@
-# scripture_phaser helps you to memorize the Word of Truth.
+# helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
-# This file is part of scripture_phaser.
+# This file is part of.
 #
-# scripture_phaser is licensed under the terms of the BSD 3-Clause License
+# is licensed under the terms of the BSD 3-Clause License
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -33,18 +33,18 @@
 
 import webbrowser
 from dotenv import dotenv_values
-from scripture_phaser.enums import App
-from scripture_phaser.enums import Translations
-from scripture_phaser.agents import KJVAPIAgent
-from scripture_phaser.agents import WEBAPIAgent
-from scripture_phaser.agents import BBEAPIAgent
-from scripture_phaser.agents import ESVAPIAgent
-from scripture_phaser.agents import ESVBibleGatewayAgent
-from scripture_phaser.agents import NIVBibleGatewayAgent
-from scripture_phaser.agents import NKJVBibleGatewayAgent
-from scripture_phaser.agents import NLTBibleGatewayAgent
-from scripture_phaser.agents import NASBBibleGatewayAgent
-from scripture_phaser.agents import NRSVBibleGatewayAgent
+from src.enums import App
+from src.enums import Translations
+from src.agents import KJVAPIAgent
+from src.agents import WEBAPIAgent
+from src.agents import BBEAPIAgent
+from src.agents import ESVAPIAgent
+from src.agents import ESVBibleGatewayAgent
+from src.agents import NIVBibleGatewayAgent
+from src.agents import NKJVBibleGatewayAgent
+from src.agents import NLTBibleGatewayAgent
+from src.agents import NASBBibleGatewayAgent
+from src.agents import NRSVBibleGatewayAgent
 from xdg.BaseDirectory import load_first_config
 
 class BaseTranslation:
