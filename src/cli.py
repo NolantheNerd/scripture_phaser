@@ -74,7 +74,7 @@ class CLI:
             self.mainloop()
 
     def mainloop(self):
-        print(f"{TC.PINK helps you to memorize the Word of Truth.{TC.WHITE}")
+        print(f"{TC.PINK}scripture_phaser helps you to memorize the Word of Truth.{TC.WHITE}")
         print(f"{TC.PINK}Copyright (C) 2023 Nolan McMahon{TC.WHITE}")
 
         while True:
@@ -180,7 +180,7 @@ class CLI:
 
             # Print Help
             else:
-                print(f"{TC.PINK can be controlled from the command line with the following commands:{TC.WHITE}")
+                print(f"{TC.PINK}scripture_phaser can be controlled from the command line with the following commands:{TC.WHITE}")
                 print(f"\t{TC.BLUE}g{TC.WHITE} - {TC.YELLOW}Reload the configuration file{TC.WHITE}")
                 print(f"\t{TC.BLUE}w{TC.WHITE} - {TC.YELLOW}Save the current configuration{TC.WHITE}")
                 print(f"\t{TC.BLUE}l{TC.WHITE} - {TC.YELLOW}Lists selected reference, mode and translation{TC.WHITE}")

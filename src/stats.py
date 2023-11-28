@@ -42,4 +42,7 @@ class Stats:
 
     def average_target_score(self, reference):
         scores = [a.score for a in Attempt.select(Attempt.score).where(Attempt.reference == reference)]
-        return sum(scores) / len(scores)
+        if len(scores) > 0:
+            return sum(scores) / len(scores)
+        else:
+            return 0

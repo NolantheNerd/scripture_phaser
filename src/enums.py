@@ -85,8 +85,8 @@ class AppDefaults:
         self.reference = "None"
 
 class App(enum.Enum):
-    Name = "
-    Database = _db"
+    Name = "scripture_phaser"
+    Database = "scripture_phaser_db"
     translation = "translation"
     random_mode = "random_mode"
     esv_api_key = "esv_api_key"
