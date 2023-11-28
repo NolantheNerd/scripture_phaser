@@ -4,7 +4,9 @@ scripture_phaser helps you to memorize the Word of Truth.
 
 ## Installation
 
-TODO
+This package is available through PIP:
+
+pip install scripture_phaser
 
 ## Usage
 
@@ -32,7 +34,7 @@ From the interactive CLI, the following commands are available:
 
 ## Uninstallation
 
-TODO
+pip uninstall scripture_phaser
 
 ## What's up with the Name?
 
