@@ -2,6 +2,8 @@
 
 scripture_phaser helps you to memorize the Word of Truth.
 
+![scripture_phaser Demo](demo.gif)
+
 ## Installation
 
 This package is available through PIP:
