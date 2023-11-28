@@ -39,11 +39,11 @@ from pathlib import Path
 from xdg.BaseDirectory import save_config_path
 from colour_runner.runner import ColourTextTestRunner
 from src.enums import App
-from test.test_agents import AgentsTests
-from test.test_passage import PassageTests
-from test.test_verse import VerseTests
-from test.test_api import APITests
-from test.test_attempt import AttemptTests
+from test_agents import AgentsTests
+from test_passage import PassageTests
+from test_verse import VerseTests
+from test_api import APITests
+from test_attempt import AttemptTests
 
 suite = unittest.TestSuite()
 
