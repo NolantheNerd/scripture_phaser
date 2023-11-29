@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import webbrowser
 from dotenv import dotenv_values
 from src.enums import App
 from src.enums import Translations
@@ -48,16 +47,12 @@ from src.agents import NRSVBibleGatewayAgent
 from xdg.BaseDirectory import load_first_config
 
 class BaseTranslation:
-    def __init__(self, name, source, agent):
+    def __init__(self, name, agent):
         self.name = name
-        self.source = source
         self.agent = agent
 
     def about(self):
         return self.name.value
-
-    def visit_source(self):
-        webbrowser.open(self.source)
 
 class ESV(BaseTranslation):
     def __init__(self, api_key=None):
@@ -66,13 +61,11 @@ class ESV(BaseTranslation):
         if self.api_key is not None:
             super().__init__(
                 name=Translations.ESV.value,
-                source="https://www.esv.org",
                 agent=ESVAPIAgent(self.api_key)
             )
         else:
             super().__init__(
                 name=Translations.ESV.value,
-                source="https://www.esv.org",
                 agent=ESVBibleGatewayAgent()
             )
 
@@ -80,7 +73,6 @@ class KJV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.KJV.value,
-            source="https://www.kingjamesbibleonline.org/",
             agent=KJVAPIAgent()
         )
 
@@ -88,7 +80,6 @@ class WEB(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.WEB.value,
-            source="https://worldenglish.bible/",
             agent=WEBAPIAgent()
         )
 
@@ -96,7 +87,6 @@ class BBE(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.BBE.value,
-            source="https://www.o-bible.com/bbe.html",
             agent=BBEAPIAgent()
         )
 
@@ -104,7 +94,6 @@ class NIV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NIV.value,
-            source="https://thenivbible.com",
             agent=NIVBibleGatewayAgent()
         )
 
@@ -112,7 +101,6 @@ class NKJV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NKJV.value,
-            source="https://www.thomasnelsonbibles.com/nkjv-bible/",
             agent=NKJVBibleGatewayAgent()
         )
 
@@ -120,7 +108,6 @@ class NLT(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NLT.value,
-            source="https://nlt.to/",
             agent=NLTBibleGatewayAgent()
         )
 
@@ -128,7 +115,6 @@ class NASB(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NASB.value,
-            source="https://www.lockman.org/new-american-standard-bible-nasb/",
             agent=NASBBibleGatewayAgent()
         )
 
@@ -136,6 +122,5 @@ class NRSV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.RSV.value,
-            source="https://www.friendshippress.org/pages/about-the-nrsvue",
             agent=NRSVBibleGatewayAgent()
         )
