@@ -155,19 +155,22 @@ class CLI:
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
-                total_attempts = self.api.stats.total_attempts()
-                total_target_attempts = self.api.stats.total_target_attempts(
-                    self.api.passage.reference
-                )
-                average_target_score = round(
-                    self.api.stats.average_target_score(
+                if self.api.passage is None:
+                    print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
+                else:
+                    total_attempts = self.api.stats.total_attempts()
+                    total_target_attempts = self.api.stats.total_target_attempts(
                         self.api.passage.reference
-                    ) * 100, 2
-                )
+                    )
+                    average_target_score = round(
+                        self.api.stats.average_target_score(
+                            self.api.passage.reference
+                        ) * 100, 2
+                    )
 
-                print(f"{TC.PINK}You've made {TC.GREEN}{total_attempts}{TC.PINK} practice attempts!{TC.WHITE}")
-                print(f"{TC.PINK}That includes {TC.GREEN}{total_target_attempts}{TC.PINK} practice attempts of {TC.CYAN}{self.api.passage.reference}{TC.PINK}!{TC.WHITE}")
-                print(f"{TC.PINK}Your average score on {TC.CYAN}{self.api.passage.reference}{TC.PINK} is {TC.GREEN}{average_target_score}%{TC.PINK}!{TC.WHITE}")
+                    print(f"{TC.PINK}You've made {TC.GREEN}{total_attempts}{TC.PINK} practice attempts!{TC.WHITE}")
+                    print(f"{TC.PINK}That includes {TC.GREEN}{total_target_attempts}{TC.PINK} practice attempts of {TC.CYAN}{self.api.passage.reference}{TC.PINK}!{TC.WHITE}")
+                    print(f"{TC.PINK}Your average score on {TC.CYAN}{self.api.passage.reference}{TC.PINK} is {TC.GREEN}{average_target_score}%{TC.PINK}!{TC.WHITE}")
 
             # Reset Statistics
             elif user_input == "z" or user_input == "reset":
