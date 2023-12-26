@@ -34,3 +34,4 @@
 .env
 __pycache__
 dist
+.idea
