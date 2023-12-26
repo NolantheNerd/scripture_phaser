@@ -142,6 +142,9 @@ class API:
             self.config[App.translation.name] = translation
             self.save_config(self.config)
 
+            if hasattr(self, "passage") and self.passage is not None:
+                self.passage = self.passage.reference
+
     def get_random_verse(self):
         verse = random.choice(self.passage.verses)
         verse_passage = Passage(verse.reference, self.translation)
