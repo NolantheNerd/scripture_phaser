@@ -34,9 +34,9 @@
 import argparse
 from src.api import API
 from src.enums import App
-from src.models import Attempt
 from src.enums import TermColours as TC
 from src.exceptions import InvalidTranslation
+
 
 class CLI:
     def __init__(self):
@@ -185,7 +185,8 @@ class CLI:
             # Print Help
             else:
                 print(f"{TC.PINK}scripture_phaser can be controlled from the command line with the following commands:{TC.WHITE}")
-                print(f"\t{TC.BLUE}g{TC.WHITE} - {TC.YELLOW}Reload the configuration file{TC.WHITE}")
+                print(f"\t{TC.BLUE}g{TC.WHITE} - {TC.YELLOW}"
+                      f"Reload the configuration file{TC.WHITE}")
                 print(f"\t{TC.BLUE}w{TC.WHITE} - {TC.YELLOW}Save the current configuration{TC.WHITE}")
                 print(f"\t{TC.BLUE}l{TC.WHITE} - {TC.YELLOW}Lists selected reference, mode and translation{TC.WHITE}")
                 print(f"\t{TC.BLUE}m{TC.WHITE} - {TC.YELLOW}Toggles the mode{TC.WHITE}")
@@ -193,8 +194,8 @@ class CLI:
                 print(f"\t{TC.BLUE}t{TC.WHITE} - {TC.YELLOW}Set the translation{TC.WHITE}")
                 print(f"\t{TC.BLUE}i{TC.WHITE} - {TC.YELLOW}List available translations{TC.WHITE}")
                 print(f"\t{TC.BLUE}p{TC.WHITE} - {TC.YELLOW}Practice the current reference{TC.WHITE}")
-                print(f"\t{TC.BLUE}v{TC.WHITE} - {TC.YELLOW}Preview current reference")
-                print(f"\t{TC.BLUE}s{TC.WHITE} - {TC.YELLOW}View your statistics")
-                print(f"\t{TC.BLUE}h{TC.WHITE} - {TC.YELLOW}Prints this help message")
-                print(f"\t{TC.BLUE}z{TC.WHITE} - {TC.YELLOW}Reset statistics")
+                print(f"\t{TC.BLUE}v{TC.WHITE} - {TC.YELLOW}Preview current reference{TC.WHITE}")
+                print(f"\t{TC.BLUE}s{TC.WHITE} - {TC.YELLOW}View your statistics{TC.WHITE}")
+                print(f"\t{TC.BLUE}h{TC.WHITE} - {TC.YELLOW}Prints this help message{TC.WHITE}")
+                print(f"\t{TC.BLUE}z{TC.WHITE} - {TC.YELLOW}Reset statistics{TC.WHITE}")
                 print(f"\t{TC.BLUE}q{TC.WHITE} - {TC.YELLOW}Quits{TC.WHITE}")

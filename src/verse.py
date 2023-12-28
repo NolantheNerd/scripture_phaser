@@ -33,7 +33,7 @@
 
 from src.enums import Bible
 from src.enums import Bible_Books
-from src.exceptions import InvalidReference
+
 
 class Verse:
     def __init__(self, book, chapter, verse, text=None):

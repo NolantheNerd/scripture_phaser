@@ -59,6 +59,7 @@ from src.translations import NASB
 from src.translations import NRSV
 from src.exceptions import InvalidReference
 
+
 class API:
     def __init__(self):
         self.stats = Stats()
@@ -98,7 +99,6 @@ class API:
                 for key in missing_keys:
                     file.write(f"{key}=\"{getattr(AppDefaults(), key)}\"\n")
                     config[key] = getattr(AppDefaults(), key)
-
 
         return config
 
@@ -197,7 +197,8 @@ class API:
                 else:
                     raise EditorNotFound()
             except EditorNotFound:
-                print("Text editor not found; set the 'EDITOR' environmental variable and try again")
+                print("Text editor not found; set the 'EDITOR'" +
+                      "environmental variable and try again")
                 exit()
 
         self.filename = self.cache_path / f"{self.target.reference}"
@@ -212,10 +213,10 @@ class API:
 
             # Vim Automatically Adds a Newline at the End of the File when
             # you save it. (Unless you set :nofixeol and set :nofixendofline -
-            # in which case, this fix won't work - TODO Think about the case 
+            # in which case, this fix won't work - TODO Think about the case
             # where the correct recitation ends with a \n and the user has set
             # these options...)
-            if (editor == "vim" or editor == "nvim" or editor == "nano") and text[-1] == "\n":
+            if (editor in ("vim", "nvim", "nano")) and text[-1] == "\n":
                 text = text[:-1]
 
             os.remove(self.filename)

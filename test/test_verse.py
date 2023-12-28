@@ -34,6 +34,7 @@
 import unittest
 from src.verse import Verse
 
+
 class VerseTests(unittest.TestCase):
     """
     Test the Verse Object

@@ -66,6 +66,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
+
 class TermColours:
     PINK = '\033[95m'
     BLUE = '\033[94m'
@@ -77,12 +78,14 @@ class TermColours:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 class AppDefaults:
     def __init__(self):
         self.translation = "NIV"
         self.random_mode = False
         self.esv_api_key = None
         self.reference = "None"
+
 
 class App(enum.Enum):
     Name = "scripture_phaser"
@@ -95,6 +98,7 @@ class App(enum.Enum):
     version = "1.0"
     release_date = "2023-11-25"
 
+
 class Translations(enum.Enum):
     ESV = "English Standard Version (ESV)"
     NIV = "New International Version (NIV)"
@@ -105,6 +109,7 @@ class Translations(enum.Enum):
     NRSV = "New Revised Standard Version (NRSV)"
     WEB = "World English Bible (WEB)"
     BBE = "Bible in Basic English (BBE)"
+
 
 class Agents(enum.Enum):
     ESVBGW = "ESV"
@@ -117,6 +122,7 @@ class Agents(enum.Enum):
     KJVAPI = "https://bible-api.com/"
     WEBAPI = "https://bible-api.com/"
     BBEAPI = "https://bible-api.com/"
+
 
 Genesis = [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27,
            33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 55, 32, 20, 31,

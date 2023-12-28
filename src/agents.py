@@ -35,13 +35,12 @@ import re
 import requests
 from unicodedata import normalize
 from src.enums import Agents
-from src.enums import Translations
-from src.verse import Verse
 from src.enums import Bible
 from src.enums import Bible_Books
 from src.enums import Reverse_Bible_Books
 from src.passage import Passage
 from meaningless.bible_web_extractor import WebExtractor
+
 
 class BaseAPIAgent:
     def __init__(self, agent):
@@ -58,6 +57,7 @@ class BaseAPIAgent:
 
     def get(self, ref):
         return self._split(self._clean(self._fetch(ref)))
+
 
 class ESVAPIAgent(BaseAPIAgent):
     def __init__(self, api_key):
@@ -102,6 +102,7 @@ class ESVAPIAgent(BaseAPIAgent):
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
 
+
 class KJVAPIAgent(BaseAPIAgent):
     def __init__(self):
         self.api = Agents.KJVAPI.value
@@ -129,6 +130,7 @@ class KJVAPIAgent(BaseAPIAgent):
 
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
+
 
 class WEBAPIAgent(BaseAPIAgent):
     def __init__(self):
@@ -158,6 +160,7 @@ class WEBAPIAgent(BaseAPIAgent):
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
 
+
 class BBEAPIAgent(BaseAPIAgent):
     def __init__(self):
         self.api = Agents.BBEAPI.value
@@ -183,9 +186,11 @@ class BBEAPIAgent(BaseAPIAgent):
         # Always starts with a verse marker leaving the 0th element empty
         return re.split(verse_number_pattern, text)[1:]
 
+
 class BibleGatewayAgent(BaseAPIAgent):
-    # @@@ TODO: Start Here ^^^ Maybe Don't Subclass? It's just unpredictability in terms
-    # of which API will be used to return data in the test_show() test in test_passage().
+    # @@@ TODO: Start Here ^^^ Maybe Don't Subclass? It's just
+    # unpredictability in terms of which API will be used to
+    # return data in the test_show() test in test_passage().
     # Maybe hard code the agent to use in the test?
     def __init__(self, agent):
         self.agent = agent
@@ -238,11 +243,13 @@ class BibleGatewayAgent(BaseAPIAgent):
             )
             return verses
 
+
 class ESVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
             agent=Agents.ESVBGW
         )
+
 
 class NIVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
@@ -250,11 +257,13 @@ class NIVBibleGatewayAgent(BibleGatewayAgent):
             agent=Agents.NIVBGW
         )
 
+
 class NKJVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
             agent=Agents.NKJVBGW
         )
+
 
 class NLTBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
@@ -262,11 +271,13 @@ class NLTBibleGatewayAgent(BibleGatewayAgent):
             agent=Agents.NLTBGW
         )
 
+
 class NASBBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
             agent=Agents.NASBBGW
         )
+
 
 class NRSVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
