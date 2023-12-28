@@ -126,8 +126,7 @@ class CLI:
 
             # Set Translation
             elif user_input == "t" or user_input == "translation":
-                trn_str = input(f"{TC.PINK}Translation: {TC.WHITE}")
-                trn_str = str.upper(trn_str)
+                trn_str = input(f"{TC.PINK}Translation: {TC.WHITE}").upper()
                 try:
                     self.api.translation = trn_str
                 except InvalidTranslation:
