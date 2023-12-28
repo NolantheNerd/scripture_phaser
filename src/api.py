@@ -45,7 +45,7 @@ from src.enums import AppDefaults
 from src.stats import Stats
 from src.models import Attempt
 from src.passage import Passage
-from src.enums import Translations
+from src.translations import Translations
 from src.exceptions import EditorNotFound
 from src.exceptions import InvalidTranslation
 from src.translations import ESV
