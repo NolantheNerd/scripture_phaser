@@ -35,7 +35,6 @@ from src.enums import Translations
 from src.agents import KJVAPIAgent
 from src.agents import WEBAPIAgent
 from src.agents import BBEAPIAgent
-from src.agents import ESVAPIAgent
 from src.agents import ESVBibleGatewayAgent
 from src.agents import NIVBibleGatewayAgent
 from src.agents import NKJVBibleGatewayAgent
@@ -54,19 +53,11 @@ class BaseTranslation:
 
 
 class ESV(BaseTranslation):
-    def __init__(self, api_key=None):
-        self.api_key = api_key
-
-        if self.api_key is not None:
-            super().__init__(
-                name=Translations.ESV.value,
-                agent=ESVAPIAgent(self.api_key)
-            )
-        else:
-            super().__init__(
-                name=Translations.ESV.value,
-                agent=ESVBibleGatewayAgent()
-            )
+    def __init__(self):
+        super().__init__(
+            name=Translations.ESV.value,
+            agent=ESVBibleGatewayAgent()
+        )
 
 
 class KJV(BaseTranslation):

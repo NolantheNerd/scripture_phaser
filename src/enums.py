@@ -83,7 +83,6 @@ class AppDefaults:
     def __init__(self):
         self.translation = "NIV"
         self.random_mode = False
-        self.esv_api_key = None
         self.reference = "None"
 
 
@@ -92,7 +91,6 @@ class App(enum.Enum):
     Database = "scripture_phaser_db"
     translation = "translation"
     random_mode = "random_mode"
-    esv_api_key = "esv_api_key"
     reference = "reference"
     license = license_text
     version = "1.0"
@@ -118,7 +116,6 @@ class Agents(enum.Enum):
     NLTBGW = "NLT"
     NRSVBGW = "NRSV"
     NASBBGW = "NASB"
-    ESVAPI = "https://api.esv.org/v3/passage/text/?"
     KJVAPI = "https://bible-api.com/"
     WEBAPI = "https://bible-api.com/"
     BBEAPI = "https://bible-api.com/"

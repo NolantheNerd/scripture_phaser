@@ -59,50 +59,6 @@ class BaseAPIAgent:
         return self._split(self._clean(self._fetch(ref)))
 
 
-class ESVAPIAgent(BaseAPIAgent):
-    def __init__(self, api_key):
-        self.api = Agents.ESVAPI.value
-        self.api_key = api_key
-
-        super().__init__(
-            agent=Agents.ESVAPI
-        )
-
-    def _fetch(self, ref):
-        headers = {"Authorization": "Token %s" % self.api_key}
-        params = {
-            "q": ref,
-            "include-passage-references": False,
-            "include-footnotes": False,
-            "include-headings": False,
-            "include-short-copyright": False,
-            "include-selahs": False,
-            "include-verse-numbers": True,
-            "indent-paragraphs": 0,
-            "indent-poetry": False,
-            "indent-declares": 0,
-            "indent-psalm-doxology": 0
-        }
-        resp = requests.get(self.api, params=params, headers=headers).json()
-        return resp["passages"][0]
-
-    def _clean(self, text):
-        # ESV API always returns 2 "\n" at the end
-        text = text[:-2]
-
-        text = re.sub("“", "\"", text)
-        text = re.sub("”", "\"", text)
-        text = re.sub("—", "-", text)
-
-        return normalize("NFKD", text)
-
-    def _split(self, text):
-        verse_number_pattern = re.compile(r" *\[[0-9]+\] *")
-
-        # Always starts with a verse marker leaving the 0th element empty
-        return re.split(verse_number_pattern, text)[1:]
-
-
 class KJVAPIAgent(BaseAPIAgent):
     def __init__(self):
         self.api = Agents.KJVAPI.value
@@ -116,6 +72,8 @@ class KJVAPIAgent(BaseAPIAgent):
             "translation": "kjv",
             "verse_numbers": True
         }
+
+        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
         resp = requests.get(f"{self.api}{ref}", params=params).json()
         return resp["text"]
 
@@ -126,10 +84,7 @@ class KJVAPIAgent(BaseAPIAgent):
         return text
 
     def _split(self, text):
-        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
-
-        # Always starts with a verse marker leaving the 0th element empty
-        return re.split(verse_number_pattern, text)[1:]
+        return [text]
 
 
 class WEBAPIAgent(BaseAPIAgent):
@@ -145,6 +100,8 @@ class WEBAPIAgent(BaseAPIAgent):
             "translation": "web",
             "verse_numbers": True
         }
+
+        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
         resp = requests.get(f"{self.api}{ref}", params=params).json()
         return resp["text"]
 
@@ -155,10 +112,7 @@ class WEBAPIAgent(BaseAPIAgent):
         return text
 
     def _split(self, text):
-        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
-
-        # Always starts with a verse marker leaving the 0th element empty
-        return re.split(verse_number_pattern, text)[1:]
+        return [text]
 
 
 class BBEAPIAgent(BaseAPIAgent):
@@ -174,6 +128,8 @@ class BBEAPIAgent(BaseAPIAgent):
             "translation": "bbe",
             "verse_numbers": True
         }
+
+        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
         resp = requests.get(f"{self.api}{ref}", params=params).json()
         return resp["text"]
 
@@ -181,10 +137,7 @@ class BBEAPIAgent(BaseAPIAgent):
         return text
 
     def _split(self, text):
-        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
-
-        # Always starts with a verse marker leaving the 0th element empty
-        return re.split(verse_number_pattern, text)[1:]
+        return [text]
 
 
 class BibleGatewayAgent(BaseAPIAgent):
@@ -198,7 +151,7 @@ class BibleGatewayAgent(BaseAPIAgent):
             translation=self.agent.value,
             show_passage_numbers=False,
             output_as_list=True,
-            strip_excess_whitespace_from_list=True,
+            strip_excess_whitespace_from_list=False,
             use_ascii_punctuation=True
         )
 

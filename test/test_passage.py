@@ -368,46 +368,46 @@ class PassageTests(unittest.TestCase):
         """
         Do passages display their content properly?
         """
-        mock_esv_api_key = "thisisafakeapikey"
         reference = "1 Peter 1:2 - 1:3"
-        translation = ESV(api_key=mock_esv_api_key)
+        translation = ESV()
         passage = Passage(reference, translation)
 
-        mock_api_return = '[2] according to the foreknowledge of God the Father, ' + \
-        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
-        'you.\n\n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
-        'According to his great mercy, he has caused us to be born again to a ' + \
-        'living hope through the resurrection of Jesus Christ from the dead,\n\n'
+        mock_api_return = [
+        'according to the foreknowledge of God the Father, in the sanctification of '
+        'the Spirit, for obedience to Jesus Christ and for sprinkling with his blood:'
+        '\nMay grace and peace be multiplied to you. \n', 'Blessed be the God and Father '
+        'of our Lord Jesus Christ! According to his great mercy, he has caused us to be '
+        'born again to a living hope through the resurrection of Jesus Christ from the dead,'
+        ]
 
         passage.translation.agent._fetch = MagicMock(return_value=mock_api_return)
 
         expected_clean = 'according to the foreknowledge of God the Father, ' + \
         'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
-        'you.\n\nBlessed be the God and Father of our Lord Jesus Christ! ' + \
+        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
+        'you. \nBlessed be the God and Father of our Lord Jesus Christ! ' + \
         'According to his great mercy, he has caused us to be born again to a ' + \
         'living hope through the resurrection of Jesus Christ from the dead,'
 
         expected_verse = '[2] according to the foreknowledge of God the Father, ' + \
         'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
-        'you.\n\n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
+        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
+        'you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
         'According to his great mercy, he has caused us to be born again to a ' + \
         'living hope through the resurrection of Jesus Christ from the dead,'
 
         expected_ref = 'according to the foreknowledge of God the Father, ' + \
         'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
-        'you.\n\nBlessed be the God and Father of our Lord Jesus Christ! ' + \
+        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
+        'you. \nBlessed be the God and Father of our Lord Jesus Christ! ' + \
         'According to his great mercy, he has caused us to be born again to a ' + \
         'living hope through the resurrection of Jesus Christ from the dead, ' + \
         '- 1 Peter 1:2 - 1:3'
 
         expected_full = '[2] according to the foreknowledge of God the Father, ' + \
         'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\n\nMay grace and peace be multiplied to ' + \
-        'you.\n\n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
+        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
+        'you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
         'According to his great mercy, he has caused us to be born again to a ' + \
         'living hope through the resurrection of Jesus Christ from the dead, ' + \
         '- 1 Peter 1:2 - 1:3'
