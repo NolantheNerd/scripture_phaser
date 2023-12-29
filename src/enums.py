@@ -83,7 +83,6 @@ class AppDefaults:
     def __init__(self):
         self.translation = "NIV"
         self.random_mode = False
-        self.esv_api_key = None
         self.reference = "None"
 
 
@@ -92,7 +91,6 @@ class App(enum.Enum):
     Database = "scripture_phaser_db"
     translation = "translation"
     random_mode = "random_mode"
-    esv_api_key = "esv_api_key"
     reference = "reference"
     license = license_text
     version = "1.0"
