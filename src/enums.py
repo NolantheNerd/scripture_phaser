@@ -106,7 +106,6 @@ class Translations(enum.Enum):
     NASB = "New American Standard Bible (NASB)"
     NRSV = "New Revised Standard Version (NRSV)"
     WEB = "World English Bible (WEB)"
-    BBE = "Bible in Basic English (BBE)"
 
 
 class Agents(enum.Enum):
@@ -116,9 +115,8 @@ class Agents(enum.Enum):
     NLTBGW = "NLT"
     NRSVBGW = "NRSV"
     NASBBGW = "NASB"
-    KJVAPI = "https://bible-api.com/"
-    WEBAPI = "https://bible-api.com/"
-    BBEAPI = "https://bible-api.com/"
+    KJVBGW = "KJV"
+    WEBBGW = "WEB"
 
 
 Genesis = [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27,
