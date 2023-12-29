@@ -37,7 +37,7 @@ import os
 import unittest
 from pathlib import Path
 from xdg.BaseDirectory import save_config_path
-#from colour_runner.runner import ColourTextTestRunner
+# from colour_runner.runner import ColourTextTestRunner
 from src.enums import App
 from test_agents import AgentsTests
 from test_passage import PassageTests
@@ -71,11 +71,13 @@ if __name__ == "__main__":
         config_path = Path(save_config_path(App.Name.value))
         config_file = config_path / "config"
         temp_config_file = config_path / "config_TEST"
-        if config_file.exists():
+        if not os.path.exists(config_file):
+            # if config_file.exists():
             os.rename(config_file, temp_config_file)
 
         unittest.TextTestRunner(verbosity=1).run(suite)
 
     finally:
-        if temp_config_file.exists():
+        if not os.path.exists(temp_config_file):
+            # if temp_config_file.exists():
             os.rename(temp_config_file, config_file)
