@@ -39,6 +39,7 @@ from src.passage import Passage
 from src.translations import ESV
 from src.exceptions import InvalidReference
 
+
 class PassageTests(unittest.TestCase):
     """
     Test the Passage Object
@@ -249,7 +250,7 @@ class PassageTests(unittest.TestCase):
 
         verse_string16 = "Zedekiah 14:7 - JimBob 11:109"
         with self.assertRaises(InvalidReference):
-            Passage.interpret_reference(verse_string15)
+            Passage.interpret_reference(verse_string16)
 
     def test_reference_to_verses(self):
         """

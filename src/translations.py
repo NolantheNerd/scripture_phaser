@@ -31,8 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from dotenv import dotenv_values
-from src.enums import App
 from src.enums import Translations
 from src.agents import KJVAPIAgent
 from src.agents import WEBAPIAgent
@@ -44,7 +42,7 @@ from src.agents import NKJVBibleGatewayAgent
 from src.agents import NLTBibleGatewayAgent
 from src.agents import NASBBibleGatewayAgent
 from src.agents import NRSVBibleGatewayAgent
-from xdg.BaseDirectory import load_first_config
+
 
 class BaseTranslation:
     def __init__(self, name, agent):
@@ -53,6 +51,7 @@ class BaseTranslation:
 
     def about(self):
         return self.name.value
+
 
 class ESV(BaseTranslation):
     def __init__(self, api_key=None):
@@ -69,12 +68,14 @@ class ESV(BaseTranslation):
                 agent=ESVBibleGatewayAgent()
             )
 
+
 class KJV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.KJV.value,
             agent=KJVAPIAgent()
         )
+
 
 class WEB(BaseTranslation):
     def __init__(self):
@@ -83,12 +84,14 @@ class WEB(BaseTranslation):
             agent=WEBAPIAgent()
         )
 
+
 class BBE(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.BBE.value,
             agent=BBEAPIAgent()
         )
+
 
 class NIV(BaseTranslation):
     def __init__(self):
@@ -97,12 +100,14 @@ class NIV(BaseTranslation):
             agent=NIVBibleGatewayAgent()
         )
 
+
 class NKJV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NKJV.value,
             agent=NKJVBibleGatewayAgent()
         )
+
 
 class NLT(BaseTranslation):
     def __init__(self):
@@ -111,12 +116,14 @@ class NLT(BaseTranslation):
             agent=NLTBibleGatewayAgent()
         )
 
+
 class NASB(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.NASB.value,
             agent=NASBBibleGatewayAgent()
         )
+
 
 class NRSV(BaseTranslation):
     def __init__(self):

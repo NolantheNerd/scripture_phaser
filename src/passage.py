@@ -36,6 +36,7 @@ from src.verse import Verse
 from src.enums import Reverse_Bible_Books
 from src.exceptions import InvalidReference
 
+
 class Passage:
     def __init__(self, reference, translation):
         self.translation = translation

@@ -33,8 +33,10 @@
 
 from src.cli import CLI
 
+
 def scripture_phaser():
-	CLI()
+    CLI()
+
 
 if __name__ == "__main__":
     scripture_phaser()

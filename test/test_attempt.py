@@ -35,6 +35,7 @@ import unittest
 from unittest.mock import MagicMock
 from src.models import Attempt
 
+
 class AttemptTests(unittest.TestCase):
     """
     Test the Attempt Object

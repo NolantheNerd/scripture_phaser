@@ -33,6 +33,7 @@
 
 from src.models import Attempt
 
+
 class Stats:
     def total_attempts(self):
         return Attempt.select().count()

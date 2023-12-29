@@ -35,12 +35,12 @@ import unittest
 from dotenv import dotenv_values
 from unittest.mock import MagicMock
 from src.enums import App
-from src.verse import Verse
 from src.agents import ESVAPIAgent
 from src.agents import KJVAPIAgent
 from src.agents import WEBAPIAgent
 from src.agents import BBEAPIAgent
 from xdg.BaseDirectory import load_first_config
+
 
 class AgentsTests(unittest.TestCase):
     """

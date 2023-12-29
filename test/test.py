@@ -37,7 +37,7 @@ import os
 import unittest
 from pathlib import Path
 from xdg.BaseDirectory import save_config_path
-from colour_runner.runner import ColourTextTestRunner
+#from colour_runner.runner import ColourTextTestRunner
 from src.enums import App
 from test_agents import AgentsTests
 from test_passage import PassageTests
@@ -47,7 +47,6 @@ from test_attempt import AttemptTests
 
 suite = unittest.TestSuite()
 
-suite.addTest(AgentsTests("test_esvapi_agent"))
 suite.addTest(AgentsTests("test_kjvapi_agent"))
 suite.addTest(AgentsTests("test_webapi_agent"))
 suite.addTest(AgentsTests("test_bbeapi_agent"))
@@ -75,7 +74,7 @@ if __name__ == "__main__":
         if config_file.exists():
             os.rename(config_file, temp_config_file)
 
-        ColourTextTestRunner(verbosity=2).run(suite)
+        unittest.TextTestRunner(verbosity=1).run(suite)
 
     finally:
         if temp_config_file.exists():

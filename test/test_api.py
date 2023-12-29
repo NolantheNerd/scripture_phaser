@@ -34,10 +34,10 @@
 import random
 import unittest
 from src.api import API
-from src.verse import Verse
 from src.passage import Passage
 from src.translations import ESV
 from src.exceptions import InvalidTranslation
+
 
 class APITests(unittest.TestCase):
     """
