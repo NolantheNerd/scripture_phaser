@@ -116,7 +116,6 @@ class Agents(enum.Enum):
     NLTBGW = "NLT"
     NRSVBGW = "NRSV"
     NASBBGW = "NASB"
-    ESVAPI = "https://api.esv.org/v3/passage/text/?"
     KJVAPI = "https://bible-api.com/"
     WEBAPI = "https://bible-api.com/"
     BBEAPI = "https://bible-api.com/"
