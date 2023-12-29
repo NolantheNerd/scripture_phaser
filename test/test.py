@@ -39,17 +39,12 @@ from pathlib import Path
 from xdg.BaseDirectory import save_config_path
 # from colour_runner.runner import ColourTextTestRunner
 from src.enums import App
-from test_agents import AgentsTests
 from test_passage import PassageTests
 from test_verse import VerseTests
 from test_api import APITests
 from test_attempt import AttemptTests
 
 suite = unittest.TestSuite()
-
-suite.addTest(AgentsTests("test_kjvapi_agent"))
-suite.addTest(AgentsTests("test_webapi_agent"))
-suite.addTest(AgentsTests("test_bbeapi_agent"))
 
 suite.addTest(VerseTests("test_validate"))
 suite.addTest(VerseTests("test_show"))

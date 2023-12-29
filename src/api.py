@@ -52,7 +52,6 @@ from src.translations import ESV
 from src.translations import NIV
 from src.translations import KJV
 from src.translations import WEB
-from src.translations import BBE
 from src.translations import NKJV
 from src.translations import NLT
 from src.translations import NASB

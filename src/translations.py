@@ -32,9 +32,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from src.enums import Translations
-from src.agents import KJVAPIAgent
-from src.agents import WEBAPIAgent
-from src.agents import BBEAPIAgent
+from src.agents import KJVBibleGatewayAgent
+from src.agents import WEBBibleGatewayAgent
 from src.agents import ESVBibleGatewayAgent
 from src.agents import NIVBibleGatewayAgent
 from src.agents import NKJVBibleGatewayAgent
@@ -64,7 +63,7 @@ class KJV(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.KJV.value,
-            agent=KJVAPIAgent()
+            agent=KJVBibleGatewayAgent()
         )
 
 
@@ -72,15 +71,7 @@ class WEB(BaseTranslation):
     def __init__(self):
         super().__init__(
             name=Translations.WEB.value,
-            agent=WEBAPIAgent()
-        )
-
-
-class BBE(BaseTranslation):
-    def __init__(self):
-        super().__init__(
-            name=Translations.BBE.value,
-            agent=BBEAPIAgent()
+            agent=WEBBibleGatewayAgent()
         )
 
 

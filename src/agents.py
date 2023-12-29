@@ -42,6 +42,8 @@ from src.passage import Passage
 from meaningless.bible_web_extractor import WebExtractor
 
 
+# Remains Distinct from BibleGateway Agent in the Event that Another API is
+# Needs to be Used
 class BaseAPIAgent:
     def __init__(self, agent):
         self.agent = agent
@@ -57,87 +59,6 @@ class BaseAPIAgent:
 
     def get(self, ref):
         return self._split(self._clean(self._fetch(ref)))
-
-
-class KJVAPIAgent(BaseAPIAgent):
-    def __init__(self):
-        self.api = Agents.KJVAPI.value
-
-        super().__init__(
-            agent=Agents.KJVAPI
-        )
-
-    def _fetch(self, ref):
-        params = {
-            "translation": "kjv",
-            "verse_numbers": True
-        }
-
-        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
-        resp = requests.get(f"{self.api}{ref}", params=params).json()
-        return resp["text"]
-
-    def _clean(self, text):
-        # Bible-API Always Keeps 1 "\n" at the end of the returned text
-        text = text[:-1]
-
-        return text
-
-    def _split(self, text):
-        return [text]
-
-
-class WEBAPIAgent(BaseAPIAgent):
-    def __init__(self):
-        self.api = Agents.WEBAPI.value
-
-        super().__init__(
-            agent=Agents.WEBAPI
-        )
-
-    def _fetch(self, ref):
-        params = {
-            "translation": "web",
-            "verse_numbers": True
-        }
-
-        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
-        resp = requests.get(f"{self.api}{ref}", params=params).json()
-        return resp["text"]
-
-    def _clean(self, text):
-        # Bible-API Always Keeps 1 "\n" at the end of the returned text
-        text = text[:-1]
-
-        return text
-
-    def _split(self, text):
-        return [text]
-
-
-class BBEAPIAgent(BaseAPIAgent):
-    def __init__(self):
-        self.api = Agents.BBEAPI.value
-
-        super().__init__(
-            agent=Agents.BBEAPI
-        )
-
-    def _fetch(self, ref):
-        params = {
-            "translation": "bbe",
-            "verse_numbers": True
-        }
-
-        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
-        resp = requests.get(f"{self.api}{ref}", params=params).json()
-        return resp["text"]
-
-    def _clean(self, text):
-        return text
-
-    def _split(self, text):
-        return [text]
 
 
 class BibleGatewayAgent(BaseAPIAgent):
@@ -195,6 +116,19 @@ class BibleGatewayAgent(BaseAPIAgent):
                 )
             )
             return verses
+
+class KJVBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__(
+            agent=Agents.KJVBGW
+        )
+
+
+class WEBBibleGatewayAgent(BibleGatewayAgent):
+    def __init__(self):
+        super().__init__(
+            agent=Agents.WEBBGW
+        )
 
 
 class ESVBibleGatewayAgent(BibleGatewayAgent):
