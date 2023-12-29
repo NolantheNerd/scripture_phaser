@@ -72,6 +72,8 @@ class KJVAPIAgent(BaseAPIAgent):
             "translation": "kjv",
             "verse_numbers": True
         }
+
+        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
         resp = requests.get(f"{self.api}{ref}", params=params).json()
         return resp["text"]
 
@@ -82,10 +84,7 @@ class KJVAPIAgent(BaseAPIAgent):
         return text
 
     def _split(self, text):
-        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
-
-        # Always starts with a verse marker leaving the 0th element empty
-        return re.split(verse_number_pattern, text)[1:]
+        return [text]
 
 
 class WEBAPIAgent(BaseAPIAgent):
@@ -101,6 +100,8 @@ class WEBAPIAgent(BaseAPIAgent):
             "translation": "web",
             "verse_numbers": True
         }
+
+        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
         resp = requests.get(f"{self.api}{ref}", params=params).json()
         return resp["text"]
 
@@ -111,10 +112,7 @@ class WEBAPIAgent(BaseAPIAgent):
         return text
 
     def _split(self, text):
-        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
-
-        # Always starts with a verse marker leaving the 0th element empty
-        return re.split(verse_number_pattern, text)[1:]
+        return [text]
 
 
 class BBEAPIAgent(BaseAPIAgent):
@@ -130,6 +128,8 @@ class BBEAPIAgent(BaseAPIAgent):
             "translation": "bbe",
             "verse_numbers": True
         }
+
+        ref = ref.replace("One", "1").replace("Two", "2").replace("Three", "3")
         resp = requests.get(f"{self.api}{ref}", params=params).json()
         return resp["text"]
 
@@ -137,10 +137,7 @@ class BBEAPIAgent(BaseAPIAgent):
         return text
 
     def _split(self, text):
-        verse_number_pattern = re.compile(r" *\([0-9]+\) *")
-
-        # Always starts with a verse marker leaving the 0th element empty
-        return re.split(verse_number_pattern, text)[1:]
+        return [text]
 
 
 class BibleGatewayAgent(BaseAPIAgent):
