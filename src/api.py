@@ -66,6 +66,8 @@ class API:
         self.config_path = Path(save_config_path(App.Name.value))
         self.cache_path = Path(save_cache_path(App.Name.value))
         self.config = self.load_config()
+        if os.name == 'nt':
+            self.isGUI = True
 
         if App.translation.name in self.config:
             self.translation = self.config[App.translation.name]
@@ -234,3 +236,4 @@ class API:
         if Attempt.table_exists():
             Attempt.drop_table()
         Attempt.create_table()
+
