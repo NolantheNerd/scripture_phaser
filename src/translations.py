@@ -31,6 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from src.enums import Translations
 from src.agents import KJVAPIAgent
 from src.agents import WEBAPIAgent
 from src.agents import BBEAPIAgent
@@ -48,6 +49,9 @@ class BaseTranslation:
         self.name = name
         self.agent = agent
 
+    def about(self):
+        return self.name.value
+
 
 class ESV(BaseTranslation):
     def __init__(self, api_key=None):
@@ -55,12 +59,12 @@ class ESV(BaseTranslation):
 
         if self.api_key is not None:
             super().__init__(
-                name="ESV",
+                name=Translations.ESV.value,
                 agent=ESVAPIAgent(self.api_key)
             )
         else:
             super().__init__(
-                name="ESV",
+                name=Translations.ESV.value,
                 agent=ESVBibleGatewayAgent()
             )
 
@@ -68,7 +72,7 @@ class ESV(BaseTranslation):
 class KJV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name="KJV",
+            name=Translations.KJV.value,
             agent=KJVAPIAgent()
         )
 
@@ -76,7 +80,7 @@ class KJV(BaseTranslation):
 class WEB(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name="WEB",
+            name=Translations.WEB.value,
             agent=WEBAPIAgent()
         )
 
@@ -84,7 +88,7 @@ class WEB(BaseTranslation):
 class BBE(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name="BBE",
+            name=Translations.BBE.value,
             agent=BBEAPIAgent()
         )
 
@@ -92,7 +96,7 @@ class BBE(BaseTranslation):
 class NIV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name="NIV",
+            name=Translations.NIV.value,
             agent=NIVBibleGatewayAgent()
         )
 
@@ -100,7 +104,7 @@ class NIV(BaseTranslation):
 class NKJV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name="NKJV",
+            name=Translations.NKJV.value,
             agent=NKJVBibleGatewayAgent()
         )
 
@@ -108,7 +112,7 @@ class NKJV(BaseTranslation):
 class NLT(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name="NLT",
+            name=Translations.NLT.value,
             agent=NLTBibleGatewayAgent()
         )
 
@@ -116,7 +120,7 @@ class NLT(BaseTranslation):
 class NASB(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name="NASB",
+            name=Translations.NASB.value,
             agent=NASBBibleGatewayAgent()
         )
 
@@ -124,9 +128,6 @@ class NASB(BaseTranslation):
 class NRSV(BaseTranslation):
     def __init__(self):
         super().__init__(
-            name="NRSV",
+            name=Translations.RSV.value,
             agent=NRSVBibleGatewayAgent()
         )
-
-
-Translations = {ESV(), KJV(), WEB(), BBE(), NIV(), NKJV(), NLT(), NASB(), NRSV()}

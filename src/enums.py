@@ -99,6 +99,18 @@ class App(enum.Enum):
     release_date = "2023-11-25"
 
 
+class Translations(enum.Enum):
+    ESV = "English Standard Version (ESV)"
+    NIV = "New International Version (NIV)"
+    KJV = "King James Version (KJV)"
+    NKJV = "New King James Version (NKJV)"
+    NLT = "New Living Translation (NLT)"
+    NASB = "New American Standard Bible (NASB)"
+    NRSV = "New Revised Standard Version (NRSV)"
+    WEB = "World English Bible (WEB)"
+    BBE = "Bible in Basic English (BBE)"
+
+
 class Agents(enum.Enum):
     ESVBGW = "ESV"
     NIVBGW = "NIV"
