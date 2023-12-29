@@ -102,9 +102,6 @@ class CLI:
                     print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
                 print(f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation.name}{TC.WHITE}")
                 print(f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.mode}{TC.WHITE}")
-                if App.esv_api_key.name in self.api.config and \
-                        self.api.config[App.esv_api_key.name] != "None":
-                    print(f"{TC.PINK}API Key for ESV.org Found{TC.WHITE}")
 
             # Toggle Mode
             elif user_input == "m" or user_input == "mode":
