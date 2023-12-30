@@ -46,10 +46,14 @@ class BaseTest(unittest.TestCase):
         config_path = Path(save_config_path(App.Name.value))
         cls.config_file = config_path / "config"
         cls.temp_config_file = config_path / "config_TEST"
+        if cls.temp_config_file.exists():
+            os.remove(cls.temp_config_file)
         if cls.config_file.exists():
             os.rename(cls.config_file, cls.temp_config_file)
 
     @classmethod
     def tearDownClass(cls):
         if cls.temp_config_file.exists():
+            if cls.config_file.exists():
+                os.remove(cls.config_file)
             os.rename(cls.temp_config_file, cls.config_file)
