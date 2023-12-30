@@ -31,11 +31,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import unittest
 from src.verse import Verse
+from test.test_base import BaseTest
 
 
-class VerseTests(unittest.TestCase):
+class VerseTests(BaseTest):
     """
     Test the Verse Object
     """
@@ -87,3 +87,8 @@ class VerseTests(unittest.TestCase):
             verse.show(with_verse=True, with_ref=True),
             f"[35] {text} - John 11:35"
         )
+
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()

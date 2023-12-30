@@ -32,14 +32,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import random
-import unittest
+from test.test_base import BaseTest
 from src.api import API
 from src.passage import Passage
 from src.translations import ESV
 from src.exceptions import InvalidTranslation
 
 
-class APITests(unittest.TestCase):
+class APITests(BaseTest):
     """
     Test Backend API
     """
@@ -77,3 +77,8 @@ class APITests(unittest.TestCase):
 
         random.seed(45)
         self.assertEqual(api.get_random_verse().reference, "John 1:3")
+
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()

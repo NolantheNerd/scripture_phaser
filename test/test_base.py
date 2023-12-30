@@ -37,40 +37,19 @@ import os
 import unittest
 from pathlib import Path
 from xdg.BaseDirectory import save_config_path
-#from colour_runner.runner import ColourTextTestRunner
 from src.enums import App
-from test_passage import PassageTests
-from test_verse import VerseTests
-from test_api import APITests
-from test_attempt import AttemptTests
 
-suite = unittest.TestSuite()
 
-suite.addTest(VerseTests("test_validate"))
-suite.addTest(VerseTests("test_show"))
-
-suite.addTest(PassageTests("test_validate_verse_pair"))
-suite.addTest(PassageTests("test_clean_reference"))
-suite.addTest(PassageTests("test_interpret_reference"))
-suite.addTest(PassageTests("test_reference_to_verses"))
-suite.addTest(PassageTests("test_populate"))
-suite.addTest(PassageTests("test_show"))
-
-suite.addTest(APITests("test_translation_setter"))
-suite.addTest(APITests("test_get_random_verse"))
-
-suite.addTest(AttemptTests("test_grade"))
-
-if __name__ == "__main__":
-    try:
+class BaseTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
         config_path = Path(save_config_path(App.Name.value))
-        config_file = config_path / "config"
-        temp_config_file = config_path / "config_TEST"
-        if config_file.exists():
-            os.rename(config_file, temp_config_file)
+        cls.config_file = config_path / "config"
+        cls.temp_config_file = config_path / "config_TEST"
+        if cls.config_file.exists():
+            os.rename(cls.config_file, cls.temp_config_file)
 
-        unittest.TextTestRunner(verbosity=1).run(suite)
-
-    finally:
-        if temp_config_file.exists():
-            os.rename(temp_config_file, config_file)
+    @classmethod
+    def tearDownClass(cls):
+        if cls.temp_config_file.exists():
+            os.rename(cls.temp_config_file, cls.config_file)

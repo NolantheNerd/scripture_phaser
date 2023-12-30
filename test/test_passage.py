@@ -31,16 +31,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import unittest
 from unittest.mock import MagicMock
 from src.enums import App
 from src.verse import Verse
 from src.passage import Passage
 from src.translations import ESV
 from src.exceptions import InvalidReference
+from test.test_base import BaseTest
 
 
-class PassageTests(unittest.TestCase):
+class PassageTests(BaseTest):
     """
     Test the Passage Object
     """
@@ -418,3 +418,8 @@ class PassageTests(unittest.TestCase):
         self.assertEqual(passage.show(with_verse=True), expected_verse)
         self.assertEqual(passage.show(with_ref=True), expected_ref)
         self.assertEqual(passage.show(with_verse=True, with_ref=True), expected_full)
+
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()

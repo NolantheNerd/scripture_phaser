@@ -35,5 +35,4 @@ pyxdg
 requests
 python-dotenv
 meaningless
-colour-runner
 peewee

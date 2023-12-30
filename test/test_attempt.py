@@ -31,12 +31,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import unittest
 from unittest.mock import MagicMock
 from src.models import Attempt
+from test.test_base import BaseTest
 
 
-class AttemptTests(unittest.TestCase):
+class AttemptTests(BaseTest):
     """
     Test the Attempt Object
     """
@@ -60,3 +60,8 @@ class AttemptTests(unittest.TestCase):
         attempt.complete(attempt_string, passage)
 
         self.assertAlmostEqual(expected_score, attempt.score)
+
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()
