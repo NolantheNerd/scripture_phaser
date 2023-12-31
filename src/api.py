@@ -66,6 +66,7 @@ class API:
         self.config_path = Path(save_config_path(App.Name.value))
         self.cache_path = Path(save_cache_path(App.Name.value))
         self.config = self.load_config()
+        self.is_windows = platform.system() == "Windows"
 
         if App.translation.name in self.config:
             self.translation = self.config[App.translation.name]
@@ -194,42 +195,30 @@ class API:
                     editor = "nvim"
                 elif which("vim") is not None:
                     editor = "vim"
+                elif which("notepad") is not None:
+                    editor = "notepad"
                 else:
                     raise EditorNotFound()
             except EditorNotFound:
-                if platform.system() == "Windows":
-                    editor = "notepad"
-                    windowsfilename = f"{self.target.reference}"
-                    windowsfilename = windowsfilename.replace(":","-")
-                else:
-                    print("Text editor not found; set the 'EDITOR'" +
-                      "environmental variable and try again")
-                    exit()
+                print("Text editor not found; set the 'EDITOR'" +
+                  "environmental variable and try again")
+                exit()
 
-        if platform.system() == "Windows":
+        if self.is_windows:
+            windowsfilename = f"{self.target.reference}".replace(":", ";")
             self.filename = self.cache_path / windowsfilename
         else:
             self.filename = self.cache_path / f"{self.target.reference}"
 
-        if os.path.isfile(self.filename) == False:
-            with open(self.filename, "w") as file:
-                subprocess.run([editor, self.filename])
-        else:
-            subprocess.run([editor, self.filename])
-
-        withextension = f"{self.filename}" + ".txt"
+        self.filename.touch(exist_ok=True)
+        subprocess.run([editor, self.filename])
 
         if not self.filename.exists():
             text = ""
         else:
-            if platform.system() == "Windows":
-                with open(withextension, "r") as file:
-                    text = file.readlines()
-                    text = "".join(text)
-            else:
-                with open(self.filename, "r") as file:
-                    text = file.readlines()
-                    text = "".join(text)
+            with open(self.filename, "r") as file:
+                text = file.readlines()
+                text = "".join(text)
 
             # Vim Automatically Adds a Newline at the End of the File when
             # you save it. (Unless you set :nofixeol and set :nofixendofline -
@@ -239,13 +228,8 @@ class API:
             if (editor in ("vim", "nvim", "nano")) and text[-1] == "\n":
                 text = text[:-1]
 
-            if os.path.isfile(self.filename):
+            if self.filename.exists():
                 os.remove(self.filename)
-
-            # withextension = f"{self.filename}" + ".txt"
-            if os.path.isfile(withextension):
-                os.remove(withextension)
-
 
         attempt = Attempt.create(
             random_mode=self.mode,
