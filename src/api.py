@@ -205,8 +205,8 @@ class API:
                 exit()
 
         if self.is_windows:
-            windowsfilename = f"{self.target.reference}".replace(":", ";")
-            self.filename = self.cache_path / windowsfilename
+            windows_filename = f"{self.target.reference}".replace(":", ";")
+            self.filename = self.cache_path / windows_filename
         else:
             self.filename = self.cache_path / f"{self.target.reference}"
 
