@@ -216,9 +216,14 @@ class API:
         if not self.filename.exists():
             text = ""
         else:
-            with open(self.filename, "r") as file:
-                text = file.readlines()
-                text = "".join(text)
+            if platform.system() == "Windows":
+                with open(withextension, "r") as file:
+                    text = file.readlines()
+                    text = "".join(text)
+            else:
+                with open(self.filename, "r") as file:
+                    text = file.readlines()
+                    text = "".join(text)
 
             # Vim Automatically Adds a Newline at the End of the File when
             # you save it. (Unless you set :nofixeol and set :nofixendofline -
