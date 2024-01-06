@@ -38,20 +38,135 @@ from src.enums import TermColours as TC
 from src.exceptions import InvalidTranslation
 
 
+class CLISTR:
+    def __init__(self, api):
+        self.api = api
+
+    @staticmethod
+    def CLI_PROMPT():
+        return "> "
+
+    @staticmethod
+    def DESCRIPTION():
+        return "scripture_phaser helps you to memorize the Word of Truth."
+
+    @staticmethod
+    def LiCENSE():
+        return App.license.value
+
+    @staticmethod
+    def VERSION():
+        return f"{App.Name.value} version {App.version.value}, Release Date: {App.release_date.value}"
+
+    @staticmethod
+    def VERSION_HELP():
+        return "show the version number and release date"
+
+    @staticmethod
+    def LICENSE_HELP():
+        return "show the license"
+
+    @staticmethod
+    def WELCOME():
+        return (
+            f"{TC.PINK}scripture_phaser helps you to memorize the Word of Truth.{TC.WHITE}\n"
+            f"{TC.PINK}Copyright (C) 2023 Nolan McMahon{TC.WHITE}"
+        )
+
+    @staticmethod
+    def CONFIG_LOADED():
+        return f"{TC.PINK}Configuration loaded!{TC.WHITE}"
+
+    @staticmethod
+    def CONFIG_SAVED():
+        return f"{TC.PINK}Current configuration saved!{TC.WHITE}"
+
+    @staticmethod
+    def NO_REFERENCE():
+        return f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}"
+
+    @staticmethod
+    def STATS_RESET_WARNING():
+        return (
+            f"Are you sure that you want to reset your statistics? [{TC.RED}y{TC.WHITE}/{TC.GREEN}N{TC.WHITE}] "
+        )
+
+    @staticmethod
+    def STATS_RESET():
+        return f"{TC.PINK}Statistics reset{TC.WHITE}"
+
+    @staticmethod
+    def HELP():
+        return (
+            f"{TC.PINK}scripture_phaser can be controlled from the command line with the following commands:{TC.WHITE}\n"
+            f"\t{TC.BLUE}G{TC.WHITE} - {TC.YELLOW}Reload the configuration file{TC.WHITE}\n"
+            f"\t{TC.BLUE}H{TC.WHITE} - {TC.YELLOW}Prints this help message{TC.WHITE}\n"
+            f"\t{TC.BLUE}I{TC.WHITE} - {TC.YELLOW}List available translations{TC.WHITE}\n"
+            f"\t{TC.BLUE}L{TC.WHITE} - {TC.YELLOW}Lists selected reference, mode and translation{TC.WHITE}\n"
+            f"\t{TC.BLUE}M{TC.WHITE} - {TC.YELLOW}Toggles the mode{TC.WHITE}\n"
+            f"\t{TC.BLUE}P{TC.WHITE} - {TC.YELLOW}Practice the current reference{TC.WHITE}\n"
+            f"\t{TC.BLUE}R{TC.WHITE} - {TC.YELLOW}Sets the reference{TC.WHITE}\n"
+            f"\t{TC.BLUE}S{TC.WHITE} - {TC.YELLOW}View your statistics{TC.WHITE}\n"
+            f"\t{TC.BLUE}T{TC.WHITE} - {TC.YELLOW}Set the translation{TC.WHITE}\n"
+            f"\t{TC.BLUE}V{TC.WHITE} - {TC.YELLOW}Preview current reference{TC.WHITE}\n"
+            f"\t{TC.BLUE}W{TC.WHITE} - {TC.YELLOW}Save the current configuration{TC.WHITE}\n"
+            f"\t{TC.BLUE}Z{TC.WHITE} - {TC.YELLOW}Reset statistics{TC.WHITE}\n"
+            f"\t{TC.BLUE}Q{TC.WHITE} - {TC.YELLOW}Quits{TC.WHITE}"
+        )
+
+    @staticmethod
+    def REFERENCE_PROMPT():
+        return f"{TC.PINK}Reference: {TC.WHITE}"
+
+    @staticmethod
+    def TRANSLATION_PROMPT():
+        return f"{TC.PINK}Translation: {TC.WHITE}"
+
+    def REFERENCE(self):
+        return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference}{TC.WHITE}"
+
+    def TRANSLATION(self):
+        return f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation.name}{TC.WHITE}"
+
+    def RANDOM_MODE(self):
+        return f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.mode}{TC.WHITE}"
+
+    def TOGGLE_RANDOM_MODE(self):
+        return f"{TC.PINK}Toggled random mode to {TC.YELLOW}{self.api.mode}{TC.WHITE}"
+
+    def INVALID_TRANSLATION(self):
+        return f"{TC.RED}Invalid Translation\n{TC.PINK}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.list_translations()) + f"{TC.WHITE}"
+
+    def AVAILABLE_TRANSLATIONS(self):
+        return f"{TC.PINK}Available Translations:{TC.WHITE}\n{TC.BLUE}" + "\n".join(self.api.list_translations()) + f"{TC.WHITE}"
+
+    def PASSAGE(self):
+        return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
+
+    def SCORE(self, score, diff):
+        if score == 1.0:
+            return f"{TC.GREEN}Perfect!{TC.WHITE}"
+        elif score > 0.75:
+            return f"{TC.PINK}Not bad: {TC.GREEN}{round(score * 100, 0)}%{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
+        else:
+            return f"{TC.RED}Not quite...{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
+
+
 class CLI:
     def __init__(self):
         self.api = API()
         self.config = self.api.load_config()
+        self.messages = CLISTR(self.api)
 
         parser = argparse.ArgumentParser(
-            description="scripture_phaser helps you to memorize the Word of Truth."
+            description=self.messages.DESCRIPTION()
         )
         parser.add_argument(
             "--version",
             action="store_true",
             required=False,
             default=False,
-            help="show the version number and release date",
+            help=self.messages.VERSION_HELP(),
             dest="version"
         )
         parser.add_argument(
@@ -59,26 +174,25 @@ class CLI:
             action="store_true",
             required=False,
             default=False,
-            help="show the license",
+            help=self.messages.LICENSE_HELP(),
             dest="license"
         )
         args = parser.parse_args()
 
         if getattr(args, "version"):
-            print(f"{App.Name.value} version {App.version.value}, Release Date: {App.release_date.value}")
+            print(self.messages.VERSION())
 
         if getattr(args, "license"):
-            print(App.license.value)
+            print(self.messages.LICENSE())
 
         if not getattr(args, "version") and not getattr(args, "license"):
             self.mainloop()
 
     def mainloop(self):
-        print(f"{TC.PINK}scripture_phaser helps you to memorize the Word of Truth.{TC.WHITE}")
-        print(f"{TC.PINK}Copyright (C) 2023 Nolan McMahon{TC.WHITE}")
+        print(self.messages.WELCOME())
 
         while True:
-            user_input = input("> ").strip().lower()
+            user_input = input(self.messages.CLI_PROMPT()).strip().lower()
 
             # Exit
             if user_input == "q" or user_input == "quit":
@@ -87,73 +201,62 @@ class CLI:
             # Get Config
             elif user_input == "g" or user_input == "get":
                 self.api.load_config()
-                print(f"{TC.PINK}Configuration loaded!{TC.WHITE}")
+                print(self.messages.CONFIG_LOADED())
 
             # Write Config
             elif user_input == "w" or user_input == "write":
                 self.api.save_config(self.api.config)
-                print(f"{TC.PINK}Current configuration saved!{TC.WHITE}")
+                print(self.messages.CONFIG_SAVED())
 
             # Current State
             elif user_input == "l" or user_input == "list":
                 if self.api.passage is not None:
-                    print(f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference}{TC.WHITE}")
+                    print(self.messages.REFERENCE())
                 else:
-                    print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
-                print(f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation.name}{TC.WHITE}")
-                print(f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.mode}{TC.WHITE}")
+                    print(self.messages.NO_REFERENCE())
+                print(self.messages.TRANSLATION())
+                print(self.messages.RANDOM_MODE())
 
             # Toggle Mode
             elif user_input == "m" or user_input == "mode":
                 self.api.mode = not self.api.mode
-                print(f"{TC.PINK}Toggled random mode to {TC.YELLOW}{self.api.mode}{TC.WHITE}")
+                print(self.messages.TOGGLE_RANDOM_MODE())
 
             # Set Reference
             elif user_input == "r" or user_input == "reference":
-                ref_str = input(f"{TC.PINK}Reference: {TC.WHITE}")
+                ref_str = input(self.messages.REFERENCE_PROMPT())
                 self.api.passage = ref_str
 
             # View Passage
             elif user_input == "v" or user_input == "view":
-                text = self.api.view_passage()
-                if len(text) > 0:
-                    print(f"{TC.CYAN}{text}{TC.WHITE}")
+                if self.api.passage is not None:
+                    print(self.messages.PASSAGE())
                 else:
-                    print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
+                    print(self.messages.NO_REFERENCE())
 
             # Set Translation
             elif user_input == "t" or user_input == "translation":
-                trn_str = input(f"{TC.PINK}Translation: {TC.WHITE}").upper()
+                trn_str = input(self.messages.TRANSLATION_PROMPT()).upper()
                 try:
                     self.api.translation = trn_str
                 except InvalidTranslation:
-                    print(f"{TC.RED}Invalid Translation\n{TC.PINK}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.list_translations()) + f"{TC.WHITE}")
+                    print(self.messages.INVALID_TRANSLATION())
 
             # View Translations
             elif user_input == "i" or user_input == "inquire":
-                print(f"{TC.PINK}Available Translations:{TC.WHITE}")
-                print(f"{TC.BLUE}" + "\n".join(self.api.list_translations()) + f"{TC.WHITE}")
+                print(self.messages.AVAILABLE_TRANSLATIONS())
 
             # Practice Passage
             elif user_input == "p" or user_input == "practice":
                 if self.api.passage is None:
-                    print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
+                    print(self.messages.NO_REFERENCE())
                 else:
-                    score, diff = self.api.recitation()
-
-                    if score == 1.0:
-                        print(f"{TC.GREEN}Perfect!{TC.WHITE}")
-                    elif score > 0.75:
-                        print(f"{TC.PINK}Not bad: {TC.GREEN}{round(score * 100, 0)}%{TC.WHITE}")
-                        print(f"{TC.CYAN}{diff}{TC.WHITE}")
-                    else:
-                        print(f"{TC.RED}Not quite...{TC.WHITE}")
-                        print(f"{TC.CYAN}{diff}{TC.WHITE}")
+                    print(self.messages.SCORE(self.api.recitation()))
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
                 if self.api.passage is None:
-                    print(f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}")
+                    print(self.messages.NO_REFERENCE)
                 else:
                     total_attempts = self.api.stats.total_attempts()
                     total_target_attempts = self.api.stats.total_target_attempts(
@@ -171,27 +274,11 @@ class CLI:
 
             # Reset Statistics
             elif user_input == "z" or user_input == "reset":
-                confirmation = input(
-                    f"Are you sure that you want to reset your statistics? [{TC.RED}y{TC.WHITE}/{TC.GREEN}N{TC.WHITE}] "
-                ).strip().lower()
+                confirmation = input(self.messages.STATS_RESET_WARNING()).strip().lower()
                 if confirmation == "y" or confirmation == "yes":
                     self.api.reset_db()
-                    print(f"{TC.PINK}Statistics reset{TC.WHITE}")
+                    print(self.messages.STATS_RESET())
 
             # Print Help
             else:
-                print(f"{TC.PINK}scripture_phaser can be controlled from the command line with the following commands:{TC.WHITE}")
-                print(f"\t{TC.BLUE}g{TC.WHITE} - {TC.YELLOW}"
-                      f"Reload the configuration file{TC.WHITE}")
-                print(f"\t{TC.BLUE}w{TC.WHITE} - {TC.YELLOW}Save the current configuration{TC.WHITE}")
-                print(f"\t{TC.BLUE}l{TC.WHITE} - {TC.YELLOW}Lists selected reference, mode and translation{TC.WHITE}")
-                print(f"\t{TC.BLUE}m{TC.WHITE} - {TC.YELLOW}Toggles the mode{TC.WHITE}")
-                print(f"\t{TC.BLUE}r{TC.WHITE} - {TC.YELLOW}Sets the reference{TC.WHITE}")
-                print(f"\t{TC.BLUE}t{TC.WHITE} - {TC.YELLOW}Set the translation{TC.WHITE}")
-                print(f"\t{TC.BLUE}i{TC.WHITE} - {TC.YELLOW}List available translations{TC.WHITE}")
-                print(f"\t{TC.BLUE}p{TC.WHITE} - {TC.YELLOW}Practice the current reference{TC.WHITE}")
-                print(f"\t{TC.BLUE}v{TC.WHITE} - {TC.YELLOW}Preview current reference{TC.WHITE}")
-                print(f"\t{TC.BLUE}s{TC.WHITE} - {TC.YELLOW}View your statistics{TC.WHITE}")
-                print(f"\t{TC.BLUE}h{TC.WHITE} - {TC.YELLOW}Prints this help message{TC.WHITE}")
-                print(f"\t{TC.BLUE}z{TC.WHITE} - {TC.YELLOW}Reset statistics{TC.WHITE}")
-                print(f"\t{TC.BLUE}q{TC.WHITE} - {TC.YELLOW}Quits{TC.WHITE}")
+                print(self.messages.HELP())
