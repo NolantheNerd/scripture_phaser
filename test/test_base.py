@@ -1,5 +1,3 @@
-#!/usr/share/python
-
 # scripture_phaser helps you to memorize the Word of Truth.
 # Copyright (C) 2023 Nolan McMahon
 #
