@@ -225,7 +225,7 @@ class API:
             # in which case, this fix won't work - TODO Think about the case
             # where the correct recitation ends with a \n and the user has set
             # these options...)
-            if (editor in ("vim", "nvim", "nano")) and text[-1] == "\n":
+            if (editor in ("vim", "nvim", "nano")) and len(text) > 0 and text[-1] == "\n":
                 text = text[:-1]
 
             if self.filename.exists():
