@@ -251,7 +251,8 @@ class CLI:
                 if self.api.passage is None:
                     print(self.messages.NO_REFERENCE())
                 else:
-                    print(self.messages.SCORE(self.api.recitation()))
+                    score, diff = self.api.recitation()
+                    print(self.messages.SCORE(score, diff))
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
