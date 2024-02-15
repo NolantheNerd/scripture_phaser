@@ -1,5 +1,5 @@
 # scripture_phaser helps you to memorize the Word of Truth.
-# Copyright (C) 2023 Nolan McMahon
+# Copyright (C) 2023-2024 Nolan McMahon
 #
 # This file is part of scripture_phaser.
 #
@@ -70,7 +70,7 @@ class CLISTR:
     def WELCOME():
         return (
             f"{TC.PINK}scripture_phaser helps you to memorize the Word of Truth.{TC.WHITE}\n"
-            f"{TC.PINK}Copyright (C) 2023 Nolan McMahon{TC.WHITE}"
+            f"{TC.PINK}Copyright (C) 2023-2024 Nolan McMahon{TC.WHITE}"
         )
 
     @staticmethod

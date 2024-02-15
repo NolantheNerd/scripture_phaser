@@ -1,5 +1,5 @@
 # scripture_phaser helps you to memorize the Word of Truth.
-# Copyright (C) 2023 Nolan McMahon
+# Copyright (C) 2023-2024 Nolan McMahon
 #
 # This file is part of scripture_phaser.
 #
