@@ -220,12 +220,11 @@ class API:
                 text = file.readlines()
                 text = "".join(text)
 
-            # Vim Automatically Adds a Newline at the End of the File when
-            # you save it. (Unless you set :nofixeol and set :nofixendofline -
-            # in which case, this fix won't work - TODO Think about the case
-            # where the correct recitation ends with a \n and the user has set
-            # these options...)
-            if (editor in ("vim", "nvim", "nano")) and len(text) > 0 and text[-1] == "\n":
+            # Editors Sometimes add \n at the end of a file, if one doesn't
+            # already exist @@@ TODO (Nolan): Think about the case where the
+            # correct recitation ends with a \n and the user has set these
+            # options...
+            if len(text) > 0 and text[-1] == "\n":
                 text = text[:-1]
 
             if self.filename.exists():
