@@ -257,7 +257,7 @@ class CLI:
             # Show Stats
             elif user_input == "s" or user_input == "stats":
                 if self.api.passage is None:
-                    print(self.messages.NO_REFERENCE)
+                    print(self.messages.NO_REFERENCE())
                 else:
                     total_attempts = self.api.stats.total_attempts()
                     total_target_attempts = self.api.stats.total_target_attempts(
