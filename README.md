@@ -1,6 +1,6 @@
 # Scripture Phaser
 
-scripture_phaser helps you to memorize the Word of Truth.
+scripture_phaser helps you to memorize the Bible.
 
 ![scripture_phaser Demo](demo.gif)
 
