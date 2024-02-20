@@ -102,8 +102,8 @@ class CLISTR:
             f"\t{TC.BLUE}G{TC.WHITE} - {TC.YELLOW}Reload the configuration file{TC.WHITE}\n"
             f"\t{TC.BLUE}H{TC.WHITE} - {TC.YELLOW}Prints this help message{TC.WHITE}\n"
             f"\t{TC.BLUE}I{TC.WHITE} - {TC.YELLOW}List available translations{TC.WHITE}\n"
-            f"\t{TC.BLUE}L{TC.WHITE} - {TC.YELLOW}Lists selected reference, mode and translation{TC.WHITE}\n"
-            f"\t{TC.BLUE}M{TC.WHITE} - {TC.YELLOW}Toggles the mode{TC.WHITE}\n"
+            f"\t{TC.BLUE}L{TC.WHITE} - {TC.YELLOW}Lists selected reference, random mode and translation{TC.WHITE}\n"
+            f"\t{TC.BLUE}M{TC.WHITE} - {TC.YELLOW}Toggles the random_mode{TC.WHITE}\n"
             f"\t{TC.BLUE}P{TC.WHITE} - {TC.YELLOW}Practice the current reference{TC.WHITE}\n"
             f"\t{TC.BLUE}R{TC.WHITE} - {TC.YELLOW}Sets the reference{TC.WHITE}\n"
             f"\t{TC.BLUE}S{TC.WHITE} - {TC.YELLOW}View your statistics{TC.WHITE}\n"
@@ -129,10 +129,10 @@ class CLISTR:
         return f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation.name}{TC.WHITE}"
 
     def RANDOM_MODE(self):
-        return f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.mode}{TC.WHITE}"
+        return f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.random_mode}{TC.WHITE}"
 
     def TOGGLE_RANDOM_MODE(self):
-        return f"{TC.PINK}Toggled random mode to {TC.YELLOW}{self.api.mode}{TC.WHITE}"
+        return f"{TC.PINK}Toggled random mode to {TC.YELLOW}{self.api.random_mode}{TC.WHITE}"
 
     def INVALID_TRANSLATION(self):
         return f"{TC.RED}Invalid Translation\n{TC.PINK}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.list_translations()) + f"{TC.WHITE}"
@@ -218,8 +218,8 @@ class CLI:
                 print(self.messages.RANDOM_MODE())
 
             # Toggle Mode
-            elif user_input == "m" or user_input == "mode":
-                self.api.mode = not self.api.mode
+            elif user_input == "m" or user_input == "random_mode":
+                self.api.random_mode = not self.api.random_mode
                 print(self.messages.TOGGLE_RANDOM_MODE())
 
             # Set Reference

@@ -73,7 +73,7 @@ class API:
         else:
             self.translation = App.Defaults.translation.value
         if App.random_mode.name in self.config:
-            self.mode = self.config[App.random_mode.name]
+            self.random_mode = self.config[App.random_mode.name]
         if App.reference.name in self.config:
             self.passage = self.config[App.reference.name]
 
@@ -115,16 +115,16 @@ class API:
                 file.write(f"{key}=\"{config[key]}\"\n")
 
     @property
-    def mode(self):
-        return self._mode
+    def random_mode(self):
+        return self._random_mode
 
-    @mode.setter
-    def mode(self, random_mode):
+    @random_mode.setter
+    def random_mode(self, random_mode):
         if random_mode == "False" or not random_mode:
-            self._mode = False
+            self._random_mode = False
         else:
-            self._mode = True
-        self.config[App.random_mode.name] = self._mode
+            self._random_mode = True
+        self.config[App.random_mode.name] = self._random_mode
         self.save_config(self.config)
 
     def list_translations(self):
@@ -178,7 +178,7 @@ class API:
             return ""
 
     def recitation(self):
-        if self.mode:
+        if self.random_mode:
             self.target = self.get_random_verse()
         else:
             self.target = self.passage
@@ -231,7 +231,7 @@ class API:
                 os.remove(self.filename)
 
         attempt = Attempt.create(
-            random_mode=self.mode,
+            random_mode=self.random_mode,
             reference=self.target.reference,
         )
         score, diff = attempt.complete(text, self.passage)
