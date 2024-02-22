@@ -33,6 +33,9 @@
 
 import enum
 
+VERSION = "1.0.2"
+RELEASE_DATE = "2024-02-19"
+
 license_text = """
 scripture_phaser helps you to memorize the Bible.
 Copyright (C) 2023-2024 Nolan McMahon
@@ -93,8 +96,8 @@ class App(enum.Enum):
     random_mode = "random_mode"
     reference = "reference"
     license = license_text
-    version = "1.0.2"
-    release_date = "2024-02-19"
+    version = VERSION
+    release_date = RELEASE_DATE
 
 
 class Translations(enum.Enum):
