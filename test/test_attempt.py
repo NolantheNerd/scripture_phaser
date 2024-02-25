@@ -60,8 +60,3 @@ class AttemptTests(BaseTest):
         attempt.complete(attempt_string, passage)
 
         self.assertAlmostEqual(expected_score, attempt.score)
-
-
-if __name__ == "__main__":
-    import unittest
-    unittest.main()

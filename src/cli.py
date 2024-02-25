@@ -219,13 +219,13 @@ class CLI:
 
             # Toggle Mode
             elif user_input == "m" or user_input == "random_mode":
-                self.api.random_mode = not self.api.random_mode
+                self.api.toggle_random_mode()
                 print(self.messages.TOGGLE_RANDOM_MODE())
 
             # Set Reference
             elif user_input == "r" or user_input == "reference":
                 ref_str = input(self.messages.REFERENCE_PROMPT())
-                self.api.passage = ref_str
+                self.api.set_passage(ref_str)
 
             # View Passage
             elif user_input == "v" or user_input == "view":
@@ -238,7 +238,7 @@ class CLI:
             elif user_input == "t" or user_input == "translation":
                 trn_str = input(self.messages.TRANSLATION_PROMPT()).upper()
                 try:
-                    self.api.translation = trn_str
+                    self.api.set_translation(trn_str)
                 except InvalidTranslation:
                     print(self.messages.INVALID_TRANSLATION())
 

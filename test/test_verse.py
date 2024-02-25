@@ -87,8 +87,3 @@ class VerseTests(BaseTest):
             verse.show(with_verse=True, with_ref=True),
             f"[35] {text} - John 11:35"
         )
-
-
-if __name__ == "__main__":
-    import unittest
-    unittest.main()

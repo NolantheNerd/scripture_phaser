@@ -35,8 +35,8 @@ from unittest.mock import MagicMock
 from src.enums import App
 from src.verse import Verse
 from src.passage import Passage
-from src.translations import ESV
 from src.exceptions import InvalidReference
+from src.agents import ESVBibleGatewayAgent
 from test.test_base import BaseTest
 
 
@@ -339,8 +339,8 @@ class PassageTests(BaseTest):
         Can a passage be properly populated?
         """
         reference = "John 1:1 - 1:5"
-        translation = ESV()
-        passage = Passage(reference, translation)
+        agent = ESVBibleGatewayAgent()
+        passage = Passage(reference, agent)
 
         mock_api_return = '[1] In the beginning was the Word, and the Word was with ' + \
         'God, and the Word was God. [2] He was in the beginning with God. [3] ' + \
@@ -348,7 +348,7 @@ class PassageTests(BaseTest):
         'made that was made. [4] In him was life, and the life was the light of ' + \
         'men. [5] The light shines in the darkness, and the darkness has not ' + \
         'overcome it.\n\n'
-        passage.translation.agent._fetch = MagicMock(return_value=mock_api_return)
+        passage.agent._fetch = MagicMock(return_value=mock_api_return)
 
         passage.populate()
 
@@ -369,8 +369,8 @@ class PassageTests(BaseTest):
         Do passages display their content properly?
         """
         reference = "1 Peter 1:2 - 1:3"
-        translation = ESV()
-        passage = Passage(reference, translation)
+        agent = ESVBibleGatewayAgent()
+        passage = Passage(reference, agent)
 
         mock_api_return = [
         'according to the foreknowledge of God the Father, in the sanctification of '
@@ -380,7 +380,7 @@ class PassageTests(BaseTest):
         'born again to a living hope through the resurrection of Jesus Christ from the dead,'
         ]
 
-        passage.translation.agent._fetch = MagicMock(return_value=mock_api_return)
+        passage.agent._fetch = MagicMock(return_value=mock_api_return)
 
         expected_clean = 'according to the foreknowledge of God the Father, ' + \
         'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
@@ -418,8 +418,3 @@ class PassageTests(BaseTest):
         self.assertEqual(passage.show(with_verse=True), expected_verse)
         self.assertEqual(passage.show(with_ref=True), expected_ref)
         self.assertEqual(passage.show(with_verse=True, with_ref=True), expected_full)
-
-
-if __name__ == "__main__":
-    import unittest
-    unittest.main()

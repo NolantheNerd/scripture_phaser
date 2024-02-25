@@ -33,7 +33,6 @@
 
 import requests
 from unicodedata import normalize
-from src.enums import Agents
 from src.enums import Bible
 from src.enums import Bible_Books
 from src.enums import Reverse_Bible_Books
@@ -44,8 +43,8 @@ from meaningless.bible_web_extractor import WebExtractor
 # Remains Distinct from BibleGateway Agent in the Event that Another API is
 # Needs to be Used
 class BaseAPIAgent:
-    def __init__(self, agent):
-        self.agent = agent
+    def __init__(self, translation):
+        self.translation = translation
 
     def _fetch(self, ref):
         raise NotImplementedError("Child agent must implement _fetch()")
@@ -61,14 +60,10 @@ class BaseAPIAgent:
 
 
 class BibleGatewayAgent(BaseAPIAgent):
-    # @@@ TODO: Start Here ^^^ Maybe Don't Subclass? It's just
-    # unpredictability in terms of which API will be used to
-    # return data in the test_show() test in test_passage().
-    # Maybe hard code the agent to use in the test?
-    def __init__(self, agent):
-        self.agent = agent
+    def __init__(self, translation):
+        self.translation = translation
         self.xtcr = WebExtractor(
-            translation=self.agent.value,
+            translation=self.translation,
             show_passage_numbers=False,
             output_as_list=True,
             strip_excess_whitespace_from_list=False,
@@ -119,54 +114,54 @@ class BibleGatewayAgent(BaseAPIAgent):
 class KJVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.KJVBGW
+            translation="KJV"
         )
 
 
 class WEBBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.WEBBGW
+            translation="WEB"
         )
 
 
 class ESVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.ESVBGW
+            translation="ESV"
         )
 
 
 class NIVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NIVBGW
+            translation="NIV"
         )
 
 
 class NKJVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NKJVBGW
+            translation="NKJV"
         )
 
 
 class NLTBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NLTBGW
+            translation="NLT"
         )
 
 
 class NASBBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NASBBGW
+            translation="NASB"
         )
 
 
 class NRSVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NRSVBGW
+            translation="NRSV"
         )

@@ -48,16 +48,8 @@ from src.models import Attempt
 from src.passage import Passage
 from src.enums import Translations
 from src.exceptions import EditorNotFound
-from src.exceptions import InvalidTranslation
-from src.translations import ESV
-from src.translations import NIV
-from src.translations import KJV
-from src.translations import WEB
-from src.translations import NKJV
-from src.translations import NLT
-from src.translations import NASB
-from src.translations import NRSV
 from src.exceptions import InvalidReference
+from src.exceptions import InvalidTranslation
 
 
 class API:
@@ -65,17 +57,12 @@ class API:
         self.stats = Stats()
         self.config_path = Path(save_config_path(App.Name.value))
         self.cache_path = Path(save_cache_path(App.Name.value))
-        self.config = self.load_config()
         self.is_windows = platform.system() == "Windows"
 
-        if App.translation.name in self.config:
-            self.translation = self.config[App.translation.name]
-        else:
-            self.translation = App.Defaults.translation.value
-        if App.random_mode.name in self.config:
-            self.random_mode = self.config[App.random_mode.name]
-        if App.reference.name in self.config:
-            self.passage = self.config[App.reference.name]
+        config = self.load_config()
+        self.translation = config.get(App.translation.name, AppDefaults().translation)
+        self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode)
+        self.passage = config.get(App.reference.name, AppDefaults().reference)
 
         if not Attempt.table_exists():
             Attempt.create_table()
@@ -103,8 +90,13 @@ class API:
 
         return config
 
-    @staticmethod
-    def save_config(config):
+    def save_config(self):
+        config = {
+            "translation": self.translation,
+            "random_mode": self.random_mode,
+            "reference": self.passage.reference
+        }
+
         config_path = Path(save_config_path(App.Name.value))
         config_file = config_path / "config"
 
@@ -114,36 +106,21 @@ class API:
             for key in config.keys():
                 file.write(f"{key}=\"{config[key]}\"\n")
 
-    @property
-    def random_mode(self):
-        return self._random_mode
-
-    @random_mode.setter
-    def random_mode(self, random_mode):
-        if random_mode == "False" or not random_mode:
-            self._random_mode = False
-        else:
-            self._random_mode = True
-        self.config[App.random_mode.name] = self._random_mode
-        self.save_config(self.config)
+    def toggle_random_mode(self):
+        self.random_mode = not self.random_mode
+        self.save_config()
 
     def list_translations(self):
-        return [translation.name for translation in Translations]
+        return Translations.keys()
 
-    @property
-    def translation(self):
-        return self._translation
-
-    @translation.setter
-    def translation(self, translation):
-        if translation not in self.list_translations():
+    def set_translation(self, translation):
+        if translation not in Translations:
             raise InvalidTranslation(translation)
         else:
-            self._translation = globals()[translation]()
-            self.config[App.translation.name] = translation
-            self.save_config(self.config)
+            self.translation = translation
+            self.save_config()
 
-            if hasattr(self, "passage") and self.passage is not None:
+            if self.passage != "None":
                 self.passage = self.passage.reference
 
     def get_random_verse(self):
@@ -152,24 +129,17 @@ class API:
         verse_passage.populate([verse.text])
         return verse_passage
 
-    @property
-    def passage(self):
-        return self._passage
-
-    @passage.setter
-    def passage(self, reference):
+    def set_passage(self, reference):
         if reference.strip() == "" or reference == "None":
-            self._passage = None
-            self.config[App.reference.name] = "None"
+            self.passage = None
         else:
             try:
-                self._passage = Passage(reference, self.translation)
-                self._passage.populate()
-                self.config[App.reference.name] = self._passage.reference
+                self.passage = Passage(reference, self.translation)
+                self.passage.populate()
             except InvalidReference as e:
                 print(e.__str__())
 
-        self.save_config(self.config)
+        self.save_config()
 
     def view_passage(self):
         if self.passage is not None:

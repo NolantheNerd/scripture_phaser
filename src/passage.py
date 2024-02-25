@@ -38,8 +38,8 @@ from src.exceptions import InvalidReference
 
 
 class Passage:
-    def __init__(self, reference, translation):
-        self.translation = translation
+    def __init__(self, reference, agent):
+        self.agent = agent
         self.reference = self.clean_reference(reference, for_verse_selection=False)
         self.verses = self.reference_to_verses(
             self.clean_reference(reference, for_verse_selection=True)
@@ -49,7 +49,7 @@ class Passage:
     def populate(self, texts=None):
         self.populated = True
         if texts is None:
-            texts = self.translation.agent.get(
+            texts = self.agent.get(
                 self.clean_reference(self.reference, for_verse_selection=True)
             )
         for verse, text in zip(self.verses, texts):
