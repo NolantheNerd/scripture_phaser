@@ -47,9 +47,11 @@ from src.stats import Stats
 from src.models import Attempt
 from src.passage import Passage
 from src.enums import Translations
+from src.reference import Reference
 from src.exceptions import EditorNotFound
 from src.exceptions import InvalidReference
 from src.exceptions import InvalidTranslation
+from src.agents import Agents
 
 
 class API:
@@ -62,7 +64,11 @@ class API:
         config = self.load_config()
         self.translation = config.get(App.translation.name, AppDefaults().translation)
         self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode)
-        self.passage = config.get(App.reference.name, AppDefaults().reference)
+        self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
+        if not self.reference.empty:
+            self.passage = self.set_passage(self.reference.reference)
+        else:
+            self.passage = None
 
         if not Attempt.table_exists():
             Attempt.create_table()
@@ -94,7 +100,7 @@ class API:
         config = {
             "translation": self.translation,
             "random_mode": self.random_mode,
-            "reference": self.passage.reference
+            "reference": self.reference.reference
         }
 
         config_path = Path(save_config_path(App.Name.value))
@@ -111,7 +117,7 @@ class API:
         self.save_config()
 
     def list_translations(self):
-        return Translations.keys()
+        return Translations
 
     def set_translation(self, translation):
         if translation not in Translations:
@@ -120,21 +126,22 @@ class API:
             self.translation = translation
             self.save_config()
 
-            if self.passage != "None":
-                self.passage = self.passage.reference
+            if not self.reference.empty:
+                self.passage = self.set_passage(self.reference.reference)
 
     def get_random_verse(self):
         verse = random.choice(self.passage.verses)
-        verse_passage = Passage(verse.reference, self.translation)
+        verse_passage = Passage(Reference(verse.reference), self.translation)
         verse_passage.populate([verse.text])
         return verse_passage
 
     def set_passage(self, reference):
-        if reference.strip() == "" or reference == "None":
+        self.reference = Reference(reference)
+        if self.reference.empty:
             self.passage = None
         else:
             try:
-                self.passage = Passage(reference, self.translation)
+                self.passage = Passage(self.reference, self.translation)
                 self.passage.populate()
             except InvalidReference as e:
                 print(e.__str__())
@@ -149,9 +156,9 @@ class API:
 
     def recitation(self):
         if self.random_mode:
-            self.target = self.get_random_verse()
+            target = self.get_random_verse()
         else:
-            self.target = self.passage
+            target = self.passage
 
         try:
             editor = os.environ["EDITOR"]
@@ -175,18 +182,18 @@ class API:
                 exit()
 
         if self.is_windows:
-            windows_filename = f"{self.target.reference}".replace(":", ";")
-            self.filename = self.cache_path / windows_filename
+            windows_filename = f"{target.reference}".replace(":", ";")
+            filename = self.cache_path / windows_filename
         else:
-            self.filename = self.cache_path / f"{self.target.reference}"
+            filename = self.cache_path / f"{target.reference.reference}"
 
-        self.filename.touch(exist_ok=True)
-        subprocess.run([editor, self.filename])
+        filename.touch(exist_ok=True)
+        subprocess.run([editor, filename])
 
-        if not self.filename.exists():
+        if not filename.exists():
             text = ""
         else:
-            with open(self.filename, "r") as file:
+            with open(filename, "r") as file:
                 text = file.readlines()
                 text = "".join(text)
 
@@ -197,12 +204,12 @@ class API:
             if len(text) > 0 and text[-1] == "\n":
                 text = text[:-1]
 
-            if self.filename.exists():
-                os.remove(self.filename)
+            if filename.exists():
+                os.remove(filename)
 
         attempt = Attempt.create(
             random_mode=self.random_mode,
-            reference=self.target.reference,
+            reference=target.reference.reference,
         )
         score, diff = attempt.complete(text, self.passage)
         attempt.save()

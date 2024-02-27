@@ -36,7 +36,6 @@ from unicodedata import normalize
 from src.enums import Bible
 from src.enums import Bible_Books
 from src.enums import Reverse_Bible_Books
-from src.passage import Passage
 from meaningless.bible_web_extractor import WebExtractor
 
 
@@ -71,13 +70,12 @@ class BibleGatewayAgent(BaseAPIAgent):
         )
 
     def _fetch(self, ref):
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(ref)
-        b1 = Bible_Books[b1]
-        c1 += 1
-        v1 += 1
-        b2 = Bible_Books[b2]
-        c2 += 1
-        v2 += 1
+        b1 = Bible_Books[ref.book_start]
+        c1 = ref.chapter_start + 1
+        v1 = ref.verse_start + 1
+        b2 = Bible_Books[ref.book_end]
+        c2 = ref.chapter_end + 1
+        v2 = ref.verse_end + 1
 
         if b1 == b2:
             return self.xtcr.get_passage_range(
@@ -165,3 +163,15 @@ class NRSVBibleGatewayAgent(BibleGatewayAgent):
         super().__init__(
             translation="NRSV"
         )
+
+
+Agents = {
+    "ESV": ESVBibleGatewayAgent(),
+    "NIV": NIVBibleGatewayAgent(),
+    "NASB": NASBBibleGatewayAgent(),
+    "NLT": NLTBibleGatewayAgent(),
+    "KJV": KJVBibleGatewayAgent(),
+    "NKJV": NKJVBibleGatewayAgent(),
+    "WEB": WEBBibleGatewayAgent(),
+    "NRSV": NRSVBibleGatewayAgent()
+}

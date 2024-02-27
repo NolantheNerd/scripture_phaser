@@ -123,10 +123,10 @@ class CLISTR:
         return f"{TC.PINK}Translation: {TC.WHITE}"
 
     def REFERENCE(self):
-        return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference}{TC.WHITE}"
+        return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference.reference}{TC.WHITE}"
 
     def TRANSLATION(self):
-        return f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation.name}{TC.WHITE}"
+        return f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation}{TC.WHITE}"
 
     def RANDOM_MODE(self):
         return f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.random_mode}{TC.WHITE}"
@@ -205,7 +205,7 @@ class CLI:
 
             # Write Config
             elif user_input == "w" or user_input == "write":
-                self.api.save_config(self.api.config)
+                self.api.save_config()
                 print(self.messages.CONFIG_SAVED())
 
             # Current State
@@ -270,8 +270,8 @@ class CLI:
                     )
 
                     print(f"{TC.PINK}You've made {TC.GREEN}{total_attempts}{TC.PINK} practice attempts!{TC.WHITE}")
-                    print(f"{TC.PINK}That includes {TC.GREEN}{total_target_attempts}{TC.PINK} practice attempts of {TC.CYAN}{self.api.passage.reference}{TC.PINK}!{TC.WHITE}")
-                    print(f"{TC.PINK}Your average score on {TC.CYAN}{self.api.passage.reference}{TC.PINK} is {TC.GREEN}{average_target_score}%{TC.PINK}!{TC.WHITE}")
+                    print(f"{TC.PINK}That includes {TC.GREEN}{total_target_attempts}{TC.PINK} practice attempts of {TC.CYAN}{self.api.passage.reference.reference}{TC.PINK}!{TC.WHITE}")
+                    print(f"{TC.PINK}Your average score on {TC.CYAN}{self.api.passage.reference.reference}{TC.PINK} is {TC.GREEN}{average_target_score}%{TC.PINK}!{TC.WHITE}")
 
             # Reset Statistics
             elif user_input == "z" or user_input == "reset":

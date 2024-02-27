@@ -33,9 +33,9 @@
 
 import random
 from test.test_base import BaseTest
-from src.agents import ESVBibleGatewayAgent
 from src.api import API
 from src.passage import Passage
+from src.reference import Reference
 from src.exceptions import InvalidTranslation
 
 
@@ -55,8 +55,8 @@ class APITests(BaseTest):
         """
         Can random verses be selected from a passage?
         """
-        ref = "John 1:1-5"
-        agent = ESVBibleGatewayAgent()
+        ref = Reference("John 1:1-5")
+        translation = "ESV"
 
         raw_list = [
         'In the beginning was the Word, and the Word was with God, and the ' +
@@ -68,11 +68,11 @@ class APITests(BaseTest):
         'The light shines in the darkness, and the darkness has not overcome it.'
         ]
 
-        passage = Passage(ref, agent)
+        passage = Passage(ref, translation)
         passage.populate(raw_list)
 
         api = API()
         api.passage = passage # "Mocking" the Passage Property
 
         random.seed(45)
-        self.assertEqual(api.get_random_verse().reference, "John 1:3")
+        self.assertEqual(api.get_random_verse().reference.reference, "John 1:3")

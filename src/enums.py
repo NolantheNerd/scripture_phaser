@@ -86,7 +86,7 @@ class AppDefaults:
     def __init__(self):
         self.translation = "NIV"
         self.random_mode = False
-        self.reference = "None"
+        self.reference = ""
 
 
 class App(enum.Enum):
