@@ -32,10 +32,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import random
+from unittest.mock import MagicMock
 from test.test_base import BaseTest
 from src.api import API
 from src.passage import Passage
-from src.translations import ESV
+from src.reference import Reference
 from src.exceptions import InvalidTranslation
 
 
@@ -49,15 +50,14 @@ class APITests(BaseTest):
         """
         api = API()
         with self.assertRaises(InvalidTranslation):
-            bad_translation = "EESV"
-            api.translation = bad_translation
+            api.set_translation("EESV")
 
     def test_get_random_verse(self):
         """
         Can random verses be selected from a passage?
         """
-        ref = "John 1:1-5"
-        translation = ESV()
+        ref = Reference("John 1:1-5")
+        translation = "ESV"
 
         raw_list = [
         'In the beginning was the Word, and the Word was with God, and the ' +
@@ -73,12 +73,31 @@ class APITests(BaseTest):
         passage.populate(raw_list)
 
         api = API()
-        api._passage = passage # "Mocking" the Passage Property
+        api.passage = passage # "Mocking" the Passage Property
 
         random.seed(45)
-        self.assertEqual(api.get_random_verse().reference, "John 1:3")
+        self.assertEqual(api.get_random_verse().ref_str, "John 1:3")
 
+    def test_grade(self):
+        """
+        Can the correct grade be assigned to a recitation?
+        """
+        api = API()
+        if api.random_mode:
+            api.set_random_mode()
 
-if __name__ == "__main__":
-    import unittest
-    unittest.main()
+        correct_string = "This is the correct way to write this string."
+        attempt_string = "This is an attempted way to write this string."
+
+        expected_score = 0.6923076923076923
+
+        api.reference = MagicMock()
+        api.reference.ref_str = "2 Hesitations 7:490"
+
+        api.passage = MagicMock()
+        api.passage.reference = api.reference
+        api.passage.show.return_value = correct_string
+
+        score, diff = api.finish_recitation(api.reference, attempt_string)
+
+        self.assertAlmostEqual(expected_score, score)

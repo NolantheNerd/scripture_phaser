@@ -2,7 +2,7 @@
 
 For the sake of consistency, this is how a release of scripture_phaser should be done.
 
-1. Increment the version and release date in `VERSION`.
+1. Increment the VERSION and RELEASE DATE in variables in `src/enums.py`.
 
 2. Update the version in `pyproject.toml`
 

@@ -7,7 +7,6 @@
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-#
 # 1. Redistributions of source code must retain the above copyright notice,
 # this list of conditions and the following disclaimer.
 #
@@ -35,7 +34,7 @@ from unittest.mock import MagicMock
 from src.enums import App
 from src.verse import Verse
 from src.passage import Passage
-from src.translations import ESV
+from src.reference import Reference
 from src.exceptions import InvalidReference
 from test.test_base import BaseTest
 
@@ -44,265 +43,45 @@ class PassageTests(BaseTest):
     """
     Test the Passage Object
     """
-    def test_clean_reference(self):
-        """
-        Can reference strings be standardized?
-        """
-        verse_string1 = "1 John 3:5"
-        expected_string1 = "One John 3:5"
-        actual_string1 = Passage.clean_reference(
-            verse_string1,
-            for_verse_selection=True
-        )
-        self.assertEqual(actual_string1, expected_string1)
-
-        verse_string2 = "genesis 5:1"
-        expected_string2 = "Genesis 5:1"
-        actual_string2 = Passage.clean_reference(
-            verse_string2,
-            for_verse_selection=True
-        )
-        self.assertEqual(actual_string2, expected_string2)
-
-        verse_string3 = "exodus 1-2"
-        expected_string3 = "Exodus 1 - 2"
-        actual_string3 = Passage.clean_reference(
-            verse_string3,
-            for_verse_selection=True
-        )
-        self.assertEqual(actual_string3, expected_string3)
-
-        verse_string4 = "First Peter - 2 peter 1 : 5"
-        expected_string4 = "One Peter - Two Peter 1:5"
-        actual_string4 = Passage.clean_reference(
-            verse_string4,
-            for_verse_selection=True
-        )
-        self.assertEqual(actual_string4, expected_string4)
-
-        verse_string5 = "psalm-proverbs"
-        expected_string5 = "Psalms - Proverbs"
-        actual_string5 = Passage.clean_reference(
-            verse_string5,
-            for_verse_selection=True
-        )
-        self.assertEqual(actual_string5, expected_string5)
-
-        verse_string6 = "Ezra 1 : 2-2 : 1"
-        expected_string6 = "Ezra 1:2 - 2:1"
-        actual_string6 = Passage.clean_reference(
-            verse_string6,
-            for_verse_selection=True
-        )
-        self.assertEqual(actual_string6, expected_string6)
-
-        verse_string7 = "1 John 3:5"
-        expected_string7 = "1 John 3:5"
-        actual_string7 = Passage.clean_reference(
-            verse_string7,
-            for_verse_selection=False
-        )
-        self.assertEqual(actual_string7, expected_string7)
-
-        verse_string8 = "First Peter - 2 peter 1 : 5"
-        expected_string8 = "1 Peter - 2 Peter 1:5"
-        actual_string8 = Passage.clean_reference(
-            verse_string8,
-            for_verse_selection=False
-        )
-        self.assertEqual(actual_string8, expected_string8)
-
-    def test_interpret_reference(self):
-        """
-        Can verse strings be interpreted?
-        """
-        verse_string1 = "One John 3:5"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 61, 2, 4, 61, 2, 4
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string1)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string2 = "Genesis 49:2 - 49:8"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 48, 1, 0, 48, 7
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string2)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string3 = "Esther 3:7 - 10"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 16, 2, 6, 16, 2, 9
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string3)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string4 = "One Kings 4"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 10, 3, 0, 10, 3, 33
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string4)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string5 = "Exodus 3 - 4:3"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 1, 2, 0, 1, 3, 2
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string5)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string6 = "Jude 10"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 9, 64, 0, 9
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string6)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string7 = "Genesis"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 0, 49, 25
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string7)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string8 = "Genesis - Leviticus"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 2, 26, 33
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string8)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string9 = "Exodus 3 - 4"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 1, 2, 0, 1, 3, 30
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string9)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string10 = "Jude 10 - 11"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 9, 64, 0, 10
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string10)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string11 = "Genesis 50 - Exodus 1"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 49, 0, 1, 0, 21
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string11)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string12 = "Jude - Revelation 1"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 0, 65, 0, 19
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(verse_string12)
-        self.assertEqual(eb1, b1)
-        self.assertEqual(ec1, c1)
-        self.assertEqual(ev1, v1)
-        self.assertEqual(eb2, b2)
-        self.assertEqual(ec2, c2)
-        self.assertEqual(ev2, v2)
-
-        verse_string13 = "Billy"
-        with self.assertRaises(InvalidReference):
-            Passage.interpret_reference(verse_string13)
-
-        verse_string14 = "Genesis 1:1 - Billy"
-        with self.assertRaises(InvalidReference):
-            Passage.interpret_reference(verse_string14)
-
-        verse_string15 = "Zedekiah 14:7 - Leviticus 1:5"
-        with self.assertRaises(InvalidReference):
-            Passage.interpret_reference(verse_string15)
-
-        verse_string16 = "Zedekiah 14:7 - JimBob 11:109"
-        with self.assertRaises(InvalidReference):
-            Passage.interpret_reference(verse_string16)
-
     def test_reference_to_verses(self):
         """
         Can reference strings be converted to Verse() objects?
         """
-        verse_string1 = "One John 3:5"
-        actual_verses = Passage.reference_to_verses(verse_string1)
-        self.assertEqual(len(actual_verses), 1)
+        passage1 = Passage(Reference("1 John 3:5"), "NIV")
+        self.assertEqual(len(passage1.verses), 1)
 
-        verse_string2 = "Genesis 49:2 - 49:8"
-        actual_verses = Passage.reference_to_verses(verse_string2)
-        self.assertEqual(len(actual_verses), 7)
+        passage2 = Passage(Reference("Genesis 49:2 - 49:8"), "NIV")
+        self.assertEqual(len(passage2.verses), 7)
 
-        verse_string3 = "Esther 3:7 - 10"
-        actual_verses = Passage.reference_to_verses(verse_string3)
-        self.assertEqual(len(actual_verses), 4)
+        passage3 = Passage(Reference("Esther 3:7 - 10"), "NIV")
+        self.assertEqual(len(passage3.verses), 4)
 
-        verse_string4 = "One Kings 4"
-        actual_verses = Passage.reference_to_verses(verse_string4)
-        self.assertEqual(len(actual_verses), 34)
+        passage4 = Passage(Reference("1 Kings 4"), "NIV")
+        self.assertEqual(len(passage4.verses), 34)
 
-        verse_string5 = "Exodus 3 - 4:3"
-        actual_verses = Passage.reference_to_verses(verse_string5)
-        self.assertEqual(len(actual_verses), 25)
+        passage5 = Passage(Reference("Exodus 3 - 4:3"), "NIV")
+        self.assertEqual(len(passage5.verses), 25)
 
-        verse_string6 = "Jude 10"
-        actual_verses = Passage.reference_to_verses(verse_string6)
-        self.assertEqual(len(actual_verses), 1)
+        passage6 = Passage(Reference("Jude 10"), "NIV")
+        self.assertEqual(len(passage6.verses), 1)
 
-        verse_string7 = "Genesis"
-        actual_verses = Passage.reference_to_verses(verse_string7)
-        self.assertEqual(len(actual_verses), 1533)
+        passage7 = Passage(Reference("Genesis"), "NIV")
+        self.assertEqual(len(passage7.verses), 1533)
 
-        verse_string8 = "Genesis - Leviticus"
-        actual_verses = Passage.reference_to_verses(verse_string8)
-        self.assertEqual(len(actual_verses), 3605)
+        passage8 = Passage(Reference("Genesis - Leviticus"), "NIV")
+        self.assertEqual(len(passage8.verses), 3605)
 
-        verse_string9 = "Exodus 3 - 4"
-        actual_verses = Passage.reference_to_verses(verse_string9)
-        self.assertEqual(len(actual_verses), 53)
+        passage9 = Passage(Reference("Exodus 3 - 4"), "NIV")
+        self.assertEqual(len(passage9.verses), 53)
 
-        verse_string10 = "Jude 10 - 11"
-        actual_verses = Passage.reference_to_verses(verse_string10)
-        self.assertEqual(len(actual_verses), 2)
+        passage10 = Passage(Reference("Jude 10 - 11"), "NIV")
+        self.assertEqual(len(passage10.verses), 2)
 
-        verse_string11 = "Genesis 50 - Exodus 1"
-        actual_verses = Passage.reference_to_verses(verse_string11)
-        self.assertEqual(len(actual_verses), 48)
+        passage11 = Passage(Reference("Genesis 50 - Exodus 1"), "NIV")
+        self.assertEqual(len(passage11.verses), 48)
 
-        verse_string12 = "Jude - Revelation 1"
-        actual_verses = Passage.reference_to_verses(verse_string12)
-        self.assertEqual(len(actual_verses), 45)
+        passage12 = Passage(Reference("Jude - Revelation 1"), "NIV")
+        self.assertEqual(len(passage12.verses), 45)
 
     def test_validate_verse_pair(self):
         """
@@ -338,8 +117,8 @@ class PassageTests(BaseTest):
         """
         Can a passage be properly populated?
         """
-        reference = "John 1:1 - 1:5"
-        translation = ESV()
+        reference = Reference("John 1:1 - 1:5")
+        translation = "ESV"
         passage = Passage(reference, translation)
 
         mock_api_return = '[1] In the beginning was the Word, and the Word was with ' + \
@@ -348,7 +127,7 @@ class PassageTests(BaseTest):
         'made that was made. [4] In him was life, and the life was the light of ' + \
         'men. [5] The light shines in the darkness, and the darkness has not ' + \
         'overcome it.\n\n'
-        passage.translation.agent._fetch = MagicMock(return_value=mock_api_return)
+        passage.agent._fetch = MagicMock(return_value=mock_api_return)
 
         passage.populate()
 
@@ -368,8 +147,8 @@ class PassageTests(BaseTest):
         """
         Do passages display their content properly?
         """
-        reference = "1 Peter 1:2 - 1:3"
-        translation = ESV()
+        reference = Reference("1 Peter 1:2 - 1:3")
+        translation = "ESV"
         passage = Passage(reference, translation)
 
         mock_api_return = [
@@ -380,7 +159,7 @@ class PassageTests(BaseTest):
         'born again to a living hope through the resurrection of Jesus Christ from the dead,'
         ]
 
-        passage.translation.agent._fetch = MagicMock(return_value=mock_api_return)
+        passage.agent._fetch = MagicMock(return_value=mock_api_return)
 
         expected_clean = 'according to the foreknowledge of God the Father, ' + \
         'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
@@ -418,8 +197,3 @@ class PassageTests(BaseTest):
         self.assertEqual(passage.show(with_verse=True), expected_verse)
         self.assertEqual(passage.show(with_ref=True), expected_ref)
         self.assertEqual(passage.show(with_verse=True, with_ref=True), expected_full)
-
-
-if __name__ == "__main__":
-    import unittest
-    unittest.main()

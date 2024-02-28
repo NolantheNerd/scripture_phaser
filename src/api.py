@@ -32,32 +32,25 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import platform
 import random
-import subprocess
-from sys import exit
-from shutil import which
+import difflib
+import datetime
+import platform
 from pathlib import Path
 from dotenv import dotenv_values
 from xdg.BaseDirectory import save_cache_path
 from xdg.BaseDirectory import save_config_path
 from src.enums import App
 from src.enums import AppDefaults
+from src.enums import TermColours as TC
 from src.stats import Stats
 from src.models import Attempt
 from src.passage import Passage
 from src.enums import Translations
+from src.reference import Reference
 from src.exceptions import EditorNotFound
-from src.exceptions import InvalidTranslation
-from src.translations import ESV
-from src.translations import NIV
-from src.translations import KJV
-from src.translations import WEB
-from src.translations import NKJV
-from src.translations import NLT
-from src.translations import NASB
-from src.translations import NRSV
 from src.exceptions import InvalidReference
+from src.exceptions import InvalidTranslation
 
 
 class API:
@@ -65,17 +58,15 @@ class API:
         self.stats = Stats()
         self.config_path = Path(save_config_path(App.Name.value))
         self.cache_path = Path(save_cache_path(App.Name.value))
-        self.config = self.load_config()
-        self.is_windows = platform.system() == "Windows"
 
-        if App.translation.name in self.config:
-            self.translation = self.config[App.translation.name]
+        config = self.load_config()
+        self.translation = config.get(App.translation.name, AppDefaults().translation)
+        self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode) != "False"
+        self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
+        if not self.reference.empty:
+            self.set_passage(self.reference.ref_str)
         else:
-            self.translation = App.Defaults.translation.value
-        if App.random_mode.name in self.config:
-            self.mode = self.config[App.random_mode.name]
-        if App.reference.name in self.config:
-            self.passage = self.config[App.reference.name]
+            self.passage = None
 
         if not Attempt.table_exists():
             Attempt.create_table()
@@ -103,8 +94,13 @@ class API:
 
         return config
 
-    @staticmethod
-    def save_config(config):
+    def save_config(self):
+        config = {
+            "translation": self.translation,
+            "random_mode": self.random_mode,
+            "reference": self.reference.ref_str
+        }
+
         config_path = Path(save_config_path(App.Name.value))
         config_file = config_path / "config"
 
@@ -114,62 +110,38 @@ class API:
             for key in config.keys():
                 file.write(f"{key}=\"{config[key]}\"\n")
 
-    @property
-    def mode(self):
-        return self._mode
+    def set_random_mode(self):
+        self.random_mode = not self.random_mode
+        self.save_config()
 
-    @mode.setter
-    def mode(self, random_mode):
-        if random_mode == "False" or not random_mode:
-            self._mode = False
-        else:
-            self._mode = True
-        self.config[App.random_mode.name] = self._mode
-        self.save_config(self.config)
+    def view_translation(self):
+        return Translations
 
-    def list_translations(self):
-        return [translation.name for translation in Translations]
-
-    @property
-    def translation(self):
-        return self._translation
-
-    @translation.setter
-    def translation(self, translation):
-        if translation not in self.list_translations():
+    def set_translation(self, translation):
+        if translation not in Translations:
             raise InvalidTranslation(translation)
         else:
-            self._translation = globals()[translation]()
-            self.config[App.translation.name] = translation
-            self.save_config(self.config)
+            self.translation = translation
+            self.save_config()
 
-            if hasattr(self, "passage") and self.passage is not None:
-                self.passage = self.passage.reference
+            if not self.reference.empty:
+                self.passage = self.set_passage(self.reference.ref_str)
 
     def get_random_verse(self):
-        verse = random.choice(self.passage.verses)
-        verse_passage = Passage(verse.reference, self.translation)
-        verse_passage.populate([verse.text])
-        return verse_passage
+        return random.choice(self.passage.verses).reference
 
-    @property
-    def passage(self):
-        return self._passage
-
-    @passage.setter
-    def passage(self, reference):
-        if reference.strip() == "" or reference == "None":
-            self._passage = None
-            self.config[App.reference.name] = "None"
+    def set_passage(self, reference):
+        self.reference = Reference(reference)
+        if self.reference.empty:
+            self.passage = None
         else:
             try:
-                self._passage = Passage(reference, self.translation)
-                self._passage.populate()
-                self.config[App.reference.name] = self._passage.reference
+                self.passage = Passage(self.reference, self.translation)
+                self.passage.populate()
             except InvalidReference as e:
                 print(e.__str__())
 
-        self.save_config(self.config)
+        self.save_config()
 
     def view_passage(self):
         if self.passage is not None:
@@ -177,65 +149,60 @@ class API:
         else:
             return ""
 
-    def recitation(self):
-        if self.mode:
-            self.target = self.get_random_verse()
+    def new_recitation(self):
+        if self.random_mode:
+            return self.get_random_verse()
         else:
-            self.target = self.passage
+            return self.passage.reference
 
-        try:
-            editor = os.environ["EDITOR"]
-        except KeyError:
-            try:
-                if which("gedit") is not None:
-                    editor = "gedit"
-                elif which("nano") is not None:
-                    editor = "nano"
-                elif which("nvim") is not None:
-                    editor = "nvim"
-                elif which("vim") is not None:
-                    editor = "vim"
-                elif which("notepad") is not None:
-                    editor = "notepad"
-                else:
-                    raise EditorNotFound()
-            except EditorNotFound:
-                print("Text editor not found; set the 'EDITOR'" +
-                  "environmental variable and try again")
-                exit()
-
-        if self.is_windows:
-            windows_filename = f"{self.target.reference}".replace(":", ";")
-            self.filename = self.cache_path / windows_filename
+    def finish_recitation(self, reference, text):
+        if self.random_mode:
+            passage = Passage(reference, self.translation)
+            passage.populate([v.text for v in self.passage.verses if v.reference.ref_str == reference.ref_str])
+            ans = passage.show()
         else:
-            self.filename = self.cache_path / f"{self.target.reference}"
+            ans = self.passage.show()
 
-        self.filename.touch(exist_ok=True)
-        subprocess.run([editor, self.filename])
-
-        if not self.filename.exists():
-            text = ""
+        if text == ans:
+            score = 1
+            diff = ""
         else:
-            with open(self.filename, "r") as file:
-                text = file.readlines()
-                text = "".join(text)
+            diff = ""
+            n_correct_chars, n_incorrect_chars = 0, 0
+            result = difflib.SequenceMatcher(a=text, b=ans).get_opcodes()
+            for tag, i1, i2, j1, j2 in result:
+                if tag == "replace":
+                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
+                    segment = f"{TC.RED}{text[i1:i2]}{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "delete":
+                    n_incorrect_chars += i2 - i1
+                    segment = f"{TC.RED}{text[i1:i2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "insert":
+                    n_incorrect_chars += j2 - j1
+                    segment = f"{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "equal":
+                    n_correct_chars += i2 - i1
+                    diff += f"{TC.CYAN}{text[i1:i2]}{TC.WHITE}"
 
-            # Editors Sometimes add \n at the end of a file, if one doesn't
-            # already exist @@@ TODO (Nolan): Think about the case where the
-            # correct recitation ends with a \n and the user has set these
-            # options...
-            if len(text) > 0 and text[-1] == "\n":
-                text = text[:-1]
-
-            if self.filename.exists():
-                os.remove(self.filename)
+            score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
 
         attempt = Attempt.create(
-            random_mode=self.mode,
-            reference=self.target.reference,
+            random_mode=self.random_mode,
+            reference=reference.ref_str,
+            score=score,
+            diff=diff,
+            datetime=datetime.datetime.now()
         )
-        score, diff = attempt.complete(text, self.passage)
-        attempt.save()
+
         return score, diff
 
     @staticmethod

@@ -33,6 +33,9 @@
 
 import enum
 
+VERSION = "1.0.2"
+RELEASE_DATE = "2024-02-19"
+
 license_text = """
 scripture_phaser helps you to memorize the Bible.
 Copyright (C) 2023-2024 Nolan McMahon
@@ -83,7 +86,7 @@ class AppDefaults:
     def __init__(self):
         self.translation = "NIV"
         self.random_mode = False
-        self.reference = "None"
+        self.reference = ""
 
 
 class App(enum.Enum):
@@ -93,31 +96,11 @@ class App(enum.Enum):
     random_mode = "random_mode"
     reference = "reference"
     license = license_text
-    version = "1.0.2"
-    release_date = "2024-02-19"
+    version = VERSION
+    release_date = RELEASE_DATE
 
 
-class Translations(enum.Enum):
-    ESV = "English Standard Version (ESV)"
-    NIV = "New International Version (NIV)"
-    KJV = "King James Version (KJV)"
-    NKJV = "New King James Version (NKJV)"
-    NLT = "New Living Translation (NLT)"
-    NASB = "New American Standard Bible (NASB)"
-    NRSV = "New Revised Standard Version (NRSV)"
-    WEB = "World English Bible (WEB)"
-
-
-class Agents(enum.Enum):
-    ESVBGW = "ESV"
-    NIVBGW = "NIV"
-    NKJVBGW = "NKJV"
-    NLTBGW = "NLT"
-    NRSVBGW = "NRSV"
-    NASBBGW = "NASB"
-    KJVBGW = "KJV"
-    WEBBGW = "WEB"
-
+Translations = ["ESV", "NIV", "KJV", "NKJV", "NLT", "NASB", "NRSV", "WEB"]
 
 Genesis = [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27,
            33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 55, 32, 20, 31,

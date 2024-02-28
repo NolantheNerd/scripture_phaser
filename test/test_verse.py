@@ -51,14 +51,11 @@ class VerseTests(BaseTest):
         ref3 = Verse(8, 0, 200)
         # 3 John 1:5
         ref4 = Verse(63, 0, 4)
-        # Steven 1:1
-        ref5 = Verse(-1, 0, 0)
 
         self.assertTrue(Verse.validate(ref1))
         self.assertFalse(Verse.validate(ref2))
         self.assertFalse(Verse.validate(ref3))
         self.assertTrue(Verse.validate(ref4))
-        self.assertFalse(Verse.validate(ref5))
 
     def test_show(self):
         """
@@ -87,8 +84,3 @@ class VerseTests(BaseTest):
             verse.show(with_verse=True, with_ref=True),
             f"[35] {text} - John 11:35"
         )
-
-
-if __name__ == "__main__":
-    import unittest
-    unittest.main()

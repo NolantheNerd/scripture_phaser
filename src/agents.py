@@ -31,22 +31,19 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import re
 import requests
 from unicodedata import normalize
-from src.enums import Agents
 from src.enums import Bible
 from src.enums import Bible_Books
 from src.enums import Reverse_Bible_Books
-from src.passage import Passage
 from meaningless.bible_web_extractor import WebExtractor
 
 
 # Remains Distinct from BibleGateway Agent in the Event that Another API is
 # Needs to be Used
 class BaseAPIAgent:
-    def __init__(self, agent):
-        self.agent = agent
+    def __init__(self, translation):
+        self.translation = translation
 
     def _fetch(self, ref):
         raise NotImplementedError("Child agent must implement _fetch()")
@@ -62,14 +59,10 @@ class BaseAPIAgent:
 
 
 class BibleGatewayAgent(BaseAPIAgent):
-    # @@@ TODO: Start Here ^^^ Maybe Don't Subclass? It's just
-    # unpredictability in terms of which API will be used to
-    # return data in the test_show() test in test_passage().
-    # Maybe hard code the agent to use in the test?
-    def __init__(self, agent):
-        self.agent = agent
+    def __init__(self, translation):
+        self.translation = translation
         self.xtcr = WebExtractor(
-            translation=self.agent.value,
+            translation=self.translation,
             show_passage_numbers=False,
             output_as_list=True,
             strip_excess_whitespace_from_list=False,
@@ -77,13 +70,12 @@ class BibleGatewayAgent(BaseAPIAgent):
         )
 
     def _fetch(self, ref):
-        b1, c1, v1, b2, c2, v2 = Passage.interpret_reference(ref)
-        b1 = Bible_Books[b1]
-        c1 += 1
-        v1 += 1
-        b2 = Bible_Books[b2]
-        c2 += 1
-        v2 += 1
+        b1 = Bible_Books[ref.book_start]
+        c1 = ref.chapter_start + 1
+        v1 = ref.verse_start + 1
+        b2 = Bible_Books[ref.book_end]
+        c2 = ref.chapter_end + 1
+        v2 = ref.verse_end + 1
 
         if b1 == b2:
             return self.xtcr.get_passage_range(
@@ -120,54 +112,66 @@ class BibleGatewayAgent(BaseAPIAgent):
 class KJVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.KJVBGW
+            translation="KJV"
         )
 
 
 class WEBBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.WEBBGW
+            translation="WEB"
         )
 
 
 class ESVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.ESVBGW
+            translation="ESV"
         )
 
 
 class NIVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NIVBGW
+            translation="NIV"
         )
 
 
 class NKJVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NKJVBGW
+            translation="NKJV"
         )
 
 
 class NLTBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NLTBGW
+            translation="NLT"
         )
 
 
 class NASBBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NASBBGW
+            translation="NASB"
         )
 
 
 class NRSVBibleGatewayAgent(BibleGatewayAgent):
     def __init__(self):
         super().__init__(
-            agent=Agents.NRSVBGW
+            translation="NRSV"
         )
+
+
+Agents = {
+    "ESV": ESVBibleGatewayAgent(),
+    "NIV": NIVBibleGatewayAgent(),
+    "NASB": NASBBibleGatewayAgent(),
+    "NLT": NLTBibleGatewayAgent(),
+    "KJV": KJVBibleGatewayAgent(),
+    "NKJV": NKJVBibleGatewayAgent(),
+    "WEB": WEBBibleGatewayAgent(),
+    "NRSV": NRSVBibleGatewayAgent()
+}
