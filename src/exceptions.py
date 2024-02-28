@@ -48,4 +48,4 @@ class InvalidTranslation(Exception):
 
 class EditorNotFound(Exception):
     def __init__(self):
-        Exception.__init__(self)
+        Exception.__init__(self, "Text editor not found; set the 'EDITOR' environmental variable and try again")

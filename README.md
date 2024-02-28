@@ -20,8 +20,6 @@ Running scripture_phaser with no arguments launches the interactive CLI.
 
 From the interactive CLI, the following commands are available:
 
-* g/get         - Reload the configuration file
-* w/write       - Save the current configuration
 * l/list        - Lists selected reference, random mode and translation
 * m/random_mode - Toggles the mode
 * r/reference   - Sets the reference

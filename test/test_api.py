@@ -32,6 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import random
+from unittest.mock import MagicMock
 from test.test_base import BaseTest
 from src.api import API
 from src.passage import Passage
@@ -76,3 +77,25 @@ class APITests(BaseTest):
 
         random.seed(45)
         self.assertEqual(api.get_random_verse().reference.reference, "John 1:3")
+
+    def test_grade(self):
+        """
+        Can the correct grade be assigned to a recitation?
+        """
+        api = API()
+
+        correct_string = "This is the correct way to write this string."
+        attempt_string = "This is an attempted way to write this string."
+
+        expected_score = 0.6923076923076923
+
+        api.reference = MagicMock()
+        api.reference.reference = "2 Hesitations 7:490"
+
+        api.passage = MagicMock()
+        api.passage.reference = api.reference
+        api.passage.show.return_value = correct_string
+
+        score, diff = api.finish_recitation(api.reference, attempt_string)
+
+        self.assertAlmostEqual(expected_score, score)

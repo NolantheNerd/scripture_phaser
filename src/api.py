@@ -32,17 +32,17 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import platform
 import random
-import subprocess
-from sys import exit
-from shutil import which
+import difflib
+import datetime
+import platform
 from pathlib import Path
 from dotenv import dotenv_values
 from xdg.BaseDirectory import save_cache_path
 from xdg.BaseDirectory import save_config_path
 from src.enums import App
 from src.enums import AppDefaults
+from src.enums import TermColours as TC
 from src.stats import Stats
 from src.models import Attempt
 from src.passage import Passage
@@ -51,7 +51,6 @@ from src.reference import Reference
 from src.exceptions import EditorNotFound
 from src.exceptions import InvalidReference
 from src.exceptions import InvalidTranslation
-from src.agents import Agents
 
 
 class API:
@@ -59,7 +58,6 @@ class API:
         self.stats = Stats()
         self.config_path = Path(save_config_path(App.Name.value))
         self.cache_path = Path(save_cache_path(App.Name.value))
-        self.is_windows = platform.system() == "Windows"
 
         config = self.load_config()
         self.translation = config.get(App.translation.name, AppDefaults().translation)
@@ -112,11 +110,11 @@ class API:
             for key in config.keys():
                 file.write(f"{key}=\"{config[key]}\"\n")
 
-    def toggle_random_mode(self):
+    def set_random_mode(self):
         self.random_mode = not self.random_mode
         self.save_config()
 
-    def list_translations(self):
+    def view_translation(self):
         return Translations
 
     def set_translation(self, translation):
@@ -154,65 +152,54 @@ class API:
         else:
             return ""
 
-    def recitation(self):
+    def new_recitation(self):
         if self.random_mode:
-            target = self.get_random_verse()
+            return self.get_random_verse()
         else:
-            target = self.passage
+            return self.passage.reference
 
-        try:
-            editor = os.environ["EDITOR"]
-        except KeyError:
-            try:
-                if which("gedit") is not None:
-                    editor = "gedit"
-                elif which("nano") is not None:
-                    editor = "nano"
-                elif which("nvim") is not None:
-                    editor = "nvim"
-                elif which("vim") is not None:
-                    editor = "vim"
-                elif which("notepad") is not None:
-                    editor = "notepad"
-                else:
-                    raise EditorNotFound()
-            except EditorNotFound:
-                print("Text editor not found; set the 'EDITOR'" +
-                  "environmental variable and try again")
-                exit()
-
-        if self.is_windows:
-            windows_filename = f"{target.reference}".replace(":", ";")
-            filename = self.cache_path / windows_filename
+    def finish_recitation(self, reference, text):
+        ans = self.passage.show()
+        if text == ans:
+            score = 1
+            diff = ""
         else:
-            filename = self.cache_path / f"{target.reference.reference}"
+            diff = ""
+            n_correct_chars, n_incorrect_chars = 0, 0
+            result = difflib.SequenceMatcher(a=text, b=ans).get_opcodes()
+            for tag, i1, i2, j1, j2 in result:
+                if tag == "replace":
+                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
+                    segment = f"{TC.RED}{text[i1:i2]}{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "delete":
+                    n_incorrect_chars += i2 - i1
+                    segment = f"{TC.RED}{text[i1:i2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "insert":
+                    n_incorrect_chars += j2 - j1
+                    segment = f"{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "equal":
+                    n_correct_chars += i2 - i1
+                    diff += f"{TC.CYAN}{text[i1:i2]}{TC.WHITE}"
 
-        filename.touch(exist_ok=True)
-        subprocess.run([editor, filename])
-
-        if not filename.exists():
-            text = ""
-        else:
-            with open(filename, "r") as file:
-                text = file.readlines()
-                text = "".join(text)
-
-            # Editors Sometimes add \n at the end of a file, if one doesn't
-            # already exist @@@ TODO (Nolan): Think about the case where the
-            # correct recitation ends with a \n and the user has set these
-            # options...
-            if len(text) > 0 and text[-1] == "\n":
-                text = text[:-1]
-
-            if filename.exists():
-                os.remove(filename)
+            score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
 
         attempt = Attempt.create(
             random_mode=self.random_mode,
-            reference=target.reference.reference,
+            reference=reference.reference,
+            score=score,
+            diff=diff,
+            datetime=datetime.datetime.now()
         )
-        score, diff = attempt.complete(text, self.passage)
-        attempt.save()
+
         return score, diff
 
     @staticmethod
