@@ -87,6 +87,7 @@ class AppDefaults:
         self.translation = "NIV"
         self.random_mode = False
         self.reference = ""
+        self.show_passage_numbers = False
 
 
 class App(enum.Enum):
@@ -95,6 +96,7 @@ class App(enum.Enum):
     translation = "translation"
     random_mode = "random_mode"
     reference = "reference"
+    show_passage_numbers = "show_passage_numbers"
     license = license_text
     version = VERSION
     release_date = RELEASE_DATE

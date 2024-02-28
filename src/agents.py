@@ -54,8 +54,8 @@ class BaseAPIAgent:
     def _split(self, text):
         return text
 
-    def get(self, ref):
-        return self._split(self._clean(self._fetch(ref)))
+    def get(self, ref, show_passage_numbers):
+        return self._split(self._clean(self._fetch(ref, show_passage_numbers)))
 
 
 class BibleGatewayAgent(BaseAPIAgent):
@@ -63,13 +63,14 @@ class BibleGatewayAgent(BaseAPIAgent):
         self.translation = translation
         self.xtcr = WebExtractor(
             translation=self.translation,
-            show_passage_numbers=False,
             output_as_list=True,
             strip_excess_whitespace_from_list=False,
             use_ascii_punctuation=True
         )
 
-    def _fetch(self, ref):
+    def _fetch(self, ref, show_passage_numbers):
+        self.xtcr.show_passage_numbers = show_passage_numbers
+
         b1 = Bible_Books[ref.book_start]
         c1 = ref.chapter_start + 1
         v1 = ref.verse_start + 1

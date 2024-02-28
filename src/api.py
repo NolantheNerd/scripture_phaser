@@ -61,8 +61,9 @@ class API:
 
         config = self.load_config()
         self.translation = config.get(App.translation.name, AppDefaults().translation)
-        self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode) != "False"
+        self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode) == "True"
         self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
+        self.show_passage_numbers = config.get(App.show_passage_numbers.name, AppDefaults().show_passage_numbers) == "True"
         if not self.reference.empty:
             self.set_passage(self.reference.ref_str)
         else:
@@ -98,7 +99,8 @@ class API:
         config = {
             "translation": self.translation,
             "random_mode": self.random_mode,
-            "reference": self.reference.ref_str
+            "reference": self.reference.ref_str,
+            "show_passage_numbers": self.show_passage_numbers
         }
 
         config_path = Path(save_config_path(App.Name.value))
@@ -112,6 +114,11 @@ class API:
 
     def set_random_mode(self):
         self.random_mode = not self.random_mode
+        self.save_config()
+
+    def set_show_passage_numbers(self):
+        self.show_passage_numbers = not self.show_passage_numbers
+        self.set_passage(self.reference.ref_str)
         self.save_config()
 
     def view_translation(self):
@@ -137,7 +144,7 @@ class API:
         else:
             try:
                 self.passage = Passage(self.reference, self.translation)
-                self.passage.populate()
+                self.passage.populate(show_passage_numbers=self.show_passage_numbers)
             except InvalidReference as e:
                 print(e.__str__())
 

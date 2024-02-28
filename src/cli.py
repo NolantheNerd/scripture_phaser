@@ -101,6 +101,7 @@ class CLISTR:
             f"\t{TC.BLUE}I{TC.WHITE} - {TC.YELLOW}List available translations{TC.WHITE}\n"
             f"\t{TC.BLUE}L{TC.WHITE} - {TC.YELLOW}Lists selected reference, random mode and translation{TC.WHITE}\n"
             f"\t{TC.BLUE}M{TC.WHITE} - {TC.YELLOW}Toggles the random_mode{TC.WHITE}\n"
+            f"\t{TC.BLUE}N{TC.WHITE} - {TC.YELLOW}Toggles whether or not to include the passage numbers{TC.WHITE}\n"
             f"\t{TC.BLUE}P{TC.WHITE} - {TC.YELLOW}Practice the current reference{TC.WHITE}\n"
             f"\t{TC.BLUE}R{TC.WHITE} - {TC.YELLOW}Sets the reference{TC.WHITE}\n"
             f"\t{TC.BLUE}S{TC.WHITE} - {TC.YELLOW}View your statistics{TC.WHITE}\n"
@@ -127,8 +128,14 @@ class CLISTR:
     def RANDOM_MODE(self):
         return f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.random_mode}{TC.WHITE}"
 
+    def SHOW_PASSAGE_NUMBERS(self):
+        return f"{TC.PINK}Show Passage Numbers:{TC.YELLOW} {self.api.show_passage_numbers}{TC.WHITE}"
+
     def SET_RANDOM_MODE(self):
         return f"{TC.PINK}Toggled random mode to {TC.YELLOW}{self.api.random_mode}{TC.WHITE}"
+
+    def SET_PASSAGE_NUMBERS(self):
+        return f"{TC.PINK}Toggled show passage numbers to {TC.YELLOW}{self.api.show_passage_numbers}{TC.WHITE}"
 
     def INVALID_TRANSLATION(self):
         return f"{TC.RED}Invalid Translation\n{TC.PINK}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
@@ -224,11 +231,17 @@ class CLI:
                     print(self.messages.NO_REFERENCE())
                 print(self.messages.TRANSLATION())
                 print(self.messages.RANDOM_MODE())
+                print(self.messages.SHOW_PASSAGE_NUMBERS())
 
             # Set (Toggle) Mode
             elif user_input == "m" or user_input == "random_mode":
                 self.api.set_random_mode()
                 print(self.messages.SET_RANDOM_MODE())
+
+            # Set (Toggle) the Passage Numbers
+            elif user_input == "n" or user_input == "numbers":
+                self.api.set_show_passage_numbers()
+                print(self.messages.SET_PASSAGE_NUMBERS())
 
             # Set Reference
             elif user_input == "r" or user_input == "reference":

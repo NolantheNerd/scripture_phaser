@@ -45,10 +45,10 @@ class Passage:
         self.verses = self.reference_to_verses()
         self.populated = False
 
-    def populate(self, texts=None):
+    def populate(self, texts=None, show_passage_numbers=False):
         self.populated = True
         if texts is None:
-            texts = self.agent.get(self.reference)
+            texts = self.agent.get(self.reference, show_passage_numbers)
         for verse, text in zip(self.verses, texts):
             verse.initialize(text)
 
