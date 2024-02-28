@@ -66,7 +66,7 @@ class Passage:
             text = text.replace("\n ", "\n")
 
             if with_ref:
-                text = f"{text} - {self.reference.reference}"
+                text = f"{text} - {self.reference.ref_str}"
             return text
 
     def reference_to_verses(self):

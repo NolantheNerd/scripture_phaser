@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import pdb
 from test.test_base import BaseTest
 from src.reference import Reference
 from src.exceptions import InvalidReference
@@ -48,37 +47,37 @@ class ReferenceTests(BaseTest):
         verse_string1 = "1 John 3:5"
         expected_string1 = "1 John 3:5"
         ref1 = Reference(verse_string1)
-        self.assertEqual(ref1.reference, expected_string1)
+        self.assertEqual(ref1.ref_str, expected_string1)
 
         verse_string2 = "genesis 5:1"
         expected_string2 = "Genesis 5:1"
         ref2 = Reference(verse_string2)
-        self.assertEqual(ref2.reference, expected_string2)
+        self.assertEqual(ref2.ref_str, expected_string2)
 
         verse_string3 = "exodus 1-2"
         expected_string3 = "Exodus 1 - 2"
         ref3 = Reference(verse_string3)
-        self.assertEqual(ref3.reference, expected_string3)
+        self.assertEqual(ref3.ref_str, expected_string3)
 
         verse_string4 = "First Peter - 2 peter 1 : 5"
         expected_string4 = "1 Peter - 2 Peter 1:5"
         ref4 = Reference(verse_string4)
-        self.assertEqual(ref4.reference, expected_string4)
+        self.assertEqual(ref4.ref_str, expected_string4)
 
         verse_string5 = "psalm-proverbs"
         expected_string5 = "Psalms - Proverbs"
         ref5 = Reference(verse_string5)
-        self.assertEqual(ref5.reference, expected_string5)
+        self.assertEqual(ref5.ref_str, expected_string5)
 
         verse_string6 = "Ezra 1 : 2-2 : 1"
         expected_string6 = "Ezra 1:2 - 2:1"
         ref6 = Reference(verse_string6)
-        self.assertEqual(ref6.reference, expected_string6)
+        self.assertEqual(ref6.ref_str, expected_string6)
 
         verse_string7 = "First Peter - 2 peter 1 : 5"
         expected_string7 = "1 Peter - 2 Peter 1:5"
         ref7 = Reference(verse_string7)
-        self.assertEqual(ref7.reference, expected_string7)
+        self.assertEqual(ref7.ref_str, expected_string7)
 
     def test_interpret_reference(self):
         """

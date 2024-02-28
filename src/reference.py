@@ -40,14 +40,14 @@ class Reference:
     def __init__(self, reference):
         if reference.strip() == "":
             self.empty = True
-            self.reference = ""
+            self.ref_str = ""
         else:
             self.empty = False
-            self.reference = self.clean_reference(reference)
+            self.ref_str = self.clean_reference(reference)
 
             self.book_start, self.chapter_start, self.verse_start, \
             self.book_end, self.chapter_end, self.verse_end = \
-                self.interpret_reference(self.reference)
+                self.interpret_reference(self.ref_str)
 
 
     @staticmethod
@@ -84,11 +84,13 @@ class Reference:
         ref = ref.strip().lower().title()
 
         ref = cls.convert_numbered_books(ref, digit_to_alpha=True)
+        # Replace "Psalm" -> "Psalms" will also turn "Psalms" -> "Psalmss"
         ref = ref \
             .replace("Psalm", "Psalms") \
             .replace("First", "One") \
             .replace("Second", "Two") \
             .replace("Third", "Three") \
+            .replace("Psalmss", "Psalms")
 
         new_ref = ""
         prev_char = ""

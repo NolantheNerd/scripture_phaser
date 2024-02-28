@@ -76,13 +76,15 @@ class APITests(BaseTest):
         api.passage = passage # "Mocking" the Passage Property
 
         random.seed(45)
-        self.assertEqual(api.get_random_verse().reference.reference, "John 1:3")
+        self.assertEqual(api.get_random_verse().ref_str, "John 1:3")
 
     def test_grade(self):
         """
         Can the correct grade be assigned to a recitation?
         """
         api = API()
+        if api.random_mode:
+            api.set_random_mode()
 
         correct_string = "This is the correct way to write this string."
         attempt_string = "This is an attempted way to write this string."
@@ -90,7 +92,7 @@ class APITests(BaseTest):
         expected_score = 0.6923076923076923
 
         api.reference = MagicMock()
-        api.reference.reference = "2 Hesitations 7:490"
+        api.reference.ref_str = "2 Hesitations 7:490"
 
         api.passage = MagicMock()
         api.passage.reference = api.reference

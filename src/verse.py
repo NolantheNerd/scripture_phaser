@@ -33,6 +33,7 @@
 
 from src.enums import Bible
 from src.enums import Bible_Books
+from src.reference import Reference
 
 
 class Verse:
@@ -40,7 +41,7 @@ class Verse:
         self.book = book
         self.chapter = chapter
         self.verse = verse
-        self.reference = f"{Bible_Books.get(self.book, None)} {self.chapter+1}:{self.verse+1}"
+        self.reference = Reference(f"{Bible_Books.get(self.book, None)} {self.chapter+1}:{self.verse+1}")
         self.valid = self.validate(self)
 
         self.initialized = text is not None
@@ -61,7 +62,7 @@ class Verse:
         if with_verse:
             text = f"[{self.verse+1}] {text}"
         if with_ref:
-            text = f"{text} - {self.reference}"
+            text = f"{text} - {self.reference.ref_str}"
 
         return text
 

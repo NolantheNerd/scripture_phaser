@@ -32,6 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+import platform
 import argparse
 import subprocess
 from sys import exit
@@ -118,7 +119,7 @@ class CLISTR:
         return f"{TC.PINK}Translation: {TC.WHITE}"
 
     def REFERENCE(self):
-        return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference.reference}{TC.WHITE}"
+        return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
 
     def TRANSLATION(self):
         return f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation}{TC.WHITE}"
@@ -260,12 +261,13 @@ class CLI:
                 else:
                     reference = self.api.new_recitation()
                     if self.is_windows:
-                        windows_filename = f"{reference.reference}".replace(":", ";")
+                        windows_filename = f"{reference.ref_str}".replace(":", ";")
                         filename = self.api.cache_path / windows_filename
                     else:
-                        filename = self.api.cache_path / f"{reference.reference}"
+                        filename = self.api.cache_path / f"{reference.ref_str}"
+
                     filename.touch(exist_ok=True)
-                    subprocess.run([editor, filename])
+                    subprocess.run([self.editor, filename])
 
                     if not filename.exists():
                         text = ""
@@ -303,8 +305,8 @@ class CLI:
                     )
 
                     print(f"{TC.PINK}You've made {TC.GREEN}{total_attempts}{TC.PINK} practice attempts!{TC.WHITE}")
-                    print(f"{TC.PINK}That includes {TC.GREEN}{total_target_attempts}{TC.PINK} practice attempts of {TC.CYAN}{self.api.passage.reference.reference}{TC.PINK}!{TC.WHITE}")
-                    print(f"{TC.PINK}Your average score on {TC.CYAN}{self.api.passage.reference.reference}{TC.PINK} is {TC.GREEN}{average_target_score}%{TC.PINK}!{TC.WHITE}")
+                    print(f"{TC.PINK}That includes {TC.GREEN}{total_target_attempts}{TC.PINK} practice attempts of {TC.CYAN}{self.api.passage.reference.ref_str}{TC.PINK}!{TC.WHITE}")
+                    print(f"{TC.PINK}Your average score on {TC.CYAN}{self.api.passage.reference.ref_str}{TC.PINK} is {TC.GREEN}{average_target_score}%{TC.PINK}!{TC.WHITE}")
 
             # Reset Statistics
             elif user_input == "z" or user_input == "reset":

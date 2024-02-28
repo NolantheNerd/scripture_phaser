@@ -61,10 +61,10 @@ class API:
 
         config = self.load_config()
         self.translation = config.get(App.translation.name, AppDefaults().translation)
-        self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode)
+        self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode) != "False"
         self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
         if not self.reference.empty:
-            self.passage = self.set_passage(self.reference.reference)
+            self.set_passage(self.reference.ref_str)
         else:
             self.passage = None
 
@@ -98,7 +98,7 @@ class API:
         config = {
             "translation": self.translation,
             "random_mode": self.random_mode,
-            "reference": self.reference.reference
+            "reference": self.reference.ref_str
         }
 
         config_path = Path(save_config_path(App.Name.value))
@@ -125,13 +125,10 @@ class API:
             self.save_config()
 
             if not self.reference.empty:
-                self.passage = self.set_passage(self.reference.reference)
+                self.passage = self.set_passage(self.reference.ref_str)
 
     def get_random_verse(self):
-        verse = random.choice(self.passage.verses)
-        verse_passage = Passage(Reference(verse.reference), self.translation)
-        verse_passage.populate([verse.text])
-        return verse_passage
+        return random.choice(self.passage.verses).reference
 
     def set_passage(self, reference):
         self.reference = Reference(reference)
@@ -159,7 +156,13 @@ class API:
             return self.passage.reference
 
     def finish_recitation(self, reference, text):
-        ans = self.passage.show()
+        if self.random_mode:
+            passage = Passage(reference, self.translation)
+            passage.populate([v.text for v in self.passage.verses if v.reference.ref_str == reference.ref_str])
+            ans = passage.show()
+        else:
+            ans = self.passage.show()
+
         if text == ans:
             score = 1
             diff = ""
@@ -194,7 +197,7 @@ class API:
 
         attempt = Attempt.create(
             random_mode=self.random_mode,
-            reference=reference.reference,
+            reference=reference.ref_str,
             score=score,
             diff=diff,
             datetime=datetime.datetime.now()
