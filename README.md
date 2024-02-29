@@ -20,7 +20,8 @@ Running scripture_phaser with no arguments launches the interactive CLI.
 
 From the interactive CLI, the following commands are available:
 
-* l/list        - Lists selected reference, random mode and translation
+* l/list        - Lists selected reference, random mode, translation and whether or not to show the passage numbers
+* n/numbers     - Toggles whether or not to include the passage numbers
 * m/random_mode - Toggles the mode
 * r/reference   - Sets the reference
 * t/translation - Set the translation

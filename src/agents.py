@@ -62,8 +62,8 @@ class BibleGatewayAgent(BaseAPIAgent):
     def __init__(self, translation):
         self.translation = translation
         self.xtcr = WebExtractor(
-            translation=self.translation,
             show_passage_numbers=False,
+            translation=self.translation,
             output_as_list=True,
             strip_excess_whitespace_from_list=False,
             use_ascii_punctuation=True
