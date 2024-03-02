@@ -34,6 +34,7 @@
 import os
 import platform
 import argparse
+import datetime
 import subprocess
 from sys import exit
 from shutil import which
@@ -53,11 +54,15 @@ class CLISTR:
         return "> "
 
     @staticmethod
+    def STATS_CLI_PROMPT():
+        return f"{TC.WHITE}[{TC.GREEN}STATS{TC.WHITE}] > "
+
+    @staticmethod
     def DESCRIPTION():
         return "scripture_phaser helps you to memorize the Bible."
 
     @staticmethod
-    def LiCENSE():
+    def LICENSE():
         return App.license.value
 
     @staticmethod
@@ -77,6 +82,13 @@ class CLISTR:
         return (
             f"{TC.PINK}scripture_phaser helps you to memorize the Bible.{TC.WHITE}\n"
             f"{TC.PINK}Copyright (C) 2023-2024 Nolan McMahon{TC.WHITE}"
+        )
+
+    @staticmethod
+    def WELCOME_STATS():
+        return (
+            f"{TC.PINK}You are now in the statistics viewer!\n{TC.WHITE}"
+            f"{TC.PINK}To exit back to the main prompt, press 'q'.{TC.WHITE}"
         )
 
     @staticmethod
@@ -112,12 +124,42 @@ class CLISTR:
         )
 
     @staticmethod
+    def STATS_HELP():
+        pass
+
+    @staticmethod
     def REFERENCE_PROMPT():
         return f"{TC.PINK}Reference: {TC.WHITE}"
 
     @staticmethod
     def TRANSLATION_PROMPT():
         return f"{TC.PINK}Translation: {TC.WHITE}"
+
+    @staticmethod
+    def SET_START_DATE():
+        return f"{TC.PINK}Set Start Date to Filter by: (Leave Blank to Unset){TC.WHITE}"
+
+    @staticmethod
+    def SET_END_DATE():
+        return f"{TC.PINK}Set End Date to Filter by: (Leave Blank to Unset):{TC.WHITE}"
+
+    @staticmethod
+    def YEAR_PROMPT():
+        return f"{TC.PINK}Year (yyyy): {TC.WHITE}"
+
+    @staticmethod
+    def MONTH_PROMPT():
+        return f"{TC.PINK}Month (mm): {TC.WHITE}"
+
+    @staticmethod
+    def DAY_PROMPT():
+        return f"{TC.PINK}Day (dd): {TC.WHITE}"
+
+    def START_DATE(self):
+        return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
+
+    def END_DATE(self):
+        return f"{TC.PINK}End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
 
     def REFERENCE(self):
         return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
@@ -304,30 +346,65 @@ class CLI:
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
-                if self.api.passage is None:
-                    print(self.messages.NO_REFERENCE())
-                else:
-                    total_attempts = self.api.stats.total_attempts()
-                    total_target_attempts = self.api.stats.total_target_attempts(
-                        self.api.passage.reference
-                    )
-                    average_target_score = round(
-                        self.api.stats.average_target_score(
-                            self.api.passage.reference
-                        ) * 100, 2
-                    )
+                self.stats_mainloop()
 
-                    print(f"{TC.PINK}You've made {TC.GREEN}{total_attempts}{TC.PINK} practice attempts!{TC.WHITE}")
-                    print(f"{TC.PINK}That includes {TC.GREEN}{total_target_attempts}{TC.PINK} practice attempts of {TC.CYAN}{self.api.passage.reference.ref_str}{TC.PINK}!{TC.WHITE}")
-                    print(f"{TC.PINK}Your average score on {TC.CYAN}{self.api.passage.reference.ref_str}{TC.PINK} is {TC.GREEN}{average_target_score}%{TC.PINK}!{TC.WHITE}")
+            # Print Help
+            else:
+                print(self.messages.HELP())
+
+    def stats_mainloop(self):
+        print(self.messages.WELCOME_STATS())
+
+        while True:
+            user_input = input(self.messages.STATS_CLI_PROMPT()).strip().lower()
+
+            # Current State
+            if user_input == "l" or user_input == "list":
+                print(self.messages.START_DATE())
+                print(self.messages.END_DATE())
+
+            # Set Start Date
+            elif user_input == "sd" or user_input == "start date":
+                print(self.messages.SET_START_DATE())
+                year = input(self.messages.YEAR_PROMPT())
+                month = input(self.messages.MONTH_PROMPT())
+                day = input(self.messages.DAY_PROMPT())
+
+                if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
+                    self.api.stats.start_date = None
+                else:
+                    try:
+                        self.api.stats.start_date = datetime.date(int(year), int(month), int(day))
+                    except ValueError as e:
+                        print(e.__str__().capitalize())
+
+            # Set End Date
+            elif user_input == "ed" or user_input == "end date":
+                print(self.messages.SET_END_DATE())
+                year = input(self.messages.YEAR_PROMPT())
+                month = input(self.messages.MONTH_PROMPT())
+                day = input(self.messages.DAY_PROMPT())
+
+                if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
+                    self.api.stats.start_date = None
+                else:
+                    try:
+                        self.api.stats.end_date = datetime.date(int(year), int(month), int(day))
+
+                    except ValueError as e:
+                        print(e.__str__().capitalize())
 
             # Reset Statistics
-            elif user_input == "z" or user_input == "reset":
+            elif user_input == "d" or user_input == "reset":
                 confirmation = input(self.messages.STATS_RESET_WARNING()).strip().lower()
                 if confirmation == "y" or confirmation == "yes":
                     self.api.reset_db()
                     print(self.messages.STATS_RESET())
 
-            # Print Help
+            # Exit Stats
+            elif user_input == "q" or user_input == "quit":
+                break
+
+            # Print Stats Help
             else:
-                print(self.messages.HELP())
+                print(self.messages.STATS_HELP())

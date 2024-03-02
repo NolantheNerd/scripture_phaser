@@ -31,10 +31,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import datetime
 from src.models import Attempt
 
 
 class Stats:
+    def __init__(self):
+        self.start_date = None
+        self.end_date = None
+
     def total_attempts(self):
         return Attempt.select().count()
 
