@@ -40,6 +40,17 @@ class Stats:
         self.start_date = None
         self.end_date = None
 
+    def all_attempted_verses(self):
+        if self.start_date is not None and self.end_date is not None:
+            res = Attempt.select(Attempt.reference).where(Attempt.datetime >= self.start_date & Attempt.datetime <= self.end_date)
+        elif self.start_date is not None:
+            res = Attempt.select(Attempt.reference).where(Attempt.datetime >= self.start_date)
+        elif self.end_date is not None:
+            res = Attempt.select(Attempt.reference).where(Attempt.datetime <= self.end_date)
+        else:
+            res = Attempt.select(Attempt.reference)
+        return {attempt.reference for attempt in res}
+
     def total_attempts(self):
         return Attempt.select().count()
 

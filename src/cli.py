@@ -125,7 +125,12 @@ class CLISTR:
 
     @staticmethod
     def STATS_HELP():
-        pass
+        return (
+            f"{TC.PINK}The statistics mode can be controlled from the command line with the following commands:{TC.WHITE}\n"
+            f"\t{TC.PINK}SD{TC.WHITE} - {TC.YELLOW}Set the start date used to filter your statistics{TC.WHITE}\n"
+            f"\t{TC.PINK}ED{TC.WHITE} - {TC.YELLOW}Set the end date used to filter your statistics{TC.WHITE}\n"
+            f"\t{TC.PINK}A{TC.WHITE} - {TC.YELLOW}List all verses attempted{TC.WHITE}\n"
+        )
 
     @staticmethod
     def REFERENCE_PROMPT():
@@ -160,6 +165,35 @@ class CLISTR:
 
     def END_DATE(self):
         return f"{TC.PINK}End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
+
+    def ALL_ATTEMPTED_VERSES(self):
+        start = self.api.stats.start_date
+        if isinstance(start, datetime.date):
+            start = start.strftime("%B %d, %Y")
+
+        end = self.api.stats.end_date
+        if isinstance(end, datetime.date):
+            end = end.strftime("%B %d, %Y")
+
+        refs = self.api.stats.all_attempted_verses()
+        if len(refs) == 0:
+            string = "You haven't recorded any attempts yet!"
+        else:
+            last_ref = refs.pop()
+            if len(refs) == 0:
+                ref_str = last_ref
+            else:
+                ref_str = ", ".join(refs) + f" and {last_ref}"
+
+            if start is not None and end is not None:
+                string = f"Between {start} and {end}, you've attempted {ref_str}."
+            elif start is not None:
+                string = f"Since {start}, you've attempted {ref_str}."
+            elif end is not None:
+                string = f"Prior to {end}, you've attempted {ref_str}."
+            else:
+                string = f"You've attempted {ref_str} before."
+        return string
 
     def REFERENCE(self):
         return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
@@ -393,6 +427,10 @@ class CLI:
 
                     except ValueError as e:
                         print(e.__str__().capitalize())
+
+            # See All Attempted Verses
+            elif user_input == "a" or user_input == "all":
+                print(self.messages.ALL_ATTEMPTED_VERSES())
 
             # Reset Statistics
             elif user_input == "d" or user_input == "reset":
