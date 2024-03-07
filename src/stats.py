@@ -40,26 +40,23 @@ class Stats:
         self.start_date = None
         self.end_date = None
 
+    def apply_filters(self, query):
+        if self.start_date is not None:
+            query = query.where(Attempt.datetime >= self.start_date)
+        if self.end_date is not None:
+            query = query.where(Attempt.datetime <= self.end_date)
+        return query
+
     def all_attempted_verses(self):
-        if self.start_date is not None and self.end_date is not None:
-            res = Attempt.select(Attempt.reference).where(Attempt.datetime >= self.start_date & Attempt.datetime <= self.end_date)
-        elif self.start_date is not None:
-            res = Attempt.select(Attempt.reference).where(Attempt.datetime >= self.start_date)
-        elif self.end_date is not None:
-            res = Attempt.select(Attempt.reference).where(Attempt.datetime <= self.end_date)
-        else:
-            res = Attempt.select(Attempt.reference)
-        return {attempt.reference for attempt in res}
+        attempts = self.apply_filters(Attempt.select(Attempt.reference))
+        return {attempt.reference for attempt in attempts}
 
-    def total_attempts(self):
-        return Attempt.select().count()
-
-    def total_target_attempts(self, reference):
-        return Attempt.select().where(Attempt.reference == reference).count()
-
-    def average_target_score(self, reference):
-        scores = [a.score for a in Attempt.select(Attempt.score).where(Attempt.reference == reference)]
-        if len(scores) > 0:
-            return sum(scores) / len(scores)
-        else:
-            return 0
+    def all_verses_ranked(self):
+        verses = {}
+        for ref in self.all_attempted_verses():
+            attempts = self.apply_filters(
+                Attempt.select(Attempt.score).where(Attempt.reference == ref)
+            )
+            scores = [attempt.score for attempt in attempts]
+            verses[ref] = sum(scores) / len(scores)
+        return verses

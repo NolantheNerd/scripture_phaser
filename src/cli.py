@@ -195,6 +195,30 @@ class CLISTR:
                 string = f"You've attempted {ref_str} before."
         return string
 
+    def ALL_VERSES_RANKED(self):
+        start = self.api.stats.start_date
+        if isinstance(start, datetime.date):
+            start = start.strftime("%B %d, %Y")
+
+        end = self.api.stats.end_date
+        if isinstance(end, datetime.date):
+            end = end.strftime("%B %d, %Y")
+
+        verses = self.api.stats.all_verses_ranked()
+        if len(verses) == 0:
+            string = "You haven't recorded any attempts yet!"
+        else:
+            string = ""
+            sorted_verses = sorted(verses.items(), key=lambda item: item[1], reverse=True)
+            for ref, score in sorted_verses:
+                score = round(score * 100, 1)
+                if score > 75:
+                    string += f"({TC.GREEN}{score}%{TC.WHITE}) {ref}\n"
+                else:
+                    string += f"({TC.RED}{score}%{TC.WHITE}) {ref}\n"
+            string = string[:-1]
+        return string
+
     def REFERENCE(self):
         return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
 
@@ -431,6 +455,10 @@ class CLI:
             # See All Attempted Verses
             elif user_input == "a" or user_input == "all":
                 print(self.messages.ALL_ATTEMPTED_VERSES())
+
+            # See All Verses Ranked By Score
+            elif user_input == "r" or user_input == "rank":
+                print(self.messages.ALL_VERSES_RANKED())
 
             # Reset Statistics
             elif user_input == "d" or user_input == "reset":
