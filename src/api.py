@@ -112,6 +112,9 @@ class API:
             for key in config.keys():
                 file.write(f"{key}=\"{config[key]}\"\n")
 
+    def new_reference(self, reference):
+        return Reference(reference)
+
     def set_random_mode(self):
         self.random_mode = not self.random_mode
         self.save_config()

@@ -60,3 +60,9 @@ class Stats:
             scores = [attempt.score for attempt in attempts]
             verses[ref] = sum(scores) / len(scores)
         return verses
+
+    def verse_by_reference(self, ref):
+        attempts = self.apply_filters(
+            Attempt.select(Attempt.datetime, Attempt.score).where(Attempt.reference == ref).order_by(Attempt.id)
+        )
+        return [(a.datetime, a.score) for a in attempts]
