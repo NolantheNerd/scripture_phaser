@@ -64,6 +64,7 @@ class API:
         self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode) == "True"
         self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
         self.show_passage_numbers = config.get(App.show_passage_numbers.name, AppDefaults().show_passage_numbers) == "True"
+        self.quick_recitations = config.get(App.quick_recitations.name, AppDefaults().quick_recitations) == "True"
         if not self.reference.empty:
             self.set_passage(self.reference.ref_str)
         else:
@@ -100,7 +101,8 @@ class API:
             "translation": self.translation,
             "random_mode": self.random_mode,
             "reference": self.reference.ref_str,
-            "show_passage_numbers": self.show_passage_numbers
+            "show_passage_numbers": self.show_passage_numbers,
+            "quick_recitations": self.quick_recitations
         }
 
         config_path = Path(save_config_path(App.Name.value))
@@ -117,6 +119,10 @@ class API:
 
     def set_random_mode(self):
         self.random_mode = not self.random_mode
+        self.save_config()
+
+    def set_quick_recitations(self):
+        self.quick_recitations = not self.quick_recitations
         self.save_config()
 
     def set_show_passage_numbers(self):

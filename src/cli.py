@@ -232,11 +232,17 @@ class CLISTR:
     def SHOW_PASSAGE_NUMBERS(self):
         return f"Show Passage Numbers:{TC.YELLOW} {self.api.show_passage_numbers}{TC.WHITE}"
 
+    def QUICK_RECITATIONS(self):
+        return f"Quick Recitations:{TC.YELLOW} {self.api.quick_recitations}{TC.WHITE}"
+
     def SET_RANDOM_MODE(self):
         return f"Toggled random mode to {TC.YELLOW}{self.api.random_mode}{TC.WHITE}"
 
     def SET_PASSAGE_NUMBERS(self):
         return f"Toggled show passage numbers to {TC.YELLOW}{self.api.show_passage_numbers}{TC.WHITE}"
+
+    def SET_QUICK_RECITATIONS(self):
+        return f"Toggled single letter mode to {TC.YELLOW}{self.api.quick_recitations}{TC.WHITE}"
 
     def INVALID_TRANSLATION(self):
         return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
@@ -333,6 +339,7 @@ class CLI:
                 print(self.messages.TRANSLATION())
                 print(self.messages.RANDOM_MODE())
                 print(self.messages.SHOW_PASSAGE_NUMBERS())
+                print(self.messages.QUICK_RECITATIONS())
 
             # Set (Toggle) Mode
             elif user_input == "m" or user_input == "random_mode":
@@ -343,6 +350,11 @@ class CLI:
             elif user_input == "n" or user_input == "numbers":
                 self.api.set_show_passage_numbers()
                 print(self.messages.SET_PASSAGE_NUMBERS())
+
+            # Set (Toggle) Fast Recitations
+            elif user_input == "f" or user_input == "fast":
+                self.api.set_quick_recitations()
+                print(self.messages.SET_QUICK_RECITATIONS())
 
             # Set Reference
             elif user_input == "r" or user_input == "reference":
