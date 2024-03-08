@@ -65,7 +65,7 @@ class BibleGatewayAgent(BaseAPIAgent):
             show_passage_numbers=False,
             translation=self.translation,
             output_as_list=True,
-            strip_excess_whitespace_from_list=False,
+            strip_excess_whitespace_from_list=True,
             use_ascii_punctuation=True
         )
 
