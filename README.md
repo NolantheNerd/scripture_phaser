@@ -18,7 +18,7 @@ Running scripture_phaser with no arguments launches the interactive CLI.
 
 ### Commands
 
-From the interactive CLI, the following commands are available:
+From the interactive CLI (standard mode), the following commands are available:
 
 * l/list        - Lists selected reference, random mode, translation and whether or not to show the passage numbers
 * n/numbers     - Toggles whether or not to include the passage numbers
@@ -28,10 +28,17 @@ From the interactive CLI, the following commands are available:
 * i/inquire     - List available translations
 * p/practice    - Practice the current reference
 * v/view        - Preview current reference
-* s/stats       - View your statistics
+* s/stats       - Enter statistics mode
 * h/help        - Prints this help message
-* z/reset       - Reset statistics
 * q/quit        - Quits scripture_phaser
+
+In the statistics mode, the following commands are available:
+
+* sd/start date - Sets the earliest date to accept when fetching past recitation attempts
+* ed/end date   - Sets the latest date to accept when fetching past recitation attempts
+* a/all         - List all references ever attempted
+* r/rank        - Rank all attempted verses by average recall accuracy
+* q/quit        - Return to the standard mode
 
 ## Uninstallation
 
