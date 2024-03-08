@@ -88,7 +88,7 @@ class AppDefaults:
         self.random_mode = False
         self.reference = ""
         self.show_passage_numbers = False
-        self.quick_recitations = False
+        self.fast_recitations = False
 
 
 class App(enum.Enum):
@@ -98,7 +98,7 @@ class App(enum.Enum):
     random_mode = "random_mode"
     reference = "reference"
     show_passage_numbers = "show_passage_numbers"
-    quick_recitations = "quick_recitations"
+    fast_recitations = "fast_recitations"
     license = license_text
     version = VERSION
     release_date = RELEASE_DATE
