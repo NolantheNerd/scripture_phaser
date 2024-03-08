@@ -34,6 +34,7 @@
 import os
 import platform
 import argparse
+import datetime
 import subprocess
 from sys import exit
 from shutil import which
@@ -53,11 +54,15 @@ class CLISTR:
         return "> "
 
     @staticmethod
+    def STATS_CLI_PROMPT():
+        return f"{TC.WHITE}[{TC.GREEN}STATS{TC.WHITE}] > "
+
+    @staticmethod
     def DESCRIPTION():
         return "scripture_phaser helps you to memorize the Bible."
 
     @staticmethod
-    def LiCENSE():
+    def LICENSE():
         return App.license.value
 
     @staticmethod
@@ -75,13 +80,20 @@ class CLISTR:
     @staticmethod
     def WELCOME():
         return (
-            f"{TC.PINK}scripture_phaser helps you to memorize the Bible.{TC.WHITE}\n"
-            f"{TC.PINK}Copyright (C) 2023-2024 Nolan McMahon{TC.WHITE}"
+            f"scripture_phaser helps you to memorize the Bible.\n"
+            f"Copyright (C) 2023-2024 Nolan McMahon"
+        )
+
+    @staticmethod
+    def WELCOME_STATS():
+        return (
+            f"You are now in the statistics viewer!\n"
+            f"To exit back to the main prompt, press 'q'."
         )
 
     @staticmethod
     def NO_REFERENCE():
-        return f"{TC.PINK}Reference:{TC.RED} No reference set{TC.WHITE}"
+        return f"Reference:{TC.RED} No reference set{TC.WHITE}"
 
     @staticmethod
     def STATS_RESET_WARNING():
@@ -91,24 +103,34 @@ class CLISTR:
 
     @staticmethod
     def STATS_RESET():
-        return f"{TC.PINK}Statistics reset{TC.WHITE}"
+        return f"Statistics reset{TC.WHITE}"
 
     @staticmethod
     def HELP():
         return (
-            f"{TC.PINK}scripture_phaser can be controlled from the command line with the following commands:{TC.WHITE}\n"
-            f"\t{TC.BLUE}H{TC.WHITE} - {TC.YELLOW}Prints this help message{TC.WHITE}\n"
-            f"\t{TC.BLUE}I{TC.WHITE} - {TC.YELLOW}List available translations{TC.WHITE}\n"
-            f"\t{TC.BLUE}L{TC.WHITE} - {TC.YELLOW}Lists selected reference, random mode and translation{TC.WHITE}\n"
-            f"\t{TC.BLUE}M{TC.WHITE} - {TC.YELLOW}Toggles the random_mode{TC.WHITE}\n"
-            f"\t{TC.BLUE}N{TC.WHITE} - {TC.YELLOW}Toggles whether or not to include the passage numbers{TC.WHITE}\n"
-            f"\t{TC.BLUE}P{TC.WHITE} - {TC.YELLOW}Practice the current reference{TC.WHITE}\n"
-            f"\t{TC.BLUE}R{TC.WHITE} - {TC.YELLOW}Sets the reference{TC.WHITE}\n"
-            f"\t{TC.BLUE}S{TC.WHITE} - {TC.YELLOW}View your statistics{TC.WHITE}\n"
-            f"\t{TC.BLUE}T{TC.WHITE} - {TC.YELLOW}Set the translation{TC.WHITE}\n"
-            f"\t{TC.BLUE}V{TC.WHITE} - {TC.YELLOW}Preview current reference{TC.WHITE}\n"
-            f"\t{TC.BLUE}Z{TC.WHITE} - {TC.YELLOW}Reset statistics{TC.WHITE}\n"
-            f"\t{TC.BLUE}Q{TC.WHITE} - {TC.YELLOW}Quits{TC.WHITE}"
+            f"scripture_phaser can be controlled from the command line with the following commands:\n"
+            f"\t{TC.BLUE}H{TC.WHITE} - Prints this help message\n"
+            f"\t{TC.BLUE}I{TC.WHITE} - List available translations\n"
+            f"\t{TC.BLUE}L{TC.WHITE} - Lists selected reference, random mode and translation\n"
+            f"\t{TC.BLUE}M{TC.WHITE} - Toggles the random_mode\n"
+            f"\t{TC.BLUE}N{TC.WHITE} - Toggles whether or not to include the passage numbers\n"
+            f"\t{TC.BLUE}P{TC.WHITE} - Practice the current reference\n"
+            f"\t{TC.BLUE}R{TC.WHITE} - Sets the reference\n"
+            f"\t{TC.BLUE}S{TC.WHITE} - View your statistics\n"
+            f"\t{TC.BLUE}T{TC.WHITE} - Set the translation\n"
+            f"\t{TC.BLUE}V{TC.WHITE} - Preview current reference\n"
+            f"\t{TC.BLUE}Q{TC.WHITE} - Quits"
+        )
+
+    @staticmethod
+    def STATS_HELP():
+        return (
+            f"The statistics mode can be controlled from the command line with the following commands:\n"
+            f"\t{TC.BLUE}SD{TC.WHITE} - Set the start date used to filter your statistics\n"
+            f"\t{TC.BLUE}ED{TC.WHITE} - Set the end date used to filter your statistics\n"
+            f"\t{TC.BLUE}A{TC.WHITE}  - List all verses attempted\n"
+            f"\t{TC.BLUE}R{TC.WHITE}  - Rank all attempted passages by average score\n"
+            f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics\n"
         )
 
     @staticmethod
@@ -119,29 +141,108 @@ class CLISTR:
     def TRANSLATION_PROMPT():
         return f"{TC.PINK}Translation: {TC.WHITE}"
 
+    @staticmethod
+    def SET_START_DATE():
+        return f"{TC.PINK}Set Start Date to Filter by: (Leave Blank to Unset){TC.WHITE}"
+
+    @staticmethod
+    def SET_END_DATE():
+        return f"{TC.PINK}Set End Date to Filter by: (Leave Blank to Unset):{TC.WHITE}"
+
+    @staticmethod
+    def YEAR_PROMPT():
+        return f"{TC.PINK}Year (yyyy): {TC.WHITE}"
+
+    @staticmethod
+    def MONTH_PROMPT():
+        return f"{TC.PINK}Month (mm): {TC.WHITE}"
+
+    @staticmethod
+    def DAY_PROMPT():
+        return f"{TC.PINK}Day (dd): {TC.WHITE}"
+
+    def START_DATE(self):
+        return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
+
+    def END_DATE(self):
+        return f"{TC.PINK}End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
+
+    def ALL_ATTEMPTED_VERSES(self):
+        start = self.api.stats.start_date
+        if isinstance(start, datetime.date):
+            start = start.strftime("%B %d, %Y")
+
+        end = self.api.stats.end_date
+        if isinstance(end, datetime.date):
+            end = end.strftime("%B %d, %Y")
+
+        refs = self.api.stats.all_attempted_verses()
+        if len(refs) == 0:
+            string = "You haven't recorded any attempts yet!"
+        else:
+            last_ref = refs.pop()
+            if len(refs) == 0:
+                ref_str = last_ref
+            else:
+                ref_str = ", ".join(refs) + f" and {last_ref}"
+
+            if start is not None and end is not None:
+                string = f"Between {start} and {end}, you've attempted {ref_str}."
+            elif start is not None:
+                string = f"Since {start}, you've attempted {ref_str}."
+            elif end is not None:
+                string = f"Prior to {end}, you've attempted {ref_str}."
+            else:
+                string = f"You've attempted {ref_str} before."
+        return string
+
+    def ALL_VERSES_RANKED(self):
+        start = self.api.stats.start_date
+        if isinstance(start, datetime.date):
+            start = start.strftime("%B %d, %Y")
+
+        end = self.api.stats.end_date
+        if isinstance(end, datetime.date):
+            end = end.strftime("%B %d, %Y")
+
+        verses = self.api.stats.all_verses_ranked()
+        if len(verses) == 0:
+            string = "You haven't recorded any attempts yet!"
+        else:
+            string = ""
+            sorted_verses = sorted(verses.items(), key=lambda item: item[1], reverse=True)
+            for ref, score in sorted_verses:
+                score = round(score * 100, 1)
+                if score > 75:
+                    string += f"({TC.GREEN}{score}%{TC.WHITE}) {ref}\n"
+                else:
+                    string += f"({TC.RED}{score}%{TC.WHITE}) {ref}\n"
+            string = string[:-1]
+        return string
+
     def REFERENCE(self):
-        return f"{TC.PINK}Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
+        return f"Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
 
     def TRANSLATION(self):
-        return f"{TC.PINK}Translation:{TC.YELLOW} {self.api.translation}{TC.WHITE}"
+        return f"Translation:{TC.YELLOW} {self.api.translation}{TC.WHITE}"
 
     def RANDOM_MODE(self):
-        return f"{TC.PINK}Random Mode:{TC.YELLOW} {self.api.random_mode}{TC.WHITE}"
+        return f"Random Mode:{TC.YELLOW} {self.api.random_mode}{TC.WHITE}"
 
     def SHOW_PASSAGE_NUMBERS(self):
-        return f"{TC.PINK}Show Passage Numbers:{TC.YELLOW} {self.api.show_passage_numbers}{TC.WHITE}"
+        return f"Show Passage Numbers:{TC.YELLOW} {self.api.show_passage_numbers}{TC.WHITE}"
 
     def SET_RANDOM_MODE(self):
-        return f"{TC.PINK}Toggled random mode to {TC.YELLOW}{self.api.random_mode}{TC.WHITE}"
+        return f"Toggled random mode to {TC.YELLOW}{self.api.random_mode}{TC.WHITE}"
 
     def SET_PASSAGE_NUMBERS(self):
-        return f"{TC.PINK}Toggled show passage numbers to {TC.YELLOW}{self.api.show_passage_numbers}{TC.WHITE}"
+        return f"Toggled show passage numbers to {TC.YELLOW}{self.api.show_passage_numbers}{TC.WHITE}"
 
     def INVALID_TRANSLATION(self):
-        return f"{TC.RED}Invalid Translation\n{TC.PINK}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
+        return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
     def AVAILABLE_TRANSLATIONS(self):
-        return f"{TC.PINK}Available Translations:{TC.WHITE}\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
+        return f"Available Translations:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
     def PASSAGE(self):
         return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
@@ -304,30 +405,73 @@ class CLI:
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
-                if self.api.passage is None:
-                    print(self.messages.NO_REFERENCE())
-                else:
-                    total_attempts = self.api.stats.total_attempts()
-                    total_target_attempts = self.api.stats.total_target_attempts(
-                        self.api.passage.reference
-                    )
-                    average_target_score = round(
-                        self.api.stats.average_target_score(
-                            self.api.passage.reference
-                        ) * 100, 2
-                    )
+                self.stats_mainloop()
 
-                    print(f"{TC.PINK}You've made {TC.GREEN}{total_attempts}{TC.PINK} practice attempts!{TC.WHITE}")
-                    print(f"{TC.PINK}That includes {TC.GREEN}{total_target_attempts}{TC.PINK} practice attempts of {TC.CYAN}{self.api.passage.reference.ref_str}{TC.PINK}!{TC.WHITE}")
-                    print(f"{TC.PINK}Your average score on {TC.CYAN}{self.api.passage.reference.ref_str}{TC.PINK} is {TC.GREEN}{average_target_score}%{TC.PINK}!{TC.WHITE}")
+            # Print Help
+            else:
+                print(self.messages.HELP())
+
+    def stats_mainloop(self):
+        print(self.messages.WELCOME_STATS())
+
+        while True:
+            user_input = input(self.messages.STATS_CLI_PROMPT()).strip().lower()
+
+            # Current State
+            if user_input == "l" or user_input == "list":
+                print(self.messages.START_DATE())
+                print(self.messages.END_DATE())
+
+            # Set Start Date
+            elif user_input == "sd" or user_input == "start date":
+                print(self.messages.SET_START_DATE())
+                year = input(self.messages.YEAR_PROMPT())
+                month = input(self.messages.MONTH_PROMPT())
+                day = input(self.messages.DAY_PROMPT())
+
+                if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
+                    self.api.stats.start_date = None
+                else:
+                    try:
+                        self.api.stats.start_date = datetime.date(int(year), int(month), int(day))
+                    except ValueError as e:
+                        print(e.__str__().capitalize())
+
+            # Set End Date
+            elif user_input == "ed" or user_input == "end date":
+                print(self.messages.SET_END_DATE())
+                year = input(self.messages.YEAR_PROMPT())
+                month = input(self.messages.MONTH_PROMPT())
+                day = input(self.messages.DAY_PROMPT())
+
+                if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
+                    self.api.stats.start_date = None
+                else:
+                    try:
+                        self.api.stats.end_date = datetime.date(int(year), int(month), int(day))
+
+                    except ValueError as e:
+                        print(e.__str__().capitalize())
+
+            # See All Attempted Verses
+            elif user_input == "a" or user_input == "all":
+                print(self.messages.ALL_ATTEMPTED_VERSES())
+
+            # See All Verses Ranked By Score
+            elif user_input == "r" or user_input == "rank":
+                print(self.messages.ALL_VERSES_RANKED())
 
             # Reset Statistics
-            elif user_input == "z" or user_input == "reset":
+            elif user_input == "d" or user_input == "reset":
                 confirmation = input(self.messages.STATS_RESET_WARNING()).strip().lower()
                 if confirmation == "y" or confirmation == "yes":
                     self.api.reset_db()
                     print(self.messages.STATS_RESET())
 
-            # Print Help
+            # Exit Stats
+            elif user_input == "q" or user_input == "quit":
+                break
+
+            # Print Stats Help
             else:
-                print(self.messages.HELP())
+                print(self.messages.STATS_HELP())

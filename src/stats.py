@@ -31,19 +31,38 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import datetime
 from src.models import Attempt
 
 
 class Stats:
-    def total_attempts(self):
-        return Attempt.select().count()
+    def __init__(self):
+        self.start_date = None
+        self.end_date = None
 
-    def total_target_attempts(self, reference):
-        return Attempt.select().where(Attempt.reference == reference).count()
+    def apply_filters(self, query):
+        if self.start_date is not None:
+            query = query.where(Attempt.datetime >= self.start_date)
+        if self.end_date is not None:
+            query = query.where(Attempt.datetime <= self.end_date)
+        return query
 
-    def average_target_score(self, reference):
-        scores = [a.score for a in Attempt.select(Attempt.score).where(Attempt.reference == reference)]
-        if len(scores) > 0:
-            return sum(scores) / len(scores)
-        else:
-            return 0
+    def all_attempted_verses(self):
+        attempts = self.apply_filters(Attempt.select(Attempt.reference))
+        return {attempt.reference for attempt in attempts}
+
+    def all_verses_ranked(self):
+        verses = {}
+        for ref in self.all_attempted_verses():
+            attempts = self.apply_filters(
+                Attempt.select(Attempt.score).where(Attempt.reference == ref)
+            )
+            scores = [attempt.score for attempt in attempts]
+            verses[ref] = sum(scores) / len(scores)
+        return verses
+
+    def verse_by_reference(self, ref):
+        attempts = self.apply_filters(
+            Attempt.select(Attempt.datetime, Attempt.score).where(Attempt.reference == ref).order_by(Attempt.id)
+        )
+        return [(a.datetime, a.score) for a in attempts]
