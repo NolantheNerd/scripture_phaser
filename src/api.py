@@ -61,9 +61,9 @@ class API:
 
         config = self.load_config()
         self.translation = config.get(App.translation.name, AppDefaults().translation)
-        self.random_mode = config.get(App.random_mode.name, AppDefaults().random_mode) == "True"
+        self.random_single_verse = config.get(App.random_single_verse.name, AppDefaults().random_single_verse) == "True"
         self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
-        self.show_passage_numbers = config.get(App.show_passage_numbers.name, AppDefaults().show_passage_numbers) == "True"
+        self.require_passage_numbers = config.get(App.require_passage_numbers.name, AppDefaults().require_passage_numbers) == "True"
         self.fast_recitations = config.get(App.fast_recitations.name, AppDefaults().fast_recitations) == "True"
         if not self.reference.empty:
             self.set_passage(self.reference.ref_str)
@@ -99,9 +99,9 @@ class API:
     def save_config(self):
         config = {
             "translation": self.translation,
-            "random_mode": self.random_mode,
+            "random_single_verse": self.random_single_verse,
             "reference": self.reference.ref_str,
-            "show_passage_numbers": self.show_passage_numbers,
+            "require_passage_numbers": self.require_passage_numbers,
             "fast_recitations": self.fast_recitations
         }
 
@@ -117,16 +117,16 @@ class API:
     def new_reference(self, reference):
         return Reference(reference)
 
-    def set_random_mode(self):
-        self.random_mode = not self.random_mode
+    def set_random_single_verse(self):
+        self.random_single_verse = not self.random_single_verse
         self.save_config()
 
     def set_fast_recitations(self):
         self.fast_recitations = not self.fast_recitations
         self.save_config()
 
-    def set_show_passage_numbers(self):
-        self.show_passage_numbers = not self.show_passage_numbers
+    def set_require_passage_numbers(self):
+        self.require_passage_numbers = not self.require_passage_numbers
         self.set_passage(self.reference.ref_str)
         self.save_config()
 
@@ -153,7 +153,7 @@ class API:
         else:
             try:
                 self.passage = Passage(self.reference, self.translation)
-                self.passage.populate(show_passage_numbers=self.show_passage_numbers)
+                self.passage.populate(require_passage_numbers=self.require_passage_numbers)
             except InvalidReference as e:
                 print(e.__str__())
 
@@ -166,13 +166,13 @@ class API:
             return ""
 
     def new_recitation(self):
-        if self.random_mode:
+        if self.random_single_verse:
             return self.get_random_verse()
         else:
             return self.passage.reference
 
     def finish_recitation(self, reference, text):
-        if self.random_mode:
+        if self.random_single_verse:
             passage = Passage(reference, self.translation)
             passage.populate([v.text for v in self.passage.verses if v.reference.ref_str == reference.ref_str])
             ans = passage.show()
@@ -212,7 +212,7 @@ class API:
             score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
 
         attempt = Attempt.create(
-            random_mode=self.random_mode,
+            random_single_verse=self.random_single_verse,
             reference=reference.ref_str,
             score=score,
             diff=diff,

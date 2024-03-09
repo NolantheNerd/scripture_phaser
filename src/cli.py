@@ -111,8 +111,8 @@ class CLISTR:
             f"scripture_phaser can be controlled from the command line with the following commands:\n"
             f"\t{TC.BLUE}H{TC.WHITE} - Prints this help message\n"
             f"\t{TC.BLUE}I{TC.WHITE} - List available translations\n"
-            f"\t{TC.BLUE}L{TC.WHITE} - Lists selected reference, random mode and translation\n"
-            f"\t{TC.BLUE}M{TC.WHITE} - Toggles the random_mode\n"
+            f"\t{TC.BLUE}L{TC.WHITE} - Lists selected reference, random single verse recitations and translation\n"
+            f"\t{TC.BLUE}M{TC.WHITE} - Toggles whether or not to practice random single verses\n"
             f"\t{TC.BLUE}N{TC.WHITE} - Toggles whether or not to include the passage numbers\n"
             f"\t{TC.BLUE}P{TC.WHITE} - Practice the current reference\n"
             f"\t{TC.BLUE}R{TC.WHITE} - Sets the reference\n"
@@ -226,23 +226,23 @@ class CLISTR:
     def TRANSLATION(self):
         return f"Translation:{TC.YELLOW} {self.api.translation}{TC.WHITE}"
 
-    def RANDOM_MODE(self):
-        return f"Random Mode:{TC.YELLOW} {self.api.random_mode}{TC.WHITE}"
+    def RANDOM_SINGLE_VERSE(self):
+        return f"Random Single Verse Recitations:{TC.YELLOW} {self.api.random_single_verse}{TC.WHITE}"
 
-    def SHOW_PASSAGE_NUMBERS(self):
-        return f"Show Passage Numbers:{TC.YELLOW} {self.api.show_passage_numbers}{TC.WHITE}"
+    def REQUIRE_PASSAGE_NUMBERS(self):
+        return f"Require Passage Numbers:{TC.YELLOW} {self.api.require_passage_numbers}{TC.WHITE}"
 
     def FAST_RECITATIONS(self):
         return f"Fast Recitations:{TC.YELLOW} {self.api.fast_recitations}{TC.WHITE}"
 
-    def SET_RANDOM_MODE(self):
-        return f"Toggled random mode to {TC.YELLOW}{self.api.random_mode}{TC.WHITE}"
+    def SET_RANDOM_SINGLE_VERSE(self):
+        return f"Toggled random single verse recitations to {TC.YELLOW}{self.api.random_single_verse}{TC.WHITE}"
 
     def SET_PASSAGE_NUMBERS(self):
-        return f"Toggled show passage numbers to {TC.YELLOW}{self.api.show_passage_numbers}{TC.WHITE}"
+        return f"Toggled require passage numbers to {TC.YELLOW}{self.api.require_passage_numbers}{TC.WHITE}"
 
     def SET_FAST_RECITATIONS(self):
-        return f"Toggled single letter mode to {TC.YELLOW}{self.api.fast_recitations}{TC.WHITE}"
+        return f"Toggled fast recitations to {TC.YELLOW}{self.api.fast_recitations}{TC.WHITE}"
 
     def INVALID_TRANSLATION(self):
         return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
@@ -337,18 +337,18 @@ class CLI:
                 else:
                     print(self.messages.NO_REFERENCE())
                 print(self.messages.TRANSLATION())
-                print(self.messages.RANDOM_MODE())
-                print(self.messages.SHOW_PASSAGE_NUMBERS())
+                print(self.messages.RANDOM_SINGLE_VERSE())
+                print(self.messages.REQUIRE_PASSAGE_NUMBERS())
                 print(self.messages.FAST_RECITATIONS())
 
-            # Set (Toggle) Mode
-            elif user_input == "m" or user_input == "random_mode":
-                self.api.set_random_mode()
-                print(self.messages.SET_RANDOM_MODE())
+            # Set (Toggle) Random Single Verse
+            elif user_input == "m" or user_input == "single":
+                self.api.set_random_single_verse()
+                print(self.messages.SET_RANDOM_SINGLE_VERSE())
 
             # Set (Toggle) the Passage Numbers
             elif user_input == "n" or user_input == "numbers":
-                self.api.set_show_passage_numbers()
+                self.api.set_require_passage_numbers()
                 print(self.messages.SET_PASSAGE_NUMBERS())
 
             # Set (Toggle) Fast Recitations
@@ -435,7 +435,7 @@ class CLI:
                 print(self.messages.END_DATE())
 
             # Set Start Date
-            elif user_input == "sd" or user_input == "start date":
+            elif user_input == "sd" or user_input == "start":
                 print(self.messages.SET_START_DATE())
                 year = input(self.messages.YEAR_PROMPT())
                 month = input(self.messages.MONTH_PROMPT())
@@ -450,7 +450,7 @@ class CLI:
                         print(e.__str__().capitalize())
 
             # Set End Date
-            elif user_input == "ed" or user_input == "end date":
+            elif user_input == "ed" or user_input == "end":
                 print(self.messages.SET_END_DATE())
                 year = input(self.messages.YEAR_PROMPT())
                 month = input(self.messages.MONTH_PROMPT())
@@ -474,7 +474,7 @@ class CLI:
                 print(self.messages.ALL_VERSES_RANKED())
 
             # Reset Statistics
-            elif user_input == "d" or user_input == "reset":
+            elif user_input == "d" or user_input == "delete":
                 confirmation = input(self.messages.STATS_RESET_WARNING()).strip().lower()
                 if confirmation == "y" or confirmation == "yes":
                     self.api.stats.reset_db()

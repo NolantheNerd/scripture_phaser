@@ -48,9 +48,9 @@ class Verse:
         if self.initialized:
             self.initialize(text)
 
-    def initialize(self, text, show_passage_numbers=False):
+    def initialize(self, text, require_passage_numbers=False):
         self.initialized = True
-        if show_passage_numbers:
+        if require_passage_numbers:
             self.text = f"[{self.verse+1}] " + text
         else:
             self.text = text

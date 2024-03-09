@@ -85,9 +85,9 @@ class TermColours:
 class AppDefaults:
     def __init__(self):
         self.translation = "NIV"
-        self.random_mode = False
+        self.random_single_verse = False
         self.reference = ""
-        self.show_passage_numbers = False
+        self.require_passage_numbers = False
         self.fast_recitations = False
 
 
@@ -95,9 +95,9 @@ class App(enum.Enum):
     Name = "scripture_phaser"
     Database = "scripture_phaser_db"
     translation = "translation"
-    random_mode = "random_mode"
+    random_single_verse = "random_single_verse"
     reference = "reference"
-    show_passage_numbers = "show_passage_numbers"
+    require_passage_numbers = "require_passage_numbers"
     fast_recitations = "fast_recitations"
     license = license_text
     version = VERSION

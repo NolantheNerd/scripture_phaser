@@ -44,7 +44,7 @@ from xdg.BaseDirectory import save_data_path
 
 class Attempt(Model):
     datetime = DateTimeField(null=True)
-    random_mode = BooleanField()
+    random_single_verse = BooleanField()
     reference = CharField()
     score = FloatField(null=True)
     attempt = TextField(null=True)
