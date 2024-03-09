@@ -220,9 +220,3 @@ class API:
         )
 
         return score, diff
-
-    @staticmethod
-    def reset_db():
-        if Attempt.table_exists():
-            Attempt.drop_table()
-        Attempt.create_table()

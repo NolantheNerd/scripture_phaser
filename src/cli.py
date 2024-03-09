@@ -477,7 +477,7 @@ class CLI:
             elif user_input == "d" or user_input == "reset":
                 confirmation = input(self.messages.STATS_RESET_WARNING()).strip().lower()
                 if confirmation == "y" or confirmation == "yes":
-                    self.api.reset_db()
+                    self.api.stats.reset_db()
                     print(self.messages.STATS_RESET())
 
             # Exit Stats
