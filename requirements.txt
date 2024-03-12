@@ -32,7 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 pyxdg
-requests
 python-dotenv
 meaningless
 peewee
+readchar
