@@ -35,8 +35,6 @@ import os
 import random
 import difflib
 import datetime
-import platform
-import readchar
 from pathlib import Path
 from dotenv import dotenv_values
 from xdg.BaseDirectory import save_cache_path
@@ -166,7 +164,7 @@ class API:
         else:
             return ""
 
-    def _get_fast_recitation_ans(self, reference):
+    def get_fast_recitation_ans(self, reference):
         if self.random_single_verse:
             passage = Passage(reference, self.translation)
             passage.populate([v.text for v in self.passage.verses if v.reference.ref_str == reference.ref_str])
@@ -180,14 +178,9 @@ class API:
 
     def new_recitation(self):
         if self.random_single_verse:
-            ref = self.get_random_verse()
+            return self.get_random_verse()
         else:
-            ref = self.passage.reference
-
-        if self.fast_recitations:
-            return self.live_recitation(ref)
-        else:
-            return ref
+            return self.passage.reference
 
     def finish_recitation(self, reference, text):
         if self.random_single_verse:
@@ -238,10 +231,3 @@ class API:
         )
 
         return score, diff
-
-    def live_recitation(self, ref):
-        if self.fast_recitations:
-            ans = self._get_fast_recitation_ans(ref)
-        while True:
-            key = readchar.readkey()
-            print(key)

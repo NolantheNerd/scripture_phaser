@@ -123,4 +123,4 @@ class APITests(BaseTest):
                     "f", "r", "f", "c", "a", "f", "t", "i", "r", "t", "t",
                     "m", "o", "G", "m", "b", "c", "e", "f", "e", "g", "w"]
 
-        self.assertEqual(api._get_fast_recitation_ans(api.reference), expected)
+        self.assertEqual(api.get_fast_recitation_ans(api.reference), expected)

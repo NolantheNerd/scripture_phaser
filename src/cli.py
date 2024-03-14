@@ -33,6 +33,7 @@
 
 import os
 import platform
+import readchar
 import argparse
 import datetime
 import subprocess
@@ -108,7 +109,10 @@ class CLISTR:
     @staticmethod
     def HELP():
         return (
-            f"scripture_phaser can be controlled from the command line with the following commands:\n"
+            f"This is the {TC.CYAN}Normal Mode{TC.WHITE}.\n\n"
+            "Here you configure scripture_phaser, view the passage "
+            "or start a recitation.\n\n"
+            f"{TC.CYAN}Normal Mode{TC.WHITE} can be controlled using:\n"
             f"\t{TC.BLUE}H{TC.WHITE} - Prints this help message\n"
             f"\t{TC.BLUE}I{TC.WHITE} - List available translations\n"
             f"\t{TC.BLUE}L{TC.WHITE} - Lists selected reference, random single verse recitations and translation\n"
@@ -125,12 +129,30 @@ class CLISTR:
     @staticmethod
     def STATS_HELP():
         return (
-            f"The statistics mode can be controlled from the command line with the following commands:\n"
+            f"This is the {TC.CYAN}Statistics Mode{TC.WHITE}.\n\n"
+            "Here you can view summary statistics based on your "
+            "past recitation attempts.\n\n"
+            f"The {TC.CYAN}Statistics Mode{TC.WHITE} can be "
+            "controlled using:\n"
             f"\t{TC.BLUE}SD{TC.WHITE} - Set the start date used to filter your statistics\n"
             f"\t{TC.BLUE}ED{TC.WHITE} - Set the end date used to filter your statistics\n"
             f"\t{TC.BLUE}A{TC.WHITE}  - List all verses attempted\n"
             f"\t{TC.BLUE}R{TC.WHITE}  - Rank all attempted passages by average score\n"
-            f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics\n"
+            f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics"
+        )
+
+    @staticmethod
+    def FAST_HELP():
+        return (
+            f"This is the {TC.CYAN}Fast Recitation Mode{TC.WHITE}.\n\n"
+            f"Type the first letter of the next word in the passage "
+            f"(it is case sensitive) to advance the recitation by one word. "
+            f"If you type the wrong letter twice, the reciation will "
+            f"advance by one word and will reveal the correct word in red.\n\n"
+            f"The {TC.CYAN}Fast Recitation Mode{TC.WHITE} "
+            "can be controlled using:\n"
+            f"\t{TC.BLUE}?{TC.WHITE}        - Print this help message\n"
+            f"\t{TC.BLUE}Ctrl + c{TC.WHITE} - Stop the recitation\n"
         )
 
     @staticmethod
@@ -161,8 +183,7 @@ class CLISTR:
     def DAY_PROMPT():
         return f"{TC.PINK}Day (dd): {TC.WHITE}"
 
-    def START_DATE(self):
-        return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
+    def START_DATE(self): return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
 
     def END_DATE(self):
         return f"{TC.PINK}End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
@@ -320,6 +341,60 @@ class CLI:
         if not getattr(args, "version") and not getattr(args, "license"):
             self.mainloop()
 
+    def clear(self):
+        if self.is_windows:
+            os.system("cls")
+        else:
+            os.system("clear")
+
+    def fast_recitation(self, ref):
+        ans = self.api.get_fast_recitation_ans(ref)
+        passage_words = self.api.passage.show().split()
+
+        self.clear()
+        print(f"[{TC.CYAN}{ref.ref_str}{TC.WHITE}]")
+
+        i = 0
+        n_wrong, n_right = 0, 0
+        recitation = []
+        try_again = True
+        passage_so_far = ""
+        while True:
+            try:
+                key = readchar.readkey()
+            except KeyboardInterrupt:
+                break
+
+            if key == "?":
+                print(self.messages.FAST_HELP())
+                continue
+            elif key == ans[i]:
+                n_right += 1
+                try_again = True
+                passage_so_far += f"{TC.GREEN}{passage_words[i]}{TC.WHITE} "
+                i += 1
+                recitation.append(key)
+                key_press = f"{TC.GREEN}{key}{TC.WHITE}"
+            elif try_again:
+                try_again = False
+                key_press = f"{TC.RED}{key}{TC.WHITE}"
+            else:
+                n_wrong += 1
+                try_again = True
+                passage_so_far += f"{TC.RED}{passage_words[i]}{TC.WHITE} "
+                i += 1
+                recitation.append(key)
+                key_press = f"{TC.RED}{key}{TC.WHITE}"
+
+            self.clear()
+            if len(passage_so_far) > 0:
+                print(passage_so_far)
+            print(f"[{TC.CYAN}{ref.ref_str}{TC.WHITE}]")
+            print("Last Key:", key_press)
+
+            if i == len(passage_words):
+                break
+
     def mainloop(self):
         print(self.messages.WELCOME())
 
@@ -386,34 +461,37 @@ class CLI:
                     print(self.messages.NO_REFERENCE())
                 else:
                     reference = self.api.new_recitation()
-                    if self.is_windows:
-                        windows_filename = f"{reference.ref_str}".replace(":", ";")
-                        filename = self.api.cache_path / windows_filename
+                    if self.api.fast_recitations:
+                        self.fast_recitation(reference)
                     else:
-                        filename = self.api.cache_path / f"{reference.ref_str}"
+                        if self.is_windows:
+                            windows_filename = f"{reference.ref_str}".replace(":", ";")
+                            filename = self.api.cache_path / windows_filename
+                        else:
+                            filename = self.api.cache_path / f"{reference.ref_str}"
 
-                    filename.touch(exist_ok=True)
-                    subprocess.run([self.editor, filename])
+                        filename.touch(exist_ok=True)
+                        subprocess.run([self.editor, filename])
 
-                    if not filename.exists():
-                        text = ""
-                    else:
-                        with open(filename, "r") as file:
-                            text = file.readlines()
-                            text = "".join(text)
+                        if not filename.exists():
+                            text = ""
+                        else:
+                            with open(filename, "r") as file:
+                                text = file.readlines()
+                                text = "".join(text)
 
-                        # Editors Sometimes add \n at the end of a file, if
-                        # one doesn't already exist @@@ TODO (Nolan): Think
-                        # about the case where the correct recitation ends
-                        # with a \n and the user has set these options...
-                        if len(text) > 0 and text[-1] == "\n":
-                            text = text[:-1]
+                            # Editors Sometimes add \n at the end of a file, if
+                            # one doesn't already exist @@@ TODO (Nolan): Think
+                            # about the case where the correct recitation ends
+                            # with a \n and the user has set these options...
+                            if len(text) > 0 and text[-1] == "\n":
+                                text = text[:-1]
 
-                        if filename.exists():
-                            os.remove(filename)
+                            if filename.exists():
+                                os.remove(filename)
 
-                    score, diff = self.api.finish_recitation(reference, text)
-                    print(self.messages.SCORE(score, diff))
+                        score, diff = self.api.finish_recitation(reference, text)
+                        print(self.messages.SCORE(score, diff))
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
