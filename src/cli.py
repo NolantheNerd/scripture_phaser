@@ -37,7 +37,6 @@ import readchar
 import argparse
 import datetime
 import subprocess
-from sys import exit
 from shutil import which
 from src.api import API
 from src.enums import App
@@ -182,6 +181,15 @@ class CLISTR:
     @staticmethod
     def DAY_PROMPT():
         return f"{TC.PINK}Day (dd): {TC.WHITE}"
+
+    @staticmethod
+    def NO_EDITOR():
+        return (
+            f"{TC.RED}No editor found! {TC.WHITE}"
+            "Try setting your 'EDITOR' environmental variable and "
+            "restarting scripture_phaser or reciting with "
+            f"{TC.CYAN}Fast Recitation Mode{TC.WHITE}."
+        )
 
     def START_DATE(self): return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
 
@@ -334,7 +342,7 @@ class CLI:
                     raise EditorNotFound()
             except EditorNotFound as e:
                 print(e.__str__())
-                exit()
+                self.editor = None
 
         self.is_windows = platform.system() == "Windows"
 
@@ -394,6 +402,36 @@ class CLI:
 
             if i == len(passage_words):
                 break
+
+    def text_recitation(self, ref):
+        if self.editor == None:
+            print(self.messages.NO_EDITOR())
+        else:
+            if self.is_windows:
+                windows_filename = f"{reference.ref_str}".replace(":", ";")
+                filename = self.api.cache_path / windows_filename
+            else:
+                filename = self.api.cache_path / f"{reference.ref_str}"
+
+            filename.touch(exist_ok=True)
+            subprocess.run([self.editor, filename])
+
+            if not filename.exists():
+                text = ""
+            else:
+                with open(filename, "r") as file:
+                    text = file.readlines()
+                    text = "".join(text)
+
+                # Editors Sometimes add \n at the end of a file
+                if len(text) > 0 and text[-1] == "\n":
+                    text = text[:-1]
+
+                if filename.exists():
+                    os.remove(filename)
+
+            score, diff = self.api.finish_recitation(reference, text)
+            print(self.messages.SCORE(score, diff))
 
     def mainloop(self):
         print(self.messages.WELCOME())
@@ -464,34 +502,7 @@ class CLI:
                     if self.api.fast_recitations:
                         self.fast_recitation(reference)
                     else:
-                        if self.is_windows:
-                            windows_filename = f"{reference.ref_str}".replace(":", ";")
-                            filename = self.api.cache_path / windows_filename
-                        else:
-                            filename = self.api.cache_path / f"{reference.ref_str}"
-
-                        filename.touch(exist_ok=True)
-                        subprocess.run([self.editor, filename])
-
-                        if not filename.exists():
-                            text = ""
-                        else:
-                            with open(filename, "r") as file:
-                                text = file.readlines()
-                                text = "".join(text)
-
-                            # Editors Sometimes add \n at the end of a file, if
-                            # one doesn't already exist @@@ TODO (Nolan): Think
-                            # about the case where the correct recitation ends
-                            # with a \n and the user has set these options...
-                            if len(text) > 0 and text[-1] == "\n":
-                                text = text[:-1]
-
-                            if filename.exists():
-                                os.remove(filename)
-
-                        score, diff = self.api.finish_recitation(reference, text)
-                        print(self.messages.SCORE(score, diff))
+                        self.text_recitation(reference)
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
