@@ -35,7 +35,6 @@ import os
 import random
 import datetime
 from pathlib import Path
-from dotenv import dotenv_values
 from difflib import SequenceMatcher
 from xdg.BaseDirectory import save_cache_path
 from xdg.BaseDirectory import save_config_path
@@ -78,9 +77,15 @@ class API:
         if not config_file.exists():
             with open(config_file, "w") as file:
                 for default_key, default_value in vars(AppDefaults()).items():
-                    file.write(f"{default_key}=\"{default_value}\"\n")
+                    file.write(f"{default_key}={default_value}\n")
 
-        config = dotenv_values(config_file)
+        with open(config_file, "r") as file:
+            entries = file.readlines()
+        config = {}
+        for entry in entries:
+            key, value = entry.split("=")
+            key, value = key.strip(), value.strip()
+            config[key] = value
 
         missing_keys = []
         for default_key in vars(AppDefaults()):
@@ -89,7 +94,7 @@ class API:
         if len(missing_keys) > 0:
             with open(config_file, "a") as file:
                 for key in missing_keys:
-                    file.write(f"{key}=\"{getattr(AppDefaults(), key)}\"\n")
+                    file.write(f"{key}={getattr(AppDefaults(), key)}\n")
                     config[key] = getattr(AppDefaults(), key)
 
         return config
@@ -110,7 +115,7 @@ class API:
 
         with open(config_file, "w") as file:
             for key in config.keys():
-                file.write(f"{key}=\"{config[key]}\"\n")
+                file.write(f"{key}={config[key]}\n")
 
     def new_reference(self, reference):
         return Reference(reference)
