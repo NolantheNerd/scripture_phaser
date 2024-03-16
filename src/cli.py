@@ -283,13 +283,21 @@ class CLISTR:
     def PASSAGE(self):
         return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
 
-    def SCORE(self, score, diff):
+    def TEXT_SCORE(self, score, diff):
         if score == 1.0:
             return f"{TC.GREEN}Perfect!{TC.WHITE}"
         elif score > 0.75:
             return f"{TC.PINK}Not bad: {TC.GREEN}{round(score * 100, 0)}%{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
         else:
             return f"{TC.RED}Not quite...{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
+
+    def FAST_SCORE(self, score):
+        if score == 1.0:
+            return f"{TC.GREEN}Perfect!{TC.WHITE}"
+        elif score > 0.75:
+            return f"{TC.PINK}Not bad: {round(score * 100, 0)}%{TC.WHITE}"
+        else:
+            return f"{TC.RED}Not quite...{TC.WHITE}"
 
 
 class CLI:
@@ -404,9 +412,9 @@ class CLI:
             if i == len(passage_words):
                 break
 
-        score, diff = self.api.finish_recitation(reference, text)
+        score = self.api.finish_recitation(ref, text)
 
-        return score, diff
+        print(self.messages.FAST_SCORE(score))
 
     def text_recitation(self, ref):
         if self.editor == None:
@@ -454,7 +462,7 @@ class CLI:
                 elif tag == "equal":
                     diff += f"{TC.CYAN}{text[i1:i2]}{TC.WHITE}"
 
-            print(self.messages.SCORE(score, diff))
+            print(self.messages.TEXT_SCORE(score, diff))
 
     def mainloop(self):
         print(self.messages.WELCOME())
