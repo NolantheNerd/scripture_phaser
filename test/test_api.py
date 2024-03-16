@@ -94,11 +94,10 @@ class APITests(BaseTest):
         api.reference = MagicMock()
         api.reference.ref_str = "2 Hesitations 7:490"
 
-        api.passage = MagicMock()
-        api.passage.reference = api.reference
-        api.passage.show.return_value = correct_string
+        api.get_recitation_ans = MagicMock()
+        api.get_recitation_ans.return_value = correct_string
 
-        score, diff = api.finish_recitation(api.reference, attempt_string)
+        score = api.finish_recitation(api.reference, attempt_string)
 
         self.assertAlmostEqual(expected_score, score)
 

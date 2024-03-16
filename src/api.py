@@ -33,15 +33,14 @@
 
 import os
 import random
-import difflib
 import datetime
 from pathlib import Path
 from dotenv import dotenv_values
+from difflib import SequenceMatcher
 from xdg.BaseDirectory import save_cache_path
 from xdg.BaseDirectory import save_config_path
 from src.enums import App
 from src.enums import AppDefaults
-from src.enums import TermColours as TC
 from src.stats import Stats
 from src.models import Attempt
 from src.passage import Passage
@@ -164,6 +163,53 @@ class API:
         else:
             return ""
 
+    def new_recitation(self):
+        if self.random_single_verse:
+            return self.get_random_verse()
+        else:
+            return self.passage.reference
+
+    def finish_recitation(self, reference, text):
+        if self.fast_recitations:
+            ans = self.get_fast_recitation_ans(reference)
+
+            if text == ans:
+                score = 1
+            else:
+                n_correct = sum([1 for i in range(len(ans)) if text[i] == ans[i]])
+                score = n_correct / len(ans)
+
+                passage_words = self.passage.show().split()
+        else:
+            ans = self.get_recitation_ans(reference)
+
+            if text == ans:
+                score = 1
+            else:
+                n_correct_chars, n_incorrect_chars = 0, 0
+                result = SequenceMatcher(a=text, b=ans).get_opcodes()
+                for tag, i1, i2, j1, j2 in result:
+                    if tag == "replace":
+                        n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
+                    elif tag == "delete":
+                        n_incorrect_chars += i2 - i1
+                    elif tag == "insert":
+                        n_incorrect_chars += j2 - j1
+                    elif tag == "equal":
+                        n_correct_chars += i2 - i1
+
+                score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
+
+        attempt = Attempt.create(
+            random_single_verse=self.random_single_verse,
+            reference=reference.ref_str,
+            score=score,
+            text=text,
+            datetime=datetime.datetime.now()
+        )
+
+        return score
+
     def get_fast_recitation_ans(self, reference):
         if self.random_single_verse:
             passage = Passage(reference, self.translation)
@@ -173,16 +219,10 @@ class API:
 
         raw_text = passage.show()
         if self.require_passage_numbers:
-            raw_text.replace("[", "")
+            raw_text = raw_text.replace("[", "")
         return [word[0] for word in raw_text.split()]
 
-    def new_recitation(self):
-        if self.random_single_verse:
-            return self.get_random_verse()
-        else:
-            return self.passage.reference
-
-    def finish_recitation(self, reference, text):
+    def get_recitation_ans(self, reference):
         if self.random_single_verse:
             passage = Passage(reference, self.translation)
             passage.populate([v.text for v in self.passage.verses if v.reference.ref_str == reference.ref_str])
@@ -190,44 +230,3 @@ class API:
         else:
             ans = self.passage.show()
 
-        if text == ans:
-            score = 1
-            diff = ""
-        else:
-            diff = ""
-            n_correct_chars, n_incorrect_chars = 0, 0
-            result = difflib.SequenceMatcher(a=text, b=ans).get_opcodes()
-            for tag, i1, i2, j1, j2 in result:
-                if tag == "replace":
-                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
-                    segment = f"{TC.RED}{text[i1:i2]}{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
-                    segment = segment.replace(" ", "_")
-                    segment = segment.replace("\n", "\\n")
-                    diff += segment
-                elif tag == "delete":
-                    n_incorrect_chars += i2 - i1
-                    segment = f"{TC.RED}{text[i1:i2]}{TC.WHITE}"
-                    segment = segment.replace(" ", "_")
-                    segment = segment.replace("\n", "\\n")
-                    diff += segment
-                elif tag == "insert":
-                    n_incorrect_chars += j2 - j1
-                    segment = f"{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
-                    segment = segment.replace(" ", "_")
-                    segment = segment.replace("\n", "\\n")
-                    diff += segment
-                elif tag == "equal":
-                    n_correct_chars += i2 - i1
-                    diff += f"{TC.CYAN}{text[i1:i2]}{TC.WHITE}"
-
-            score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
-
-        attempt = Attempt.create(
-            random_single_verse=self.random_single_verse,
-            reference=reference.ref_str,
-            score=score,
-            diff=diff,
-            datetime=datetime.datetime.now()
-        )
-
-        return score, diff

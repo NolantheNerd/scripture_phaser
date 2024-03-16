@@ -40,6 +40,7 @@ import subprocess
 from shutil import which
 from src.api import API
 from src.enums import App
+from difflib import SequenceMatcher
 from src.enums import TermColours as TC
 from src.exceptions import EditorNotFound
 from src.exceptions import InvalidTranslation
@@ -403,6 +404,10 @@ class CLI:
             if i == len(passage_words):
                 break
 
+        score, diff = self.api.finish_recitation(reference, text)
+
+        return score, diff
+
     def text_recitation(self, ref):
         if self.editor == None:
             print(self.messages.NO_EDITOR())
@@ -421,16 +426,34 @@ class CLI:
             else:
                 with open(filename, "r") as file:
                     text = file.readlines()
-                    text = "".join(text)
-
-                # Editors Sometimes add \n at the end of a file
-                if len(text) > 0 and text[-1] == "\n":
-                    text = text[:-1]
+                    text = "".join(text).strip()
 
                 if filename.exists():
                     os.remove(filename)
 
-            score, diff = self.api.finish_recitation(reference, text)
+            score = self.api.finish_recitation(reference, text)
+
+            diff = ""
+            result = SequenceMatcher(a=text, b=ans).get_opcodes()
+            for tag, i1, i2, j1, j2 in result:
+                if tag == "replace":
+                    segment = f"{TC.RED}{text[i1:i2]}{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "delete":
+                    segment = f"{TC.RED}{text[i1:i2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "insert":
+                    segment = f"{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "equal":
+                    diff += f"{TC.CYAN}{text[i1:i2]}{TC.WHITE}"
+
             print(self.messages.SCORE(score, diff))
 
     def mainloop(self):
