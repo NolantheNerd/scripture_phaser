@@ -34,10 +34,9 @@
 import os
 import random
 import datetime
-from pathlib import Path
 from difflib import SequenceMatcher
-from xdg.BaseDirectory import save_cache_path
-from xdg.BaseDirectory import save_config_path
+from src.enums import CACHE_DIR
+from src.enums import CONFIG_DIR
 from src.enums import App
 from src.enums import AppDefaults
 from src.stats import Stats
@@ -53,8 +52,8 @@ from src.exceptions import InvalidTranslation
 class API:
     def __init__(self):
         self.stats = Stats()
-        self.config_path = Path(save_config_path(App.Name.value))
-        self.cache_path = Path(save_cache_path(App.Name.value))
+        self.config_path = CONFIG_DIR / App.Name.value
+        self.cache_path = CACHE_DIR / App.Name.value
 
         config = self.load_config()
         self.translation = config.get(App.translation.name, AppDefaults().translation)
@@ -70,10 +69,8 @@ class API:
         if not Attempt.table_exists():
             Attempt.create_table()
 
-    @staticmethod
-    def load_config():
-        config_path = Path(save_config_path(App.Name.value))
-        config_file = config_path / "config"
+    def load_config(self):
+        config_file = self.config_path / "config"
         if not config_file.exists():
             with open(config_file, "w") as file:
                 for default_key, default_value in vars(AppDefaults()).items():
@@ -108,8 +105,7 @@ class API:
             "fast_recitations": self.fast_recitations
         }
 
-        config_path = Path(save_config_path(App.Name.value))
-        config_file = config_path / "config"
+        config_file = self.config_path / "config"
 
         os.remove(config_file)
 
@@ -144,7 +140,7 @@ class API:
             self.save_config()
 
             if not self.reference.empty:
-                self.passage = self.set_passage(self.reference.ref_str)
+                self.set_passage(self.reference.ref_str)
 
     def get_random_verse(self):
         return random.choice(self.passage.verses).reference

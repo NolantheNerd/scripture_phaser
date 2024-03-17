@@ -303,7 +303,6 @@ class CLISTR:
 class CLI:
     def __init__(self):
         self.api = API()
-        self.config = self.api.load_config()
         self.messages = CLISTR(self.api)
 
         parser = argparse.ArgumentParser(

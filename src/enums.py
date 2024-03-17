@@ -31,10 +31,38 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
 import enum
+import platform
+from pathlib import Path
 
 VERSION = "1.0.2"
 RELEASE_DATE = "2024-02-19"
+
+if platform.system() == "Windows":
+    CONFIG_DIR = Path(os.environ["HOMEPATH"]) / ".config"
+    CACHE_DIR = Path(os.environ["HOMEPATH"]) / ".cache"
+    DATA_DIR = Path(os.environ["HOMEPATH"]) / ".local/share"
+else:
+    try:
+        CONFIG_DIR = Path(os.environ["XDG_CONFIG_HOME"])
+    except KeyError:
+        CONFIG_DIR = Path(os.environ["HOME"]) / ".config"
+    try:
+        CACHE_DIR = Path(os.environ["XDG_CACHE_HOME"])
+    except KeyError:
+        CACHE_DIR = Path(os.environ["HOME"]) / ".cache"
+    try:
+        DATA_DIR = Path(os.environ["XDG_DATA_HOME"])
+    except KeyError:
+        DATA_DIR = Path(os.environ["HOME"]) / ".local/share"
+
+if not CONFIG_DIR.exists():
+    CONFIG_DIR.mkdir(parents=True)
+if not CACHE_DIR.exists():
+    CACHE_DIR.mkdir(parents=True)
+if not DATA_DIR.exists():
+    DATA_DIR.mkdir(parents=True)
 
 license_text = """
 scripture_phaser helps you to memorize the Bible.

@@ -9,7 +9,6 @@ packages = ["src"]
 name = "scripture_phaser"
 version = "1.0.2"
 dependencies = [
-	"pyxdg==0.28",
 	"meaningless==1.0.0",
 	"peewee==3.17.0",
         "readchar==4.0.5"
