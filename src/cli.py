@@ -33,13 +33,14 @@
 
 import os
 import platform
+import readchar
 import argparse
 import datetime
 import subprocess
-from sys import exit
 from shutil import which
 from src.api import API
 from src.enums import App
+from difflib import SequenceMatcher
 from src.enums import TermColours as TC
 from src.exceptions import EditorNotFound
 from src.exceptions import InvalidTranslation
@@ -108,11 +109,14 @@ class CLISTR:
     @staticmethod
     def HELP():
         return (
-            f"scripture_phaser can be controlled from the command line with the following commands:\n"
+            f"This is the {TC.CYAN}Normal Mode{TC.WHITE}.\n\n"
+            "Here you configure scripture_phaser, view the passage "
+            "or start a recitation.\n\n"
+            f"{TC.CYAN}Normal Mode{TC.WHITE} can be controlled using:\n"
             f"\t{TC.BLUE}H{TC.WHITE} - Prints this help message\n"
             f"\t{TC.BLUE}I{TC.WHITE} - List available translations\n"
-            f"\t{TC.BLUE}L{TC.WHITE} - Lists selected reference, random mode and translation\n"
-            f"\t{TC.BLUE}M{TC.WHITE} - Toggles the random_mode\n"
+            f"\t{TC.BLUE}L{TC.WHITE} - Lists selected reference, random single verse recitations and translation\n"
+            f"\t{TC.BLUE}M{TC.WHITE} - Toggles whether or not to practice random single verses\n"
             f"\t{TC.BLUE}N{TC.WHITE} - Toggles whether or not to include the passage numbers\n"
             f"\t{TC.BLUE}P{TC.WHITE} - Practice the current reference\n"
             f"\t{TC.BLUE}R{TC.WHITE} - Sets the reference\n"
@@ -125,12 +129,30 @@ class CLISTR:
     @staticmethod
     def STATS_HELP():
         return (
-            f"The statistics mode can be controlled from the command line with the following commands:\n"
+            f"This is the {TC.CYAN}Statistics Mode{TC.WHITE}.\n\n"
+            "Here you can view summary statistics based on your "
+            "past recitation attempts.\n\n"
+            f"The {TC.CYAN}Statistics Mode{TC.WHITE} can be "
+            "controlled using:\n"
             f"\t{TC.BLUE}SD{TC.WHITE} - Set the start date used to filter your statistics\n"
             f"\t{TC.BLUE}ED{TC.WHITE} - Set the end date used to filter your statistics\n"
             f"\t{TC.BLUE}A{TC.WHITE}  - List all verses attempted\n"
             f"\t{TC.BLUE}R{TC.WHITE}  - Rank all attempted passages by average score\n"
-            f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics\n"
+            f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics"
+        )
+
+    @staticmethod
+    def FAST_HELP():
+        return (
+            f"This is the {TC.CYAN}Fast Recitation Mode{TC.WHITE}.\n\n"
+            f"Type the first letter of the next word in the passage "
+            f"(it is case sensitive) to advance the recitation by one word. "
+            f"If you type the wrong letter twice, the reciation will "
+            f"advance by one word and will reveal the correct word in red.\n\n"
+            f"The {TC.CYAN}Fast Recitation Mode{TC.WHITE} "
+            "can be controlled using:\n"
+            f"\t{TC.BLUE}?{TC.WHITE}        - Print this help message\n"
+            f"\t{TC.BLUE}Ctrl + c{TC.WHITE} - Stop the recitation\n"
         )
 
     @staticmethod
@@ -161,8 +183,16 @@ class CLISTR:
     def DAY_PROMPT():
         return f"{TC.PINK}Day (dd): {TC.WHITE}"
 
-    def START_DATE(self):
-        return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
+    @staticmethod
+    def NO_EDITOR():
+        return (
+            f"{TC.RED}No editor found! {TC.WHITE}"
+            "Try setting your 'EDITOR' environmental variable and "
+            "restarting scripture_phaser or reciting with "
+            f"{TC.CYAN}Fast Recitation Mode{TC.WHITE}."
+        )
+
+    def START_DATE(self): return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
 
     def END_DATE(self):
         return f"{TC.PINK}End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
@@ -226,17 +256,23 @@ class CLISTR:
     def TRANSLATION(self):
         return f"Translation:{TC.YELLOW} {self.api.translation}{TC.WHITE}"
 
-    def RANDOM_MODE(self):
-        return f"Random Mode:{TC.YELLOW} {self.api.random_mode}{TC.WHITE}"
+    def RANDOM_SINGLE_VERSE(self):
+        return f"Random Single Verse Recitations:{TC.YELLOW} {self.api.random_single_verse}{TC.WHITE}"
 
-    def SHOW_PASSAGE_NUMBERS(self):
-        return f"Show Passage Numbers:{TC.YELLOW} {self.api.show_passage_numbers}{TC.WHITE}"
+    def REQUIRE_PASSAGE_NUMBERS(self):
+        return f"Require Passage Numbers:{TC.YELLOW} {self.api.require_passage_numbers}{TC.WHITE}"
 
-    def SET_RANDOM_MODE(self):
-        return f"Toggled random mode to {TC.YELLOW}{self.api.random_mode}{TC.WHITE}"
+    def FAST_RECITATIONS(self):
+        return f"Fast Recitations:{TC.YELLOW} {self.api.fast_recitations}{TC.WHITE}"
+
+    def SET_RANDOM_SINGLE_VERSE(self):
+        return f"Toggled random single verse recitations to {TC.YELLOW}{self.api.random_single_verse}{TC.WHITE}"
 
     def SET_PASSAGE_NUMBERS(self):
-        return f"Toggled show passage numbers to {TC.YELLOW}{self.api.show_passage_numbers}{TC.WHITE}"
+        return f"Toggled require passage numbers to {TC.YELLOW}{self.api.require_passage_numbers}{TC.WHITE}"
+
+    def SET_FAST_RECITATIONS(self):
+        return f"Toggled fast recitations to {TC.YELLOW}{self.api.fast_recitations}{TC.WHITE}"
 
     def INVALID_TRANSLATION(self):
         return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
@@ -247,7 +283,7 @@ class CLISTR:
     def PASSAGE(self):
         return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
 
-    def SCORE(self, score, diff):
+    def TEXT_SCORE(self, score, diff):
         if score == 1.0:
             return f"{TC.GREEN}Perfect!{TC.WHITE}"
         elif score > 0.75:
@@ -255,11 +291,18 @@ class CLISTR:
         else:
             return f"{TC.RED}Not quite...{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
 
+    def FAST_SCORE(self, score):
+        if score == 1.0:
+            return f"{TC.GREEN}Perfect!{TC.WHITE}"
+        elif score > 0.75:
+            return f"{TC.PINK}Not bad: {round(score * 100, 0)}%{TC.WHITE}"
+        else:
+            return f"{TC.RED}Not quite...{TC.WHITE}"
+
 
 class CLI:
     def __init__(self):
         self.api = API()
-        self.config = self.api.load_config()
         self.messages = CLISTR(self.api)
 
         parser = argparse.ArgumentParser(
@@ -307,12 +350,118 @@ class CLI:
                     raise EditorNotFound()
             except EditorNotFound as e:
                 print(e.__str__())
-                exit()
+                self.editor = None
 
         self.is_windows = platform.system() == "Windows"
 
         if not getattr(args, "version") and not getattr(args, "license"):
             self.mainloop()
+
+    def clear(self):
+        if self.is_windows:
+            os.system("cls")
+        else:
+            os.system("clear")
+
+    def fast_recitation(self, ref):
+        ans = self.api.get_fast_recitation_ans(ref)
+        passage_words = self.api.passage.show().split()
+
+        self.clear()
+        print(f"[{TC.CYAN}{ref.ref_str}{TC.WHITE}]")
+
+        i = 0
+        n_wrong, n_right = 0, 0
+        recitation = []
+        try_again = True
+        passage_so_far = ""
+        while True:
+            try:
+                key = readchar.readkey()
+            except KeyboardInterrupt:
+                break
+
+            if key == "?":
+                print(self.messages.FAST_HELP())
+                continue
+            elif key == ans[i]:
+                n_right += 1
+                try_again = True
+                passage_so_far += f"{TC.GREEN}{passage_words[i]}{TC.WHITE} "
+                i += 1
+                recitation.append(key)
+                key_press = f"{TC.GREEN}{key}{TC.WHITE}"
+            elif try_again:
+                try_again = False
+                key_press = f"{TC.RED}{key}{TC.WHITE}"
+            else:
+                n_wrong += 1
+                try_again = True
+                passage_so_far += f"{TC.RED}{passage_words[i]}{TC.WHITE} "
+                i += 1
+                recitation.append(key)
+                key_press = f"{TC.RED}{key}{TC.WHITE}"
+
+            self.clear()
+            if len(passage_so_far) > 0:
+                print(passage_so_far)
+            print(f"[{TC.CYAN}{ref.ref_str}{TC.WHITE}]")
+            print("Last Key:", key_press)
+
+            if i == len(passage_words):
+                break
+
+        score = self.api.finish_recitation(ref, recitation)
+
+        print(self.messages.FAST_SCORE(score))
+
+    def text_recitation(self, ref):
+        if self.editor == None:
+            print(self.messages.NO_EDITOR())
+        else:
+            if self.is_windows:
+                windows_filename = f"{reference.ref_str}".replace(":", ";")
+                filename = self.api.cache_path / windows_filename
+            else:
+                filename = self.api.cache_path / f"{reference.ref_str}"
+
+            filename.touch(exist_ok=True)
+            subprocess.run([self.editor, filename])
+
+            if not filename.exists():
+                text = ""
+            else:
+                with open(filename, "r") as file:
+                    text = file.readlines()
+                    text = "".join(text).strip()
+
+                if filename.exists():
+                    os.remove(filename)
+
+            score = self.api.finish_recitation(reference, text)
+
+            diff = ""
+            result = SequenceMatcher(a=text, b=ans).get_opcodes()
+            for tag, i1, i2, j1, j2 in result:
+                if tag == "replace":
+                    segment = f"{TC.RED}{text[i1:i2]}{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "delete":
+                    segment = f"{TC.RED}{text[i1:i2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "insert":
+                    segment = f"{TC.GREEN}{ans[j1:j2]}{TC.WHITE}"
+                    segment = segment.replace(" ", "_")
+                    segment = segment.replace("\n", "\\n")
+                    diff += segment
+                elif tag == "equal":
+                    diff += f"{TC.CYAN}{text[i1:i2]}{TC.WHITE}"
+
+            print(self.messages.TEXT_SCORE(score, diff))
 
     def mainloop(self):
         print(self.messages.WELCOME())
@@ -331,18 +480,24 @@ class CLI:
                 else:
                     print(self.messages.NO_REFERENCE())
                 print(self.messages.TRANSLATION())
-                print(self.messages.RANDOM_MODE())
-                print(self.messages.SHOW_PASSAGE_NUMBERS())
+                print(self.messages.RANDOM_SINGLE_VERSE())
+                print(self.messages.REQUIRE_PASSAGE_NUMBERS())
+                print(self.messages.FAST_RECITATIONS())
 
-            # Set (Toggle) Mode
-            elif user_input == "m" or user_input == "random_mode":
-                self.api.set_random_mode()
-                print(self.messages.SET_RANDOM_MODE())
+            # Set (Toggle) Random Single Verse
+            elif user_input == "m" or user_input == "single":
+                self.api.set_random_single_verse()
+                print(self.messages.SET_RANDOM_SINGLE_VERSE())
 
             # Set (Toggle) the Passage Numbers
             elif user_input == "n" or user_input == "numbers":
-                self.api.set_show_passage_numbers()
+                self.api.set_require_passage_numbers()
                 print(self.messages.SET_PASSAGE_NUMBERS())
+
+            # Set (Toggle) Fast Recitations
+            elif user_input == "f" or user_input == "fast":
+                self.api.set_fast_recitations()
+                print(self.messages.SET_FAST_RECITATIONS())
 
             # Set Reference
             elif user_input == "r" or user_input == "reference":
@@ -374,34 +529,10 @@ class CLI:
                     print(self.messages.NO_REFERENCE())
                 else:
                     reference = self.api.new_recitation()
-                    if self.is_windows:
-                        windows_filename = f"{reference.ref_str}".replace(":", ";")
-                        filename = self.api.cache_path / windows_filename
+                    if self.api.fast_recitations:
+                        self.fast_recitation(reference)
                     else:
-                        filename = self.api.cache_path / f"{reference.ref_str}"
-
-                    filename.touch(exist_ok=True)
-                    subprocess.run([self.editor, filename])
-
-                    if not filename.exists():
-                        text = ""
-                    else:
-                        with open(filename, "r") as file:
-                            text = file.readlines()
-                            text = "".join(text)
-
-                        # Editors Sometimes add \n at the end of a file, if
-                        # one doesn't already exist @@@ TODO (Nolan): Think
-                        # about the case where the correct recitation ends
-                        # with a \n and the user has set these options...
-                        if len(text) > 0 and text[-1] == "\n":
-                            text = text[:-1]
-
-                        if filename.exists():
-                            os.remove(filename)
-
-                    score, diff = self.api.finish_recitation(reference, text)
-                    print(self.messages.SCORE(score, diff))
+                        self.text_recitation(reference)
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
@@ -423,7 +554,7 @@ class CLI:
                 print(self.messages.END_DATE())
 
             # Set Start Date
-            elif user_input == "sd" or user_input == "start date":
+            elif user_input == "sd" or user_input == "start":
                 print(self.messages.SET_START_DATE())
                 year = input(self.messages.YEAR_PROMPT())
                 month = input(self.messages.MONTH_PROMPT())
@@ -438,7 +569,7 @@ class CLI:
                         print(e.__str__().capitalize())
 
             # Set End Date
-            elif user_input == "ed" or user_input == "end date":
+            elif user_input == "ed" or user_input == "end":
                 print(self.messages.SET_END_DATE())
                 year = input(self.messages.YEAR_PROMPT())
                 month = input(self.messages.MONTH_PROMPT())
@@ -462,10 +593,10 @@ class CLI:
                 print(self.messages.ALL_VERSES_RANKED())
 
             # Reset Statistics
-            elif user_input == "d" or user_input == "reset":
+            elif user_input == "d" or user_input == "delete":
                 confirmation = input(self.messages.STATS_RESET_WARNING()).strip().lower()
                 if confirmation == "y" or confirmation == "yes":
-                    self.api.reset_db()
+                    self.api.stats.reset_db()
                     print(self.messages.STATS_RESET())
 
             # Exit Stats

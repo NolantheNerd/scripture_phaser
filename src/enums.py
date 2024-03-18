@@ -31,10 +31,38 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
 import enum
+import platform
+from pathlib import Path
 
 VERSION = "1.0.2"
 RELEASE_DATE = "2024-02-19"
+
+if platform.system() == "Windows":
+    CONFIG_DIR = Path(os.environ["HOMEPATH"]) / ".config"
+    CACHE_DIR = Path(os.environ["HOMEPATH"]) / ".cache"
+    DATA_DIR = Path(os.environ["HOMEPATH"]) / ".local/share"
+else:
+    try:
+        CONFIG_DIR = Path(os.environ["XDG_CONFIG_HOME"])
+    except KeyError:
+        CONFIG_DIR = Path(os.environ["HOME"]) / ".config"
+    try:
+        CACHE_DIR = Path(os.environ["XDG_CACHE_HOME"])
+    except KeyError:
+        CACHE_DIR = Path(os.environ["HOME"]) / ".cache"
+    try:
+        DATA_DIR = Path(os.environ["XDG_DATA_HOME"])
+    except KeyError:
+        DATA_DIR = Path(os.environ["HOME"]) / ".local/share"
+
+if not CONFIG_DIR.exists():
+    CONFIG_DIR.mkdir(parents=True)
+if not CACHE_DIR.exists():
+    CACHE_DIR.mkdir(parents=True)
+if not DATA_DIR.exists():
+    DATA_DIR.mkdir(parents=True)
 
 license_text = """
 scripture_phaser helps you to memorize the Bible.
@@ -85,18 +113,20 @@ class TermColours:
 class AppDefaults:
     def __init__(self):
         self.translation = "NIV"
-        self.random_mode = False
+        self.random_single_verse = False
         self.reference = ""
-        self.show_passage_numbers = False
+        self.require_passage_numbers = False
+        self.fast_recitations = False
 
 
 class App(enum.Enum):
     Name = "scripture_phaser"
     Database = "scripture_phaser_db"
     translation = "translation"
-    random_mode = "random_mode"
+    random_single_verse = "random_single_verse"
     reference = "reference"
-    show_passage_numbers = "show_passage_numbers"
+    require_passage_numbers = "require_passage_numbers"
+    fast_recitations = "fast_recitations"
     license = license_text
     version = VERSION
     release_date = RELEASE_DATE

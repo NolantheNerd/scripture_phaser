@@ -34,14 +34,14 @@
 import os
 import unittest
 from pathlib import Path
-from xdg.BaseDirectory import save_config_path
 from src.enums import App
+from src.enums import CONFIG_DIR
 
 
 class BaseTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        config_path = Path(save_config_path(App.Name.value))
+        config_path = CONFIG_DIR / App.Name.value
         cls.config_file = config_path / "config"
         cls.temp_config_file = config_path / "config_TEST"
         if cls.temp_config_file.exists():

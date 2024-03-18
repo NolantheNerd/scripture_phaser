@@ -83,8 +83,8 @@ class APITests(BaseTest):
         Can the correct grade be assigned to a recitation?
         """
         api = API()
-        if api.random_mode:
-            api.set_random_mode()
+        if api.random_single_verse:
+            api.set_random_single_verse()
 
         correct_string = "This is the correct way to write this string."
         attempt_string = "This is an attempted way to write this string."
@@ -94,10 +94,32 @@ class APITests(BaseTest):
         api.reference = MagicMock()
         api.reference.ref_str = "2 Hesitations 7:490"
 
-        api.passage = MagicMock()
-        api.passage.reference = api.reference
-        api.passage.show.return_value = correct_string
+        api.get_recitation_ans = MagicMock()
+        api.get_recitation_ans.return_value = correct_string
 
-        score, diff = api.finish_recitation(api.reference, attempt_string)
+        score = api.finish_recitation(api.reference, attempt_string)
 
         self.assertAlmostEqual(expected_score, score)
+
+    def test_get_fast_recitation_ans(self):
+        """
+        Can the API fetch the first letter of each word in a passage?
+        """
+        api = API()
+        content = "All Scripture is breathed out by God and profitable " + \
+        "for teaching, for reproof, for correction, and for training in " + \
+        "righteousness, that the man of God may be complete, equipped " + \
+        "for every good work."
+
+        api.reference = MagicMock()
+        api.reference.ref_str = "2 Timothy 3:16-17"
+
+        api.passage = MagicMock()
+        api.passage.reference = api.reference
+        api.passage.show.return_value = content
+
+        expected = ["A", "S", "i", "b", "o", "b", "G", "a", "p", "f", "t", 
+                    "f", "r", "f", "c", "a", "f", "t", "i", "r", "t", "t",
+                    "m", "o", "G", "m", "b", "c", "e", "f", "e", "g", "w"]
+
+        self.assertEqual(api.get_fast_recitation_ans(api.reference), expected)

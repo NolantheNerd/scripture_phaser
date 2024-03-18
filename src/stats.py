@@ -40,6 +40,12 @@ class Stats:
         self.start_date = None
         self.end_date = None
 
+    @staticmethod
+    def reset_db():
+        if Attempt.table_exists():
+            Attempt.drop_table()
+        Attempt.create_table()
+
     def apply_filters(self, query):
         if self.start_date is not None:
             query = query.where(Attempt.datetime >= self.start_date)
