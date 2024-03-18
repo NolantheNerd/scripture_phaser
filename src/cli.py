@@ -411,7 +411,7 @@ class CLI:
             if i == len(passage_words):
                 break
 
-        score = self.api.finish_recitation(ref, text)
+        score = self.api.finish_recitation(ref, recitation)
 
         print(self.messages.FAST_SCORE(score))
 
