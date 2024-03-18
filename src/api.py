@@ -205,7 +205,7 @@ class API:
             random_single_verse=self.random_single_verse,
             reference=reference.ref_str,
             score=score,
-            text=text,
+            attempt=text,
             datetime=datetime.datetime.now()
         )
 

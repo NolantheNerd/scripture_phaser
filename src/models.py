@@ -48,7 +48,6 @@ class Attempt(Model):
     reference = CharField()
     score = FloatField(null=True)
     attempt = TextField(null=True)
-    text = TextField(null=True)
 
     class Meta:
         database = SqliteDatabase(
