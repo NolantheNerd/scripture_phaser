@@ -31,9 +31,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from src.exceptions import InvalidReference
-from src.enums import Reverse_Bible_Books
 from src.enums import Bible
+from src.enums import Bible_Books
+from src.enums import Reverse_Bible_Books
+from src.exceptions import InvalidReference
 
 
 class Reference:
@@ -43,12 +44,12 @@ class Reference:
             self.ref_str = ""
         else:
             self.empty = False
-            self.ref_str = self.clean_reference(reference)
 
             self.book_start, self.chapter_start, self.verse_start, \
             self.book_end, self.chapter_end, self.verse_end = \
-                self.interpret_reference(self.ref_str)
+                self.interpret_reference(self.clean_reference(reference))
 
+            self.ref_str = self.standardize_reference()
 
     @staticmethod
     def convert_numbered_books(ref, digit_to_alpha):
@@ -81,11 +82,13 @@ class Reference:
 
     @classmethod
     def clean_reference(cls, ref):
+        ref = " ".join(ref.split()) # Multiple Whitespaces -> One Whitespace
         ref = ref.strip().lower().title()
 
         ref = cls.convert_numbered_books(ref, digit_to_alpha=True)
         # Replace "Psalm" -> "Psalms" will also turn "Psalms" -> "Psalmss"
         ref = ref \
+            .replace(".", "") \
             .replace("Psalm", "Psalms") \
             .replace("First", "One") \
             .replace("Second", "Two") \
@@ -124,6 +127,77 @@ class Reference:
 
             prev_char = ref[max(0, i)]
             new_ref += ref[i]
+
+        new_ref = new_ref \
+            .replace("Gen ", "Genesis ") \
+            .replace("Ex ", "Exodus ") \
+            .replace("Lev ", "Leviticus ") \
+            .replace("Num ", "Numbers ") \
+            .replace("Deut ", "Deuteronomy ") \
+            .replace("Josh ", "Joshua ") \
+            .replace("Judg ", "Judges ") \
+            .replace("1Sam ", "One Samuel ") \
+            .replace("1sam ", "One Samuel ") \
+            .replace("1 Sam ", "One Samuel ") \
+            .replace("2Sam ", "Two Samuel ") \
+            .replace("2sam ", "Two Samuel ") \
+            .replace("2 Sam ", "Two Samuel ") \
+            .replace("1Chron ", "One Chronicles ") \
+            .replace("1chron ", "One Chronicles ") \
+            .replace("1 Chron ", "One Chronicles ") \
+            .replace("Neh ", "Nehemiah ") \
+            .replace("Est ", "Esther ") \
+            .replace("Ps ", "Psalms ") \
+            .replace("Prov ", "Proverbs ") \
+            .replace("Eccles ", "Ecclesiastes ") \
+            .replace("Song ", "Song of Songs ") \
+            .replace("Isa ", "Isaiah ") \
+            .replace("Jer ", "Jeremiah ") \
+            .replace("Lam ", "Lamentations ") \
+            .replace("Ezek ", "Ezekiel ") \
+            .replace("Dan ", "Daniel ") \
+            .replace("Hos ", "Hosea ") \
+            .replace("Obad ", "Obadiah ") \
+            .replace("Mic ", "Micah ") \
+            .replace("Nah ", "Nahum ") \
+            .replace("Hab ", "Habakkuk ") \
+            .replace("Zeph ", "Zephaniah ") \
+            .replace("Hag ", "Haggai ") \
+            .replace("Zech ", "Zechariah ") \
+            .replace("Mal ", "Malachi ") \
+            .replace("Matt ", "Matthew ") \
+            .replace("Rom ", "Romans ") \
+            .replace("1Cor ", "One Corinthians ") \
+            .replace("1cor ", "One Corinthians ") \
+            .replace("1 Cor ", "One Corinthians ") \
+            .replace("2Cor ", "Two Corinthians ") \
+            .replace("2cor ", "Two Corinthians ") \
+            .replace("2 Cor ", "Two Corinthians ") \
+            .replace("Gal ", "Galatians ") \
+            .replace("Eph ", "Ephesians ") \
+            .replace("Phil ", "Philippians ") \
+            .replace("Col ", "Colossians ") \
+            .replace("1Thess ", "One Thessalonians ") \
+            .replace("1thess ", "One Thessalonians ") \
+            .replace("1 Thess ", "One Thessalonians ") \
+            .replace("2Thess ", "Two Thessalonians ") \
+            .replace("2thess ", "Two Thessalonians ") \
+            .replace("2 Thess ", "Two Thessalonians ") \
+            .replace("1Tim ", "One Timothy ") \
+            .replace("1tim ", "One Timothy ") \
+            .replace("1 Tim ", "One Timothy ") \
+            .replace("2Tim ", "Two Timothy ") \
+            .replace("2tim ", "Two Timothy ") \
+            .replace("2 Tim ", "Two Timothy ") \
+            .replace("Philem ", "Philemon ") \
+            .replace("Heb ", "Hebrews ") \
+            .replace("1Pet ", "One Peter ") \
+            .replace("1pet ", "One Peter ") \
+            .replace("1 Pet ", "One Peter ") \
+            .replace("2Pet ", "Two Peter ") \
+            .replace("2pet ", "Two Peter ") \
+            .replace("2 Pet ", "Two Peter ") \
+            .replace("Rev ", "Revelation ")
 
         new_ref = cls.convert_numbered_books(new_ref, digit_to_alpha=False)
 
@@ -266,3 +340,42 @@ class Reference:
                 raise InvalidReference(ref)
 
         return book_start, chapter_start, verse_start, book_end, chapter_end, verse_end
+
+    def standardize_reference(self):
+        # Single Book Reference? - Only Print Book Name Once
+        if self.book_start == self.book_end:
+            # Single Chapter Book? - No ":"s
+            if len(Bible[self.book_start]) == 1:
+                # Single Verse? - No "-"
+                if self.verse_start == self.verse_end:
+                    return f"{Bible_Books[self.book_start]} {self.verse_start + 1}"
+                # Multiple Verses - Yes "-"
+                else:
+                    return f"{Bible_Books[self.book_start]} {self.verse_start + 1}-{self.verse_end + 1}"
+            # Multi Chapter Book - Yes ":"s
+            else:
+                # Reference Contained in 1 Chapter? - Only 1 ":"
+                if self.chapter_start == self.chapter_end:
+                    # Reference is a Single Verse? - No "-"
+                    if self.verse_start == self.verse_end:
+                        return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1}"
+                    # Reference is Multiple Verses - Yes "-"
+                    else:
+                        return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1}-{self.verse_end + 1}"
+                # Reference Spread Over Multiple Chapters - 2 ":"s
+                else:
+                    return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1}-{self.chapter_end + 1}:{self.verse_end + 1}"
+        # Multiple Book Reference - Print Both Book Names
+        else:
+            # Both Books are Single Chapter Books? - No ":"s
+            if len(Bible[self.book_start]) == 1 and len(Bible[self.book_end]) == 1:
+                return f"{Bible_Books[self.book_start]} {self.verse_start + 1} - {Bible_Books[self.book_end]} {self.verse_end + 1}"
+            # Only First Book is a Single Chapter Book? - No ":" at Start
+            elif len(Bible[self.book_start]) == 1:
+                return f"{Bible_Books[self.book_start]} {self.verse_start + 1} - {Bible_Books[self.book_end]} {self.chapter_end + 1}:{self.verse_end + 1}"
+            # Only Last Book is a Single Chapter Book? - No ":" at End
+            elif len(Bible[self.book_end]) == 1:
+                return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1} - {Bible_Books[self.book_end]} {self.verse_end + 1}"
+            # Neither Book is a Single Chapter Book - Two ":"s
+            else:
+                return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1} - {Bible_Books[self.book_end]} {self.chapter_end + 1}:{self.verse_end + 1}"
