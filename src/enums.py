@@ -64,8 +64,8 @@ if not CACHE_DIR.exists():
 if not DATA_DIR.exists():
     DATA_DIR.mkdir(parents=True)
 
-license_text = """
-scripture_phaser helps you to memorize the Bible.
+license_text = \
+"""scripture_phaser helps you to memorize the Bible.
 Copyright (C) 2023-2024 Nolan McMahon
 
 scripture_phaser is licensed under the terms of the BSD 3-Clause License
@@ -94,8 +94,7 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-"""
+POSSIBILITY OF SUCH DAMAGE."""
 
 
 class TermColours:
