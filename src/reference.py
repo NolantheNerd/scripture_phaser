@@ -47,88 +47,37 @@ class Reference:
 
             self.book_start, self.chapter_start, self.verse_start, \
             self.book_end, self.chapter_end, self.verse_end = \
-                self.interpret_reference(self.clean_reference(reference))
+                self.interpret_reference(reference)
 
             self.ref_str = self.standardize_reference()
 
     @staticmethod
-    def convert_numbered_books(ref, digit_to_alpha):
-        if digit_to_alpha:
-            ref = ref \
-                .replace("1 Samuel", "One Samuel") \
-                .replace("1 Kings", "One Kings") \
-                .replace("1 Chronicles", "One Chronicles") \
-                .replace("1 Corinthians", "One Corinthians") \
-                .replace("1 Thessalonians", "One Thessalonians") \
-                .replace("1 Timothy", "One Timothy") \
-                .replace("1 Peter", "One Peter") \
-                .replace("1 John", "One John") \
-                .replace("2 Samuel", "Two Samuel") \
-                .replace("2 Kings", "Two Kings") \
-                .replace("2 Chronicles", "Two Chronicles") \
-                .replace("2 Corinthians", "Two Corinthians") \
-                .replace("2 Thessalonians", "Two Thessalonians") \
-                .replace("2 Timothy", "Two Timothy") \
-                .replace("2 Peter", "Two Peter") \
-                .replace("2 John", "Two John") \
-                .replace("3 John", "Three John")
-        else:
-            ref = ref \
-                .replace("One", "1") \
-                .replace("Two", "2") \
-                .replace("Three", "3")
-        
-        return ref
-
-    @classmethod
-    def clean_reference(cls, ref):
-        ref = " ".join(ref.split()) # Multiple Whitespaces -> One Whitespace
-        ref = ref.strip().lower().title()
-
-        ref = cls.convert_numbered_books(ref, digit_to_alpha=True)
+    def reference_replacements(ref):
         # Replace "Psalm" -> "Psalms" will also turn "Psalms" -> "Psalmss"
         ref = ref \
             .replace(".", "") \
             .replace("Psalm", "Psalms") \
+            .replace("Psalmss", "Psalms") \
             .replace("First", "One") \
             .replace("Second", "Two") \
             .replace("Third", "Three") \
-            .replace("Psalmss", "Psalms")
-
-        new_ref = ""
-        prev_char = ""
-        for i, char in enumerate(ref):
-            next_char = ref[min(len(ref)-1, i+1)]
-            # Insert Space After Book Name and Before Chapter/Verse Number
-            if char.isdigit() and prev_char.isalpha():
-                new_ref += " "
-
-            # Insert Space After Verse Number and Before Second Book Name
-            elif char.isalpha() and prev_char.isdigit():
-                new_ref += " "
-
-            # Insert Space Between Number and "-"
-            elif char == "-" and prev_char != " " and prev_char != "":
-                new_ref += " "
-
-            # Insert Space Between "-" and Number/Book
-            elif prev_char == "-" and char != " ":
-                new_ref += " "
-
-            elif char == " ":
-                # Remove Space Before ":" and After Chapter Number
-                if prev_char.isdigit() and next_char == ":":
-                    prev_char = ref[max(0, i)]
-                    continue
-                # Remove Space After ":" and Before Verse Number
-                elif prev_char == ":" and next_char.isdigit():
-                    prev_char = ref[max(0, i)]
-                    continue
-
-            prev_char = ref[max(0, i)]
-            new_ref += ref[i]
-
-        new_ref = new_ref \
+            .replace("1 Samuel", "One Samuel") \
+            .replace("1 Kings", "One Kings") \
+            .replace("1 Chronicles", "One Chronicles") \
+            .replace("1 Corinthians", "One Corinthians") \
+            .replace("1 Thessalonians", "One Thessalonians") \
+            .replace("1 Timothy", "One Timothy") \
+            .replace("1 Peter", "One Peter") \
+            .replace("1 John", "One John") \
+            .replace("2 Samuel", "Two Samuel") \
+            .replace("2 Kings", "Two Kings") \
+            .replace("2 Chronicles", "Two Chronicles") \
+            .replace("2 Corinthians", "Two Corinthians") \
+            .replace("2 Thessalonians", "Two Thessalonians") \
+            .replace("2 Timothy", "Two Timothy") \
+            .replace("2 Peter", "Two Peter") \
+            .replace("2 John", "Two John") \
+            .replace("3 John", "Three John") \
             .replace("Gen ", "Genesis ") \
             .replace("Ex ", "Exodus ") \
             .replace("Lev ", "Leviticus ") \
@@ -199,13 +148,53 @@ class Reference:
             .replace("2 Pet ", "Two Peter ") \
             .replace("Rev ", "Revelation ")
 
-        new_ref = cls.convert_numbered_books(new_ref, digit_to_alpha=False)
+        return ref
+
+    @classmethod
+    def clean_reference(cls, ref):
+        ref = " ".join(ref.split()) # Multiple Whitespaces -> One Whitespace
+        ref = ref.strip().lower().title()
+
+        new_ref = ""
+        prev_char = ""
+        for i, char in enumerate(ref):
+            next_char = ref[min(len(ref)-1, i+1)]
+            # Insert Space After Book Name and Before Chapter/Verse Number
+            if char.isdigit() and prev_char.isalpha():
+                new_ref += " "
+
+            # Insert Space After Verse Number and Before Second Book Name
+            elif char.isalpha() and prev_char.isdigit():
+                new_ref += " "
+
+            # Insert Space Between Number and "-"
+            elif char == "-" and prev_char != " " and prev_char != "":
+                new_ref += " "
+
+            # Insert Space Between "-" and Number/Book
+            elif prev_char == "-" and char != " ":
+                new_ref += " "
+
+            elif char == " ":
+                # Remove Space Before ":" and After Chapter Number
+                if prev_char.isdigit() and next_char == ":":
+                    prev_char = ref[max(0, i)]
+                    continue
+                # Remove Space After ":" and Before Verse Number
+                elif prev_char == ":" and next_char.isdigit():
+                    prev_char = ref[max(0, i)]
+                    continue
+
+            prev_char = ref[max(0, i)]
+            new_ref += ref[i]
+
+        new_ref = cls.reference_replacements(new_ref)
 
         return new_ref
 
     @classmethod
     def interpret_reference(cls, ref):
-        ref = cls.convert_numbered_books(ref, digit_to_alpha=True)
+        ref = cls.clean_reference(ref)
 
         # Handle a Single Whole Book Reference [Genesis]
         if ref in Reverse_Bible_Books:
@@ -348,34 +337,66 @@ class Reference:
             if len(Bible[self.book_start]) == 1:
                 # Single Verse? - No "-"
                 if self.verse_start == self.verse_end:
-                    return f"{Bible_Books[self.book_start]} {self.verse_start + 1}"
+                    return (
+                        f"{Bible_Books[self.book_start]} "
+                        f"{self.verse_start + 1}"
+                    )
                 # Multiple Verses - Yes "-"
                 else:
-                    return f"{Bible_Books[self.book_start]} {self.verse_start + 1}-{self.verse_end + 1}"
+                    return (
+                        f"{Bible_Books[self.book_start]} "
+                        f"{self.verse_start + 1}-{self.verse_end + 1}"
+                    )
             # Multi Chapter Book - Yes ":"s
             else:
                 # Reference Contained in 1 Chapter? - Only 1 ":"
                 if self.chapter_start == self.chapter_end:
                     # Reference is a Single Verse? - No "-"
                     if self.verse_start == self.verse_end:
-                        return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1}"
+                        return (
+                            f"{Bible_Books[self.book_start]} "
+                            f"{self.chapter_start + 1}:{self.verse_start + 1}"
+                        )
                     # Reference is Multiple Verses - Yes "-"
                     else:
-                        return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1}-{self.verse_end + 1}"
+                        return (
+                            f"{Bible_Books[self.book_start]} "
+                            f"{self.chapter_start + 1}:"
+                            f"{self.verse_start + 1}-{self.verse_end + 1}"
+                        )
                 # Reference Spread Over Multiple Chapters - 2 ":"s
                 else:
-                    return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1}-{self.chapter_end + 1}:{self.verse_end + 1}"
+                    return (
+                        f"{Bible_Books[self.book_start]} "
+                        f"{self.chapter_start + 1}:{self.verse_start + 1}-"
+                        f"{self.chapter_end + 1}:{self.verse_end + 1}"
+                    )
         # Multiple Book Reference - Print Both Book Names
         else:
             # Both Books are Single Chapter Books? - No ":"s
             if len(Bible[self.book_start]) == 1 and len(Bible[self.book_end]) == 1:
-                return f"{Bible_Books[self.book_start]} {self.verse_start + 1} - {Bible_Books[self.book_end]} {self.verse_end + 1}"
+                return (
+                    f"{Bible_Books[self.book_start]} {self.verse_start + 1} "
+                    f"- {Bible_Books[self.book_end]} {self.verse_end + 1}"
+                )
             # Only First Book is a Single Chapter Book? - No ":" at Start
             elif len(Bible[self.book_start]) == 1:
-                return f"{Bible_Books[self.book_start]} {self.verse_start + 1} - {Bible_Books[self.book_end]} {self.chapter_end + 1}:{self.verse_end + 1}"
+                return (
+                    f"{Bible_Books[self.book_start]} {self.verse_start + 1} "
+                    f"- {Bible_Books[self.book_end]} {self.chapter_end + 1}:"
+                    f"{self.verse_end + 1}"
+                )
             # Only Last Book is a Single Chapter Book? - No ":" at End
             elif len(Bible[self.book_end]) == 1:
-                return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1} - {Bible_Books[self.book_end]} {self.verse_end + 1}"
+                return (
+                    f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:"
+                    f"{self.verse_start + 1} - {Bible_Books[self.book_end]} "
+                    f"{self.verse_end + 1}"
+                )
             # Neither Book is a Single Chapter Book - Two ":"s
             else:
-                return f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:{self.verse_start + 1} - {Bible_Books[self.book_end]} {self.chapter_end + 1}:{self.verse_end + 1}"
+                return (
+                    f"{Bible_Books[self.book_start]} {self.chapter_start + 1}:"
+                    f"{self.verse_start + 1} - {Bible_Books[self.book_end]} "
+                    f"{self.chapter_end + 1}:{self.verse_end + 1}"
+                )
