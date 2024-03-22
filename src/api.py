@@ -230,4 +230,3 @@ class API:
             ans = passage.show()
         else:
             ans = self.passage.show()
-

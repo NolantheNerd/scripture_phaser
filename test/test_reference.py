@@ -40,7 +40,7 @@ class ReferenceTests(BaseTest):
     """
     Test the Reference Object
     """
-    def test_clean_reference(self):
+    def test_standardize_reference(self):
         """
         Can reference strings be standardized?
         """
@@ -54,30 +54,85 @@ class ReferenceTests(BaseTest):
         ref2 = Reference(verse_string2)
         self.assertEqual(ref2.ref_str, expected_string2)
 
-        verse_string3 = "exodus 1-2"
-        expected_string3 = "Exodus 1 - 2"
+        verse_string3 = "exodus 1 -   2"
+        expected_string3 = "Exodus 1:1-2:25"
         ref3 = Reference(verse_string3)
         self.assertEqual(ref3.ref_str, expected_string3)
 
         verse_string4 = "First Peter - 2 peter 1 : 5"
-        expected_string4 = "1 Peter - 2 Peter 1:5"
+        expected_string4 = "1 Peter 1:1 - 2 Peter 1:5"
         ref4 = Reference(verse_string4)
         self.assertEqual(ref4.ref_str, expected_string4)
 
         verse_string5 = "psalm-proverbs"
-        expected_string5 = "Psalms - Proverbs"
+        expected_string5 = "Psalms 1:1 - Proverbs 31:31"
         ref5 = Reference(verse_string5)
         self.assertEqual(ref5.ref_str, expected_string5)
 
         verse_string6 = "Ezra 1 : 2-2 : 1"
-        expected_string6 = "Ezra 1:2 - 2:1"
+        expected_string6 = "Ezra 1:2-2:1"
         ref6 = Reference(verse_string6)
         self.assertEqual(ref6.ref_str, expected_string6)
 
         verse_string7 = "First Peter - 2 peter 1 : 5"
-        expected_string7 = "1 Peter - 2 Peter 1:5"
+        expected_string7 = "1 Peter 1:1 - 2 Peter 1:5"
         ref7 = Reference(verse_string7)
         self.assertEqual(ref7.ref_str, expected_string7)
+
+        verse_string8 = "First Peter 1:1 - 1 peter 1 : 5"
+        expected_string8 = "1 Peter 1:1-5"
+        ref8 = Reference(verse_string8)
+        self.assertEqual(ref8.ref_str, expected_string8)
+
+        verse_string9 = "1 Peter 1:1 - 1 : 5"
+        expected_string9 = "1 Peter 1:1-5"
+        ref9 = Reference(verse_string9)
+        self.assertEqual(ref9.ref_str, expected_string9)
+
+        verse_string10 = "1 Peter 1:1 - 2 peter 1 : 5"
+        expected_string10 = "1 Peter 1:1 - 2 Peter 1:5"
+        ref10 = Reference(verse_string10)
+        self.assertEqual(ref10.ref_str, expected_string10)
+
+        verse_string11 = "1pet1:1 -2 pet 1 : 5"
+        expected_string11 = "1 Peter 1:1 - 2 Peter 1:5"
+        ref11 = Reference(verse_string11)
+        self.assertEqual(ref11.ref_str, expected_string11)
+
+        verse_string12 = "philem 10 - pHiLeM 11"
+        expected_string12 = "Philemon 10-11"
+        ref12 = Reference(verse_string12)
+        self.assertEqual(ref12.ref_str, expected_string12)
+
+        verse_string13 = "First  Peter -  2  peter  1  :  5"
+        expected_string13 = "1 Peter 1:1 - 2 Peter 1:5"
+        ref13 = Reference(verse_string13)
+        self.assertEqual(ref13.ref_str, expected_string13)
+
+        verse_string14 = "1 Peter 1:1 - 2 : 5"
+        expected_string14 = "1 Peter 1:1-2:5"
+        ref14 = Reference(verse_string14)
+        self.assertEqual(ref14.ref_str, expected_string14)
+
+        verse_string15 = "1Peter1:1 - 2 : 5"
+        expected_string15 = "1 Peter 1:1-2:5"
+        ref15 = Reference(verse_string15)
+        self.assertEqual(ref15.ref_str, expected_string15)
+
+        verse_string16 = "Obadiah 5 - Jude 20"
+        expected_string16 = "Obadiah 5 - Jude 20"
+        ref16 = Reference(verse_string16)
+        self.assertEqual(ref16.ref_str, expected_string16)
+
+        verse_string17 = "Obadiah5-Jonah2:2"
+        expected_string17 = "Obadiah 5 - Jonah 2:2"
+        ref17 = Reference(verse_string17)
+        self.assertEqual(ref17.ref_str, expected_string17)
+
+        verse_string18 = "1 John 1:1 - 2 John 13"
+        expected_string18 = "1 John 1:1 - 2 John 13"
+        ref18 = Reference(verse_string18)
+        self.assertEqual(ref18.ref_str, expected_string18)
 
     def test_interpret_reference(self):
         """

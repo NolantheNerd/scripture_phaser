@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from unicodedata import normalize
 from src.enums import Bible
 from src.enums import Bible_Books
 from src.enums import Reverse_Bible_Books

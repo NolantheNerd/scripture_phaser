@@ -181,7 +181,7 @@ class PassageTests(BaseTest):
         'you. \nBlessed be the God and Father of our Lord Jesus Christ! ' + \
         'According to his great mercy, he has caused us to be born again to a ' + \
         'living hope through the resurrection of Jesus Christ from the dead, ' + \
-        '- 1 Peter 1:2 - 1:3'
+        '- 1 Peter 1:2-3'
 
         expected_full = '[2] according to the foreknowledge of God the Father, ' + \
         'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
@@ -189,7 +189,7 @@ class PassageTests(BaseTest):
         'you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
         'According to his great mercy, he has caused us to be born again to a ' + \
         'living hope through the resurrection of Jesus Christ from the dead, ' + \
-        '- 1 Peter 1:2 - 1:3'
+        '- 1 Peter 1:2-3'
 
         passage.populate()
 
