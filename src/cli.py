@@ -157,31 +157,31 @@ class CLISTR:
 
     @staticmethod
     def REFERENCE_PROMPT():
-        return f"{TC.PINK}Reference: {TC.WHITE}"
+        return f"Reference: "
 
     @staticmethod
     def TRANSLATION_PROMPT():
-        return f"{TC.PINK}Translation: {TC.WHITE}"
+        return f"Translation: "
 
     @staticmethod
     def SET_START_DATE():
-        return f"{TC.PINK}Set Start Date to Filter by: (Leave Blank to Unset){TC.WHITE}"
+        return f"Set Start Date to Filter by: (Leave Blank to Unset)"
 
     @staticmethod
     def SET_END_DATE():
-        return f"{TC.PINK}Set End Date to Filter by: (Leave Blank to Unset):{TC.WHITE}"
+        return f"Set End Date to Filter by: (Leave Blank to Unset):"
 
     @staticmethod
     def YEAR_PROMPT():
-        return f"{TC.PINK}Year (yyyy): {TC.WHITE}"
+        return f"Year (yyyy): "
 
     @staticmethod
     def MONTH_PROMPT():
-        return f"{TC.PINK}Month (mm): {TC.WHITE}"
+        return f"Month (mm): "
 
     @staticmethod
     def DAY_PROMPT():
-        return f"{TC.PINK}Day (dd): {TC.WHITE}"
+        return f"Day (dd): "
 
     @staticmethod
     def NO_EDITOR():
@@ -192,10 +192,10 @@ class CLISTR:
             f"{TC.CYAN}Fast Recitation Mode{TC.WHITE}."
         )
 
-    def START_DATE(self): return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
+    def START_DATE(self): return f"Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
 
     def END_DATE(self):
-        return f"{TC.PINK}End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
+        return f"End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
 
     def ALL_ATTEMPTED_VERSES(self):
         start = self.api.stats.start_date
@@ -275,10 +275,10 @@ class CLISTR:
         return f"Toggled fast recitations to {TC.YELLOW}{self.api.fast_recitations}{TC.WHITE}"
 
     def INVALID_TRANSLATION(self):
-        return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
+        return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.YELLOW}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
     def AVAILABLE_TRANSLATIONS(self):
-        return f"Available Translations:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
+        return f"Available Translations:\n{TC.YELLOW}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
     def PASSAGE(self):
         return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
