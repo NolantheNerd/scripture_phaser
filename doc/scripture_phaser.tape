@@ -19,7 +19,7 @@ Type r
 Sleep 800ms
 Enter
 Sleep 1000ms
-Type "Ephesians 2:8-9"
+Type "Eph 2:8-9"
 Sleep 1000ms
 Enter
 Sleep 2000ms
@@ -34,16 +34,17 @@ Sleep 1200ms
 Enter
 Sleep 1000ms
 
-Type i
-Type "For by grace you have been saved. And this is not your own doing, it is the gift of God, not a result of your works, so that no one may boast."
-Type ""
+Type@500ms "FbgyhbstfAtinyodiitgoGnaroa"
+Sleep 2000ms
+Type@500ms "d"
+Sleep 2000ms
+Type@500ms "stnomb"
 Sleep 5000ms
-Type ":wq"
-Sleep 500ms
-Enter
-Sleep 12000ms
 
 Type "s"
+Enter
+Sleep 10000ms
+Type "r"
 Sleep 800ms
 Enter
 Sleep 10000ms

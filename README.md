@@ -2,7 +2,7 @@
 
 scripture_phaser helps you to memorize the Bible.
 
-![scripture_phaser Demo](demo.gif)
+![scripture_phaser Demo](doc/demo.gif)
 
 ## Installation
 
