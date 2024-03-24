@@ -8,11 +8,11 @@ scripture_phaser helps you to memorize the Bible.
 
 This package is available through PIP:
 
-pip install scripture_phaser
+`pip install scripture_phaser`
 
 ## Usage
 
-scripture_phaser [-h] [--version] [--license]
+`scripture_phaser [-h] [--version] [--license]`
 
 Running scripture_phaser with no arguments launches the interactive CLI.
 
@@ -55,7 +55,7 @@ You can enter fast recitation mode if you have fast recitations set to True and 
 
 ## Uninstallation
 
-pip uninstall scripture_phaser
+`pip uninstall scripture_phaser`
 
 ## What's up with the Name?
 
