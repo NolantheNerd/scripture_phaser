@@ -192,6 +192,10 @@ class CLISTR:
             f"{TC.CYAN}Fast Recitation Mode{TC.WHITE}."
         )
 
+    @staticmethod
+    def EXIT_TO_NORMAL_MODE():
+        return "Exiting to Normal Mode!"
+
     def START_DATE(self): return f"Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
 
     def END_DATE(self):
@@ -379,6 +383,7 @@ class CLI:
             try:
                 key = readchar.readkey()
             except KeyboardInterrupt:
+                print(self.messages.EXIT_TO_NORMAL_MODE())
                 break
 
             if key == "?":
@@ -409,11 +414,9 @@ class CLI:
             print("Last Key:", key_press)
 
             if i == len(passage_words):
+                score = self.api.finish_recitation(ref, recitation)
+                print(self.messages.FAST_SCORE(score))
                 break
-
-        score = self.api.finish_recitation(ref, recitation)
-
-        print(self.messages.FAST_SCORE(score))
 
     def text_recitation(self, ref):
         if self.editor == None:
