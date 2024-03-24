@@ -43,6 +43,7 @@ from src.enums import App
 from difflib import SequenceMatcher
 from src.enums import TermColours as TC
 from src.exceptions import EditorNotFound
+from src.exceptions import InvalidDateFilter
 from src.exceptions import InvalidTranslation
 
 
@@ -103,6 +104,10 @@ class CLISTR:
         )
 
     @staticmethod
+    def CLEAR_STATS_FILTERS():
+        return f"Clearing start date and end date filters."
+
+    @staticmethod
     def STATS_RESET():
         return f"Statistics reset{TC.WHITE}"
 
@@ -136,6 +141,8 @@ class CLISTR:
             "controlled using:\n"
             f"\t{TC.BLUE}SD{TC.WHITE} - Set the start date used to filter your statistics\n"
             f"\t{TC.BLUE}ED{TC.WHITE} - Set the end date used to filter your statistics\n"
+            f"\t{TC.BLUE}L{TC.WHITE}  - Show all filters and their values\n"
+            f"\t{TC.BLUE}C{TC.WHITE}  - Clear all filters\n"
             f"\t{TC.BLUE}A{TC.WHITE}  - List all verses attempted\n"
             f"\t{TC.BLUE}R{TC.WHITE}  - Rank all attempted passages by average score\n"
             f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics"
@@ -556,6 +563,11 @@ class CLI:
                 print(self.messages.START_DATE())
                 print(self.messages.END_DATE())
 
+            # Clear Filters
+            elif user_input == "c" or user_input == "clear":
+                print(self.messages.CLEAR_STATS_FILTERS())
+                self.api.stats.clear_filters()
+
             # Set Start Date
             elif user_input == "sd" or user_input == "start":
                 print(self.messages.SET_START_DATE())
@@ -564,12 +576,15 @@ class CLI:
                 day = input(self.messages.DAY_PROMPT())
 
                 if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
-                    self.api.stats.start_date = None
+                    self.api.stats.set_start_date(None)
                 else:
                     try:
-                        self.api.stats.start_date = datetime.date(int(year), int(month), int(day))
+                        self.api.stats.set_start_date(datetime.date(int(year), int(month), int(day)))
                     except ValueError as e:
                         print(e.__str__().capitalize())
+
+                    except InvalidDateFilter as e:
+                        print(e.__str__())
 
             # Set End Date
             elif user_input == "ed" or user_input == "end":
@@ -579,13 +594,16 @@ class CLI:
                 day = input(self.messages.DAY_PROMPT())
 
                 if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
-                    self.api.stats.start_date = None
+                    self.api.stats.set_end_date(None)
                 else:
                     try:
-                        self.api.stats.end_date = datetime.date(int(year), int(month), int(day))
+                        self.api.stats.set_end_date(datetime.date(int(year), int(month), int(day)))
 
                     except ValueError as e:
                         print(e.__str__().capitalize())
+
+                    except InvalidDateFilter as e:
+                        print(e.__str__())
 
             # See All Attempted Verses
             elif user_input == "a" or user_input == "all":

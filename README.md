@@ -40,6 +40,7 @@ You can enter statistics mode by pressing "s" in standard mode ("\[STATS\] >" pr
 * sd/start      - Sets the earliest date to use when fetching past recitation attempts
 * ed/end        - Sets the latest date to use when fetching past recitation attempts
 * l/list        - List current filters used in data selection (start/end date)
+* c/clear       - Clears all current filters used in data selection (start/end date)
 * a/all         - List all references ever attempted
 * r/rank        - Rank all attempted verses by average recall accuracy
 * d/delete      - Reset all statistics
