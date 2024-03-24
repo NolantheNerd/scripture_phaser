@@ -32,6 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import random
+from unittest.mock import patch
 from unittest.mock import MagicMock
 from test.test_base import BaseTest
 from src.api import API
@@ -97,7 +98,9 @@ class APITests(BaseTest):
         api.get_recitation_ans = MagicMock()
         api.get_recitation_ans.return_value = correct_string
 
-        score = api.finish_recitation(api.reference, attempt_string)
+        # Prevent this test from adding entries into the DB
+        with patch("src.api.Attempt"):
+            score = api.finish_recitation(api.reference, attempt_string)
 
         self.assertAlmostEqual(expected_score, score)
 
