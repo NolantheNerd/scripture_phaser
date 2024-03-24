@@ -18,6 +18,6 @@ For the sake of consistency, this is how a release of scripture_phaser should be
 
 8. Tag the commit on the `MAJOR.MINOR.x` branch with the MAJOR.MINOR.PATCH version number. `git tag MAJOR.MINOR.PATCH COMMIT`
 
-9. Push the tag to GitHub. `git push tag MAJOR.MINOR.PATCH`.
+9. Push the tag to GitHub. `git push origin MAJOR.MINOR.PATCH`.
 
 10. Create a release on GitHub by clicking the tags button to the right of the branch selection dropdown. Provide a detailed description of the release and select the tag that was just pushed to mark the release. Upload the contents of the dist folder in the scripture_phaser directory to the release.
