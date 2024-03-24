@@ -33,6 +33,7 @@
 
 import datetime
 from src.models import Attempt
+from src.exceptions import InvalidDateFilter
 
 
 class Stats:
@@ -45,6 +46,24 @@ class Stats:
         if Attempt.table_exists():
             Attempt.drop_table()
         Attempt.create_table()
+
+    def clear_filters(self):
+        self.start_date = None
+        self.end_date = None
+
+    def validate_filters(self):
+        if self.start_date is not None and self.end_date is not None:
+            if self.start_date > self.end_date:
+                self.clear_filters()
+                raise InvalidDateFilter()
+
+    def set_start_date(self, date=None):
+        self.start_date = date
+        self.validate_filters()
+
+    def set_end_date(self, date=None):
+        self.end_date = date
+        self.validate_filters()
 
     def apply_filters(self, query):
         if self.start_date is not None:

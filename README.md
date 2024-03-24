@@ -2,27 +2,30 @@
 
 scripture_phaser helps you to memorize the Bible.
 
-![scripture_phaser Demo](demo.gif)
+![scripture_phaser Demo](doc/demo.gif)
 
 ## Installation
 
 This package is available through PIP:
 
-pip install scripture_phaser
+`pip install scripture_phaser`
 
 ## Usage
 
-scripture_phaser [-h] [--version] [--license]
+`scripture_phaser [-h] [--version] [--license]`
 
 Running scripture_phaser with no arguments launches the interactive CLI.
 
 ### Commands
 
-From the interactive CLI (standard mode), the following commands are available:
+scripture_phaser has a modal CLI. This means that the commands that are available to you vary depending on which mode you are in.
 
-* l/list        - Lists selected reference, random single verse selection, translation and whether or not to show the passage numbers
+When you first start scripture_phaser, you are dropped into the standard mode (">" prompt) and have the following commands are available to you:
+
+* l/list        - Lists selected reference, random single verse selection, translation, whether or not to show the passage numbers and whether or not fast recitation mode is selected
 * n/numbers     - Toggles whether or not to include the passage numbers
 * m/single      - Toggles whether or not to practice random single verses
+* f/fast        - Toggles whether or not to use fast recitation mode when reciting
 * r/reference   - Sets the reference
 * t/translation - Set the translation
 * i/inquire     - List available translations
@@ -32,19 +35,27 @@ From the interactive CLI (standard mode), the following commands are available:
 * h/help        - Prints this help message
 * q/quit        - Quits scripture_phaser
 
-In the statistics mode, the following commands are available:
+You can enter statistics mode by pressing "s" in standard mode ("\[STATS\] >" prompt). In statistics mode, the following commands are available to you:
 
-* sd/start      - Sets the earliest date to accept when fetching past recitation attempts
-* ed/end        - Sets the latest date to accept when fetching past recitation attempts
+* sd/start      - Sets the earliest date to use when fetching past recitation attempts
+* ed/end        - Sets the latest date to use when fetching past recitation attempts
+* l/list        - List current filters used in data selection (start/end date)
+* c/clear       - Clears all current filters used in data selection (start/end date)
 * a/all         - List all references ever attempted
 * r/rank        - Rank all attempted verses by average recall accuracy
 * d/delete      - Reset all statistics
 * h/help        - Prints stats mode help message
 * q/quit        - Return to the standard mode
 
+You can enter fast recitation mode if you have fast recitations set to True and you press "p" to practice the passage (blank prompt). In fast recitation mode, the following commands are available to you:
+
+* a-z A-Z 0-9   - Advances the recitation of the verse by one word
+* ?             - Prints fast mode help message
+* Ctrl + C      - Return to standard mode
+
 ## Uninstallation
 
-pip uninstall scripture_phaser
+`pip uninstall scripture_phaser`
 
 ## What's up with the Name?
 

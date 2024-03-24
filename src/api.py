@@ -219,9 +219,8 @@ class API:
             passage = self.passage
 
         raw_text = passage.show()
-        if self.require_passage_numbers:
-            raw_text = raw_text.replace("[", "")
-        return [word[0] for word in raw_text.split()]
+        text = "".join([char for char in raw_text if char.isalnum() or char.isspace()])
+        return [word[0] for word in text.split()]
 
     def get_recitation_ans(self, reference):
         if self.random_single_verse:

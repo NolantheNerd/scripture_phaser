@@ -43,6 +43,7 @@ from src.enums import App
 from difflib import SequenceMatcher
 from src.enums import TermColours as TC
 from src.exceptions import EditorNotFound
+from src.exceptions import InvalidDateFilter
 from src.exceptions import InvalidTranslation
 
 
@@ -103,6 +104,10 @@ class CLISTR:
         )
 
     @staticmethod
+    def CLEAR_STATS_FILTERS():
+        return f"Clearing start date and end date filters."
+
+    @staticmethod
     def STATS_RESET():
         return f"Statistics reset{TC.WHITE}"
 
@@ -136,6 +141,8 @@ class CLISTR:
             "controlled using:\n"
             f"\t{TC.BLUE}SD{TC.WHITE} - Set the start date used to filter your statistics\n"
             f"\t{TC.BLUE}ED{TC.WHITE} - Set the end date used to filter your statistics\n"
+            f"\t{TC.BLUE}L{TC.WHITE}  - Show all filters and their values\n"
+            f"\t{TC.BLUE}C{TC.WHITE}  - Clear all filters\n"
             f"\t{TC.BLUE}A{TC.WHITE}  - List all verses attempted\n"
             f"\t{TC.BLUE}R{TC.WHITE}  - Rank all attempted passages by average score\n"
             f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics"
@@ -157,31 +164,31 @@ class CLISTR:
 
     @staticmethod
     def REFERENCE_PROMPT():
-        return f"{TC.PINK}Reference: {TC.WHITE}"
+        return f"Reference: "
 
     @staticmethod
     def TRANSLATION_PROMPT():
-        return f"{TC.PINK}Translation: {TC.WHITE}"
+        return f"Translation: "
 
     @staticmethod
     def SET_START_DATE():
-        return f"{TC.PINK}Set Start Date to Filter by: (Leave Blank to Unset){TC.WHITE}"
+        return f"Set Start Date to Filter by: (Leave Blank to Unset)"
 
     @staticmethod
     def SET_END_DATE():
-        return f"{TC.PINK}Set End Date to Filter by: (Leave Blank to Unset):{TC.WHITE}"
+        return f"Set End Date to Filter by: (Leave Blank to Unset):"
 
     @staticmethod
     def YEAR_PROMPT():
-        return f"{TC.PINK}Year (yyyy): {TC.WHITE}"
+        return f"Year (yyyy): "
 
     @staticmethod
     def MONTH_PROMPT():
-        return f"{TC.PINK}Month (mm): {TC.WHITE}"
+        return f"Month (mm): "
 
     @staticmethod
     def DAY_PROMPT():
-        return f"{TC.PINK}Day (dd): {TC.WHITE}"
+        return f"Day (dd): "
 
     @staticmethod
     def NO_EDITOR():
@@ -192,10 +199,14 @@ class CLISTR:
             f"{TC.CYAN}Fast Recitation Mode{TC.WHITE}."
         )
 
-    def START_DATE(self): return f"{TC.PINK}Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
+    @staticmethod
+    def EXIT_TO_NORMAL_MODE():
+        return "Exiting to Normal Mode!"
+
+    def START_DATE(self): return f"Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
 
     def END_DATE(self):
-        return f"{TC.PINK}End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
+        return f"End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
 
     def ALL_ATTEMPTED_VERSES(self):
         start = self.api.stats.start_date
@@ -275,10 +286,10 @@ class CLISTR:
         return f"Toggled fast recitations to {TC.YELLOW}{self.api.fast_recitations}{TC.WHITE}"
 
     def INVALID_TRANSLATION(self):
-        return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
+        return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.YELLOW}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
     def AVAILABLE_TRANSLATIONS(self):
-        return f"Available Translations:\n{TC.BLUE}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
+        return f"Available Translations:\n{TC.YELLOW}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
     def PASSAGE(self):
         return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
@@ -379,6 +390,7 @@ class CLI:
             try:
                 key = readchar.readkey()
             except KeyboardInterrupt:
+                print(self.messages.EXIT_TO_NORMAL_MODE())
                 break
 
             if key == "?":
@@ -409,11 +421,9 @@ class CLI:
             print("Last Key:", key_press)
 
             if i == len(passage_words):
+                score = self.api.finish_recitation(ref, recitation)
+                print(self.messages.FAST_SCORE(score))
                 break
-
-        score = self.api.finish_recitation(ref, recitation)
-
-        print(self.messages.FAST_SCORE(score))
 
     def text_recitation(self, ref):
         if self.editor == None:
@@ -553,6 +563,11 @@ class CLI:
                 print(self.messages.START_DATE())
                 print(self.messages.END_DATE())
 
+            # Clear Filters
+            elif user_input == "c" or user_input == "clear":
+                print(self.messages.CLEAR_STATS_FILTERS())
+                self.api.stats.clear_filters()
+
             # Set Start Date
             elif user_input == "sd" or user_input == "start":
                 print(self.messages.SET_START_DATE())
@@ -561,12 +576,15 @@ class CLI:
                 day = input(self.messages.DAY_PROMPT())
 
                 if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
-                    self.api.stats.start_date = None
+                    self.api.stats.set_start_date(None)
                 else:
                     try:
-                        self.api.stats.start_date = datetime.date(int(year), int(month), int(day))
+                        self.api.stats.set_start_date(datetime.date(int(year), int(month), int(day)))
                     except ValueError as e:
                         print(e.__str__().capitalize())
+
+                    except InvalidDateFilter as e:
+                        print(e.__str__())
 
             # Set End Date
             elif user_input == "ed" or user_input == "end":
@@ -576,13 +594,16 @@ class CLI:
                 day = input(self.messages.DAY_PROMPT())
 
                 if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
-                    self.api.stats.start_date = None
+                    self.api.stats.set_end_date(None)
                 else:
                     try:
-                        self.api.stats.end_date = datetime.date(int(year), int(month), int(day))
+                        self.api.stats.set_end_date(datetime.date(int(year), int(month), int(day)))
 
                     except ValueError as e:
                         print(e.__str__().capitalize())
+
+                    except InvalidDateFilter as e:
+                        print(e.__str__())
 
             # See All Attempted Verses
             elif user_input == "a" or user_input == "all":
