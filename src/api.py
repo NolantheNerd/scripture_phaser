@@ -209,6 +209,8 @@ class API:
             datetime=datetime.datetime.now()
         )
 
+        self.stats.num_attempts_past_year += 1
+
         return score
 
     def get_fast_recitation_ans(self, reference):

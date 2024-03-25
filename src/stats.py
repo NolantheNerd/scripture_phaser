@@ -39,6 +39,7 @@ from src.exceptions import InvalidDateFilter
 class Stats:
     def __init__(self):
         self.streak = self.get_streak()
+        self.num_attempts_past_year = self.get_num_attempts_past_year()
 
         # Filters
         self.start_date = None
@@ -65,6 +66,11 @@ class Stats:
                 break
 
         return streak
+
+    @staticmethod
+    def get_num_attempts_past_year():
+        one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
+        return Attempt.select().where(Attempt.datetime > one_year_ago).count()
 
     def clear_filters(self):
         self.start_date = None
