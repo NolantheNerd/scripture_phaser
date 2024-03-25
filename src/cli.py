@@ -46,14 +46,12 @@ from src.exceptions import EditorNotFound
 from src.exceptions import InvalidDateFilter
 from src.exceptions import InvalidTranslation
 
+NUM_DAYS_FOR_GOOD_STREAK = 7
+
 
 class CLISTR:
     def __init__(self, api):
         self.api = api
-
-    @staticmethod
-    def CLI_PROMPT():
-        return "> "
 
     @staticmethod
     def STATS_CLI_PROMPT():
@@ -202,6 +200,14 @@ class CLISTR:
     @staticmethod
     def EXIT_TO_NORMAL_MODE():
         return "Exiting to Normal Mode!"
+
+    def CLI_PROMPT(self):
+        if self.api.stats.streak == 1:
+            return f"[STREAK: {TC.RED}{self.api.stats.streak} day{TC.WHITE}] > "
+        elif self.api.stats.streak == 0 or self.api.stats.streak < NUM_DAYS_FOR_GOOD_STREAK:
+            return f"[STREAK: {TC.RED}{self.api.stats.streak} days{TC.WHITE}] > "
+        else:
+            return f"[STREAK: {TC.GREEN}{self.api.stats.streak} days{TC.WHITE}] > "
 
     def START_DATE(self): return f"Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
 

@@ -38,6 +38,9 @@ from src.exceptions import InvalidDateFilter
 
 class Stats:
     def __init__(self):
+        self.streak = self.get_streak()
+
+        # Filters
         self.start_date = None
         self.end_date = None
 
@@ -46,6 +49,22 @@ class Stats:
         if Attempt.table_exists():
             Attempt.drop_table()
         Attempt.create_table()
+
+    @staticmethod
+    def get_streak():
+        datetimes = Attempt.select(Attempt.datetime).order_by(Attempt.datetime.desc())
+        dates = {datetime.date() for datetime in datetimes}
+
+        streak = 0
+        date = datetime.date.today()
+        while True:
+            if date in dates:
+                streak += 1
+                date -= datetime.timedelta(days=1)
+            else:
+                break
+
+        return streak
 
     def clear_filters(self):
         self.start_date = None
