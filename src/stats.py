@@ -32,14 +32,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import datetime
+from peewee import fn
 from src.models import Attempt
 from src.exceptions import InvalidDateFilter
 
 
 class Stats:
     def __init__(self):
-        self.streak = self.get_streak()
-        self.num_attempts_past_year = self.get_num_attempts_past_year()
+        if not Attempt.table_exists():
+            Attempt.create_table()
 
         # Filters
         self.start_date = None
@@ -54,7 +55,7 @@ class Stats:
     @staticmethod
     def get_streak():
         datetimes = Attempt.select(Attempt.datetime).order_by(Attempt.datetime.desc())
-        dates = {datetime.date() for datetime in datetimes}
+        dates = {dt.datetime.date() for dt in datetimes}
 
         streak = 0
         date = datetime.date.today()
@@ -71,6 +72,22 @@ class Stats:
     def get_num_attempts_past_year():
         one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
         return Attempt.select().where(Attempt.datetime > one_year_ago).count()
+
+    @staticmethod
+    def get_num_attempts_past_year_by_day():
+        today = datetime.date.today()
+        one_year_ago = today - datetime.timedelta(days=365)
+        results = {today - datetime.timedelta(days=i): 0 for i in range(365)}
+        day_counts = Attempt \
+            .select(
+                Attempt.datetime,
+                fn.COUNT(Attempt.id).alias("num")
+            ) \
+            .where(Attempt.datetime > one_year_ago) \
+            .group_by(fn.date_trunc("day", Attempt.datetime)) \
+            .order_by(Attempt.datetime)
+        results.update({day.datetime.date(): day.num for day in day_counts})
+        return results
 
     def clear_filters(self):
         self.start_date = None

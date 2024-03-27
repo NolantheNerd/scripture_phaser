@@ -31,6 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import pdb
 import os
 import platform
 import readchar
@@ -47,11 +48,16 @@ from src.exceptions import InvalidDateFilter
 from src.exceptions import InvalidTranslation
 
 NUM_DAYS_FOR_GOOD_STREAK = 7
+GOOD_YEARLY_ATTEMPT_COUNT = 180
 
 
 class CLISTR:
     def __init__(self, api):
         self.api = api
+
+    @staticmethod
+    def CLI_PROMPT():
+        return "> "
 
     @staticmethod
     def STATS_CLI_PROMPT():
@@ -201,14 +207,6 @@ class CLISTR:
     def EXIT_TO_NORMAL_MODE():
         return "Exiting to Normal Mode!"
 
-    def CLI_PROMPT(self):
-        if self.api.stats.streak == 1:
-            return f"[STREAK: {TC.RED}{self.api.stats.streak} day{TC.WHITE}] > "
-        elif self.api.stats.streak == 0 or self.api.stats.streak < NUM_DAYS_FOR_GOOD_STREAK:
-            return f"[STREAK: {TC.RED}{self.api.stats.streak} days{TC.WHITE}] > "
-        else:
-            return f"[STREAK: {TC.GREEN}{self.api.stats.streak} days{TC.WHITE}] > "
-
     def START_DATE(self): return f"Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
 
     def END_DATE(self):
@@ -266,6 +264,168 @@ class CLISTR:
                     string += f"({TC.RED}{score}%{TC.WHITE}) {ref}\n"
             string = string[:-1]
         return string
+
+    def STATS_GAMIFICATION(self):
+        streak = self.api.stats.get_streak()
+        if streak < NUM_DAYS_FOR_GOOD_STREAK:
+            streak_str = f"Current Recititation Streak is {TC.RED}{streak}{TC.WHITE}."
+        else:
+            streak_str = f"Current Recitation Streak is {TC.GREEN}{streak}{TC.WHITE}!"
+
+        past_year_attempt_count = self.api.stats.get_num_attempts_past_year()
+        if past_year_attempt_count < GOOD_YEARLY_ATTEMPT_COUNT:
+            past_year_attempt_count_str = f"{TC.RED}{past_year_attempt_count}{TC.WHITE} recitations in the past year."
+        else:
+            past_year_attempt_count_str = f"{TC.GREEN}{past_year_attemp_count}{TC.WHITE} recitations in the past year!"
+
+        attempts_by_day = self.api.stats.get_num_attempts_past_year_by_day()
+
+        today = datetime.date.today()
+        blank, few, some, many = "X", "\u2591", "\u2592", "\u2593"
+        first_day = min(attempts_by_day.keys())
+        max_attempts = max(attempts_by_day.values())
+        few_some = max_attempts / 3
+        some_many = 2 * max_attempts / 3
+        mon, tue, wed, thr, fri, sat, sun = "MON ", "TUE ", "WED ", "THR ", "FRI ", "SAT ", "SUN "
+        if first_day.weekday() == 6:
+            mon += blank
+        elif first_day.weekday() == 5:
+            mon += blank
+            tue += blank
+        elif first_day.weekday() == 4:
+            mon += blank
+            tue += blank
+            wed += blank
+        elif first_day.weekday() == 3:
+            mon += blank
+            tue += blank
+            wed += blank
+            thr += blank
+        elif first_day.weekday() == 2:
+            mon += blank
+            tue += blank
+            wed += blank
+            thr += blank
+            fri += blank
+        elif first_day.weekday() == 1:
+            mon += blank
+            tue += blank
+            wed += blank
+            thr += blank
+            fri += blank
+            sat += blank
+
+        first_monday = first_day + datetime.timedelta(days=(7 - first_day.weekday())%7)
+        first_tuesday = first_day if first_day == 1 else first_monday - datetime.timedelta(days=1)
+        first_wednesday = first_day if first_day == 2 else first_monday - datetime.timedelta(days=2)
+        first_thursday = first_day if first_day == 3 else first_monday - datetime.timedelta(days=3)
+        first_friday = first_day if first_day == 4 else first_monday - datetime.timedelta(days=4)
+        first_saturday = first_day if first_day == 5 else first_monday - datetime.timedelta(days=5)
+        first_sunday = first_day if first_day == 6 else first_monday - datetime.timedelta(days=6)
+
+        # Monday
+        date = first_monday
+        while date <= today:
+            if attempts_by_day[date] == 0:
+                mon += blank
+            elif attempts_by_day[date] <= few_some:
+                mon += few
+            elif attempts_by_day[date] <= some_many:
+                mon += some
+            else:
+                mon += many
+
+            date += datetime.timedelta(days=7)
+
+        # Tuesday
+        date = first_tuesday
+        while date <= today:
+            if attempts_by_day[date] == 0:
+                tue += blank
+            elif attempts_by_day[date] <= few_some:
+                tue += few
+            elif attempts_by_day[date] <= some_many:
+                tue += some
+            else:
+                tue += many
+
+            date += datetime.timedelta(days=7)
+
+        # Wednesday
+        date = first_wednesday
+        while date <= today:
+            if attempts_by_day[date] == 0:
+                wed += blank
+            elif attempts_by_day[date] <= few_some:
+                wed += few
+            elif attempts_by_day[date] <= some_many:
+                wed += some
+            else:
+                wed += many
+
+            date += datetime.timedelta(days=7)
+
+        # Thursday
+        date = first_thursday
+        while date <= today:
+            if attempts_by_day[date] == 0:
+                thr += blank
+            elif attempts_by_day[date] <= few_some:
+                thr += few
+            elif attempts_by_day[date] <= some_many:
+                thr += some
+            else:
+                thr += many
+
+            date += datetime.timedelta(days=7)
+
+        # Friday
+        date = first_friday
+        while date <= today:
+            if attempts_by_day[date] == 0:
+                fri += blank
+            elif attempts_by_day[date] <= few_some:
+                fri += few
+            elif attempts_by_day[date] <= some_many:
+                fri += some
+            else:
+                fri += many
+
+            date += datetime.timedelta(days=7)
+
+        # Saturday
+        date = first_saturday
+        while date <= today:
+            if attempts_by_day[date] == 0:
+                sat += blank
+            elif attempts_by_day[date] <= few_some:
+                sat += few
+            elif attempts_by_day[date] <= some_many:
+                sat += some
+            else:
+                sat += many
+
+            date += datetime.timedelta(days=7)
+
+        # Sunday
+        date = first_sunday
+        while date <= today:
+            if attempts_by_day[date] == 0:
+                sun += blank
+            elif attempts_by_day[date] <= few_some:
+                sun += few
+            elif attempts_by_day[date] <= some_many:
+                sun += some
+            else:
+                sun += many
+
+            date += datetime.timedelta(days=7)
+
+        return (
+            f"{streak_str}\n"
+            f"{past_year_attempt_count_str}\n\n"
+            f"{mon}\n{tue}\n{wed}\n{thr}\n{fri}\n{sat}\n{sun}"
+        )
 
     def REFERENCE(self):
         return f"Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
@@ -618,6 +778,10 @@ class CLI:
             # See All Verses Ranked By Score
             elif user_input == "r" or user_input == "rank":
                 print(self.messages.ALL_VERSES_RANKED())
+
+            # See Gamification Stats
+            elif user_input == "g" or user_input == "game":
+                print(self.messages.STATS_GAMIFICATION())
 
             # Reset Statistics
             elif user_input == "d" or user_input == "delete":
