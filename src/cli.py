@@ -376,7 +376,14 @@ class CLI:
 
     def fast_recitation(self, ref):
         ans = self.api.get_fast_recitation_ans(ref)
-        passage_words = self.api.passage.show().split()
+        if self.api.random_single_verse:
+            # @@@ TODO: The API should be able to pull a verse by reference
+            for verse in self.api.passage.verses:
+                if verse.reference.ref_str == ref.ref_str:
+                    passage_words = verse.text.split()
+                    break
+        else:
+            passage_words = self.api.passage.show().split()
 
         self.clear()
         print(f"[{TC.CYAN}{ref.ref_str}{TC.WHITE}]")
