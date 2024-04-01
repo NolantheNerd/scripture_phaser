@@ -59,10 +59,6 @@ class CLISTR:
         return "> "
 
     @staticmethod
-    def STATS_CLI_PROMPT():
-        return f"{TC.WHITE}[{TC.GREEN}STATS{TC.WHITE}] > "
-
-    @staticmethod
     def DESCRIPTION():
         return "scripture_phaser helps you to memorize the Bible."
 
@@ -90,13 +86,6 @@ class CLISTR:
         )
 
     @staticmethod
-    def WELCOME_STATS():
-        return (
-            f"You are now in the statistics viewer!\n"
-            f"To exit back to the main prompt, press 'q'."
-        )
-
-    @staticmethod
     def NO_REFERENCE():
         return f"Reference:{TC.RED} No reference set{TC.WHITE}"
 
@@ -105,10 +94,6 @@ class CLISTR:
         return (
             f"Are you sure that you want to reset your statistics? [{TC.RED}y{TC.WHITE}/{TC.GREEN}N{TC.WHITE}] "
         )
-
-    @staticmethod
-    def CLEAR_STATS_FILTERS():
-        return f"Clearing start date and end date filters."
 
     @staticmethod
     def STATS_RESET():
@@ -128,27 +113,11 @@ class CLISTR:
             f"\t{TC.BLUE}N{TC.WHITE} - Toggles whether or not to include the passage numbers\n"
             f"\t{TC.BLUE}P{TC.WHITE} - Practice the current reference\n"
             f"\t{TC.BLUE}R{TC.WHITE} - Sets the reference\n"
-            f"\t{TC.BLUE}S{TC.WHITE} - View your statistics\n"
+            f"\t{TC.BLUE}S{TC.WHITE} - View recitation statistics\n"
+            f"\t{TC.BLUE}D{TC.WHITE} - Deletes all past statistics\n"
             f"\t{TC.BLUE}T{TC.WHITE} - Set the translation\n"
             f"\t{TC.BLUE}V{TC.WHITE} - Preview current reference\n"
             f"\t{TC.BLUE}Q{TC.WHITE} - Quits"
-        )
-
-    @staticmethod
-    def STATS_HELP():
-        return (
-            f"This is the {TC.CYAN}Statistics Mode{TC.WHITE}.\n\n"
-            "Here you can view summary statistics based on your "
-            "past recitation attempts.\n\n"
-            f"The {TC.CYAN}Statistics Mode{TC.WHITE} can be "
-            "controlled using:\n"
-            f"\t{TC.BLUE}SD{TC.WHITE} - Set the start date used to filter your statistics\n"
-            f"\t{TC.BLUE}ED{TC.WHITE} - Set the end date used to filter your statistics\n"
-            f"\t{TC.BLUE}L{TC.WHITE}  - Show all filters and their values\n"
-            f"\t{TC.BLUE}C{TC.WHITE}  - Clear all filters\n"
-            f"\t{TC.BLUE}A{TC.WHITE}  - List all verses attempted\n"
-            f"\t{TC.BLUE}R{TC.WHITE}  - Rank all attempted passages by average score\n"
-            f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics"
         )
 
     @staticmethod
@@ -245,7 +214,7 @@ class CLISTR:
         return (
             f"{streak_str}\n"
             f"{past_year_attempt_count_str}\n\n"
-            f"{mon}\n{tue}\n{wed}\n{thr}\n{fri}\n{sat}\n{sun}"
+            f"{mon}\n{tue}\n{wed}\n{thr}\n{fri}\n{sat}\n{sun}\n"
         )
 
     def REFERENCE(self):
@@ -540,8 +509,8 @@ class CLI:
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
-                print(self.messages.ALL_VERSES_RANKED())
                 print(self.messages.STATS_GAMIFICATION())
+                print(self.messages.ALL_VERSES_RANKED())
 
             # Reset Statistics
             elif user_input == "d" or user_input == "delete":

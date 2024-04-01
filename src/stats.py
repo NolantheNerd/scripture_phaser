@@ -42,10 +42,6 @@ class Stats:
         if not Attempt.table_exists():
             Attempt.create_table()
 
-        # Filters
-        self.start_date = None
-        self.end_date = None
-
     @staticmethod
     def reset_db():
         if Attempt.table_exists():
@@ -93,13 +89,12 @@ class Stats:
 
         return results
 
-    def all_attempted_verses(self):
-        attempts = Attempt.select(Attempt.reference)
-        return {attempt.reference for attempt in attempts}
-
-    def all_verses_ranked(self):
+    @staticmethod
+    def all_verses_ranked():
         verses = {}
-        for ref in self.all_attempted_verses():
+        all_attempts = Attempt.select(Attempt.reference)
+        for reference in all_attempts:
+            ref = reference.reference
             attempts = Attempt.select(Attempt.score).where(Attempt.reference == ref)
             scores = [attempt.score for attempt in attempts]
             verses[ref] = sum(scores) / len(scores)
