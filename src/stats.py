@@ -91,11 +91,12 @@ class Stats:
 
     @staticmethod
     def all_verses_ranked():
-        verses = {}
+        verse_scores, verse_counts = {}, {}
         all_attempts = Attempt.select(Attempt.reference)
         for reference in all_attempts:
             ref = reference.reference
             attempts = Attempt.select(Attempt.score).where(Attempt.reference == ref)
             scores = [attempt.score for attempt in attempts]
-            verses[ref] = sum(scores) / len(scores)
-        return verses
+            verse_scores[ref] = sum(scores) / len(scores)
+            verse_counts[ref] = len(scores)
+        return verse_scores, verse_counts
