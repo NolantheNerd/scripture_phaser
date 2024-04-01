@@ -93,47 +93,14 @@ class Stats:
 
         return results
 
-    def clear_filters(self):
-        self.start_date = None
-        self.end_date = None
-
-    def validate_filters(self):
-        if self.start_date is not None and self.end_date is not None:
-            if self.start_date > self.end_date:
-                self.clear_filters()
-                raise InvalidDateFilter()
-
-    def set_start_date(self, date=None):
-        self.start_date = date
-        self.validate_filters()
-
-    def set_end_date(self, date=None):
-        self.end_date = date
-        self.validate_filters()
-
-    def apply_filters(self, query):
-        if self.start_date is not None:
-            query = query.where(Attempt.datetime >= self.start_date)
-        if self.end_date is not None:
-            query = query.where(Attempt.datetime <= self.end_date)
-        return query
-
     def all_attempted_verses(self):
-        attempts = self.apply_filters(Attempt.select(Attempt.reference))
+        attempts = Attempt.select(Attempt.reference)
         return {attempt.reference for attempt in attempts}
 
     def all_verses_ranked(self):
         verses = {}
         for ref in self.all_attempted_verses():
-            attempts = self.apply_filters(
-                Attempt.select(Attempt.score).where(Attempt.reference == ref)
-            )
+            attempts = Attempt.select(Attempt.score).where(Attempt.reference == ref)
             scores = [attempt.score for attempt in attempts]
             verses[ref] = sum(scores) / len(scores)
         return verses
-
-    def verse_by_reference(self, ref):
-        attempts = self.apply_filters(
-            Attempt.select(Attempt.datetime, Attempt.score).where(Attempt.reference == ref).order_by(Attempt.id)
-        )
-        return [(a.datetime, a.score) for a in attempts]

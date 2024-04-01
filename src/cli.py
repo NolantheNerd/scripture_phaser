@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import pdb
 import os
 import platform
 import readchar
@@ -175,26 +174,6 @@ class CLISTR:
         return f"Translation: "
 
     @staticmethod
-    def SET_START_DATE():
-        return f"Set Start Date to Filter by: (Leave Blank to Unset)"
-
-    @staticmethod
-    def SET_END_DATE():
-        return f"Set End Date to Filter by: (Leave Blank to Unset):"
-
-    @staticmethod
-    def YEAR_PROMPT():
-        return f"Year (yyyy): "
-
-    @staticmethod
-    def MONTH_PROMPT():
-        return f"Month (mm): "
-
-    @staticmethod
-    def DAY_PROMPT():
-        return f"Day (dd): "
-
-    @staticmethod
     def NO_EDITOR():
         return (
             f"{TC.RED}No editor found! {TC.WHITE}"
@@ -207,49 +186,7 @@ class CLISTR:
     def EXIT_TO_NORMAL_MODE():
         return "Exiting to Normal Mode!"
 
-    def START_DATE(self): return f"Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
-
-    def END_DATE(self):
-        return f"End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
-
-    def ALL_ATTEMPTED_VERSES(self):
-        start = self.api.stats.start_date
-        if isinstance(start, datetime.date):
-            start = start.strftime("%B %d, %Y")
-
-        end = self.api.stats.end_date
-        if isinstance(end, datetime.date):
-            end = end.strftime("%B %d, %Y")
-
-        refs = self.api.stats.all_attempted_verses()
-        if len(refs) == 0:
-            string = "You haven't recorded any attempts yet!"
-        else:
-            last_ref = refs.pop()
-            if len(refs) == 0:
-                ref_str = last_ref
-            else:
-                ref_str = ", ".join(refs) + f" and {last_ref}"
-
-            if start is not None and end is not None:
-                string = f"Between {start} and {end}, you've attempted {ref_str}."
-            elif start is not None:
-                string = f"Since {start}, you've attempted {ref_str}."
-            elif end is not None:
-                string = f"Prior to {end}, you've attempted {ref_str}."
-            else:
-                string = f"You've attempted {ref_str} before."
-        return string
-
     def ALL_VERSES_RANKED(self):
-        start = self.api.stats.start_date
-        if isinstance(start, datetime.date):
-            start = start.strftime("%B %d, %Y")
-
-        end = self.api.stats.end_date
-        if isinstance(end, datetime.date):
-            end = end.strftime("%B %d, %Y")
-
         verses = self.api.stats.all_verses_ranked()
         if len(verses) == 0:
             string = "You haven't recorded any attempts yet!"
@@ -603,75 +540,7 @@ class CLI:
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
-                self.stats_mainloop()
-
-            # Print Help
-            else:
-                print(self.messages.HELP())
-
-    def stats_mainloop(self):
-        print(self.messages.WELCOME_STATS())
-
-        while True:
-            user_input = input(self.messages.STATS_CLI_PROMPT()).strip().lower()
-
-            # Current State
-            if user_input == "l" or user_input == "list":
-                print(self.messages.START_DATE())
-                print(self.messages.END_DATE())
-
-            # Clear Filters
-            elif user_input == "c" or user_input == "clear":
-                print(self.messages.CLEAR_STATS_FILTERS())
-                self.api.stats.clear_filters()
-
-            # Set Start Date
-            elif user_input == "sd" or user_input == "start":
-                print(self.messages.SET_START_DATE())
-                year = input(self.messages.YEAR_PROMPT())
-                month = input(self.messages.MONTH_PROMPT())
-                day = input(self.messages.DAY_PROMPT())
-
-                if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
-                    self.api.stats.set_start_date(None)
-                else:
-                    try:
-                        self.api.stats.set_start_date(datetime.date(int(year), int(month), int(day)))
-                    except ValueError as e:
-                        print(e.__str__().capitalize())
-
-                    except InvalidDateFilter as e:
-                        print(e.__str__())
-
-            # Set End Date
-            elif user_input == "ed" or user_input == "end":
-                print(self.messages.SET_END_DATE())
-                year = input(self.messages.YEAR_PROMPT())
-                month = input(self.messages.MONTH_PROMPT())
-                day = input(self.messages.DAY_PROMPT())
-
-                if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
-                    self.api.stats.set_end_date(None)
-                else:
-                    try:
-                        self.api.stats.set_end_date(datetime.date(int(year), int(month), int(day)))
-
-                    except ValueError as e:
-                        print(e.__str__().capitalize())
-
-                    except InvalidDateFilter as e:
-                        print(e.__str__())
-
-            # See All Attempted Verses
-            elif user_input == "a" or user_input == "all":
-                print(self.messages.ALL_ATTEMPTED_VERSES())
-
-            # See All Verses Ranked By Score
-            elif user_input == "r" or user_input == "rank":
                 print(self.messages.ALL_VERSES_RANKED())
-
-            # See Gamification Stats
-            elif user_input == "g" or user_input == "game":
                 print(self.messages.STATS_GAMIFICATION())
 
             # Reset Statistics
@@ -681,10 +550,6 @@ class CLI:
                     self.api.stats.reset_db()
                     print(self.messages.STATS_RESET())
 
-            # Exit Stats
-            elif user_input == "q" or user_input == "quit":
-                break
-
-            # Print Stats Help
+            # Print Help
             else:
-                print(self.messages.STATS_HELP())
+                print(self.messages.HELP())
