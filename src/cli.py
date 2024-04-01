@@ -31,6 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import pdb
 import os
 import platform
 import readchar
@@ -45,6 +46,9 @@ from src.enums import TermColours as TC
 from src.exceptions import EditorNotFound
 from src.exceptions import InvalidDateFilter
 from src.exceptions import InvalidTranslation
+
+NUM_DAYS_FOR_GOOD_STREAK = 7
+GOOD_YEARLY_ATTEMPT_COUNT = 180
 
 
 class CLISTR:
@@ -260,6 +264,52 @@ class CLISTR:
                     string += f"({TC.RED}{score}%{TC.WHITE}) {ref}\n"
             string = string[:-1]
         return string
+
+    def STATS_GAMIFICATION(self):
+        streak = self.api.stats.get_streak()
+        if streak < NUM_DAYS_FOR_GOOD_STREAK:
+            streak_str = f"Current Recititation Streak is {TC.RED}{streak}{TC.WHITE}."
+        else:
+            streak_str = f"Current Recitation Streak is {TC.GREEN}{streak}{TC.WHITE}!"
+
+        past_year_attempt_count = self.api.stats.get_num_attempts_past_year()
+        if past_year_attempt_count < GOOD_YEARLY_ATTEMPT_COUNT:
+            past_year_attempt_count_str = f"{TC.RED}{past_year_attempt_count}{TC.WHITE} recitations in the past year."
+        else:
+            past_year_attempt_count_str = f"{TC.GREEN}{past_year_attemp_count}{TC.WHITE} recitations in the past year!"
+
+        attempts_by_day = self.api.stats.get_num_attempts_past_year_by_day()
+
+        max_attempts = max(attempts_by_day)
+        few_threshold = 0
+        some_threshold = max_attempts / 3
+        many_threshold = 2 * max_attempts / 3
+
+        blank, few, some, many = ".", "\u2591", "\u2592", "\u2593"
+        for i, day in enumerate(attempts_by_day):
+            if day > many_threshold:
+                attempts_by_day[i] = many
+            elif day > some_threshold:
+                attempts_by_day[i] = some
+            elif day > few_threshold:
+                attempts_by_day[i] = few
+            else:
+                attempts_by_day[i] = blank
+
+        mon, tue, wed, thr, fri, sat, sun = "MON ", "TUE ", "WED ", "THR ", "FRI ", "SAT ", "SUN "
+        mon += "".join(attempts_by_day[::7])
+        tue += "".join(attempts_by_day[1::7])
+        wed += "".join(attempts_by_day[2::7])
+        thr += "".join(attempts_by_day[3::7])
+        fri += "".join(attempts_by_day[4::7])
+        sat += "".join(attempts_by_day[5::7])
+        sun += "".join(attempts_by_day[6::7])
+
+        return (
+            f"{streak_str}\n"
+            f"{past_year_attempt_count_str}\n\n"
+            f"{mon}\n{tue}\n{wed}\n{thr}\n{fri}\n{sat}\n{sun}"
+        )
 
     def REFERENCE(self):
         return f"Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
@@ -619,6 +669,10 @@ class CLI:
             # See All Verses Ranked By Score
             elif user_input == "r" or user_input == "rank":
                 print(self.messages.ALL_VERSES_RANKED())
+
+            # See Gamification Stats
+            elif user_input == "g" or user_input == "game":
+                print(self.messages.STATS_GAMIFICATION())
 
             # Reset Statistics
             elif user_input == "d" or user_input == "delete":
