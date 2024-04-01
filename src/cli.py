@@ -280,146 +280,30 @@ class CLISTR:
 
         attempts_by_day = self.api.stats.get_num_attempts_past_year_by_day()
 
-        today = datetime.date.today()
+        max_attempts = max(attempts_by_day)
+        few_threshold = 1
+        some_threshold = max_attempts / 3
+        many_threshold = 2 * max_attempts / 3
+
         blank, few, some, many = "X", "\u2591", "\u2592", "\u2593"
-        first_day = min(attempts_by_day.keys())
-        max_attempts = max(attempts_by_day.values())
-        few_some = max_attempts / 3
-        some_many = 2 * max_attempts / 3
+        for i, day in enumerate(attempts_by_day):
+            if day > many_threshold:
+                attempts_by_day[i] = many
+            elif day > some_threshold:
+                attempts_by_day[i] = some
+            elif day > few_threshold:
+                attempts_by_day[i] = few
+            else:
+                attempts_by_day[i] = blank
+
         mon, tue, wed, thr, fri, sat, sun = "MON ", "TUE ", "WED ", "THR ", "FRI ", "SAT ", "SUN "
-        if first_day.weekday() == 6:
-            mon += blank
-        elif first_day.weekday() == 5:
-            mon += blank
-            tue += blank
-        elif first_day.weekday() == 4:
-            mon += blank
-            tue += blank
-            wed += blank
-        elif first_day.weekday() == 3:
-            mon += blank
-            tue += blank
-            wed += blank
-            thr += blank
-        elif first_day.weekday() == 2:
-            mon += blank
-            tue += blank
-            wed += blank
-            thr += blank
-            fri += blank
-        elif first_day.weekday() == 1:
-            mon += blank
-            tue += blank
-            wed += blank
-            thr += blank
-            fri += blank
-            sat += blank
-
-        first_monday = first_day + datetime.timedelta(days=(7 - first_day.weekday())%7)
-        first_tuesday = first_day if first_day == 1 else first_monday - datetime.timedelta(days=1)
-        first_wednesday = first_day if first_day == 2 else first_monday - datetime.timedelta(days=2)
-        first_thursday = first_day if first_day == 3 else first_monday - datetime.timedelta(days=3)
-        first_friday = first_day if first_day == 4 else first_monday - datetime.timedelta(days=4)
-        first_saturday = first_day if first_day == 5 else first_monday - datetime.timedelta(days=5)
-        first_sunday = first_day if first_day == 6 else first_monday - datetime.timedelta(days=6)
-
-        # Monday
-        date = first_monday
-        while date <= today:
-            if attempts_by_day[date] == 0:
-                mon += blank
-            elif attempts_by_day[date] <= few_some:
-                mon += few
-            elif attempts_by_day[date] <= some_many:
-                mon += some
-            else:
-                mon += many
-
-            date += datetime.timedelta(days=7)
-
-        # Tuesday
-        date = first_tuesday
-        while date <= today:
-            if attempts_by_day[date] == 0:
-                tue += blank
-            elif attempts_by_day[date] <= few_some:
-                tue += few
-            elif attempts_by_day[date] <= some_many:
-                tue += some
-            else:
-                tue += many
-
-            date += datetime.timedelta(days=7)
-
-        # Wednesday
-        date = first_wednesday
-        while date <= today:
-            if attempts_by_day[date] == 0:
-                wed += blank
-            elif attempts_by_day[date] <= few_some:
-                wed += few
-            elif attempts_by_day[date] <= some_many:
-                wed += some
-            else:
-                wed += many
-
-            date += datetime.timedelta(days=7)
-
-        # Thursday
-        date = first_thursday
-        while date <= today:
-            if attempts_by_day[date] == 0:
-                thr += blank
-            elif attempts_by_day[date] <= few_some:
-                thr += few
-            elif attempts_by_day[date] <= some_many:
-                thr += some
-            else:
-                thr += many
-
-            date += datetime.timedelta(days=7)
-
-        # Friday
-        date = first_friday
-        while date <= today:
-            if attempts_by_day[date] == 0:
-                fri += blank
-            elif attempts_by_day[date] <= few_some:
-                fri += few
-            elif attempts_by_day[date] <= some_many:
-                fri += some
-            else:
-                fri += many
-
-            date += datetime.timedelta(days=7)
-
-        # Saturday
-        date = first_saturday
-        while date <= today:
-            if attempts_by_day[date] == 0:
-                sat += blank
-            elif attempts_by_day[date] <= few_some:
-                sat += few
-            elif attempts_by_day[date] <= some_many:
-                sat += some
-            else:
-                sat += many
-
-            date += datetime.timedelta(days=7)
-
-        # Sunday
-        date = first_sunday
-        while date <= today:
-            if attempts_by_day[date] == 0:
-                sun += blank
-            elif attempts_by_day[date] <= few_some:
-                sun += few
-            elif attempts_by_day[date] <= some_many:
-                sun += some
-            else:
-                sun += many
-
-            date += datetime.timedelta(days=7)
+        mon += "".join(attempts_by_day[::7])
+        tue += "".join(attempts_by_day[1::7])
+        wed += "".join(attempts_by_day[2::7])
+        thr += "".join(attempts_by_day[3::7])
+        fri += "".join(attempts_by_day[4::7])
+        sat += "".join(attempts_by_day[5::7])
+        sun += "".join(attempts_by_day[6::7])
 
         return (
             f"{streak_str}\n"

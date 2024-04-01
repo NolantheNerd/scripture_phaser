@@ -76,17 +76,22 @@ class Stats:
     @staticmethod
     def get_num_attempts_past_year_by_day():
         today = datetime.date.today()
-        one_year_ago = today - datetime.timedelta(days=365)
-        results = {today - datetime.timedelta(days=i): 0 for i in range(365)}
+        days_since_monday = today.weekday()
+        start_date = today - datetime.timedelta(days=days_since_monday, weeks=52)
+        results = {today - datetime.timedelta(days=i): 0 for i in range(52 * 7 + days_since_monday)}
+        results = [0] * (today - start_date).days
         day_counts = Attempt \
             .select(
                 Attempt.datetime,
                 fn.COUNT(Attempt.id).alias("num")
             ) \
-            .where(Attempt.datetime > one_year_ago) \
+            .where(Attempt.datetime > start_date) \
             .group_by(fn.date_trunc("day", Attempt.datetime)) \
             .order_by(Attempt.datetime)
-        results.update({day.datetime.date(): day.num for day in day_counts})
+
+        for day in day_counts:
+            results[(day.datetime.date() - start_date).days] = day.num
+
         return results
 
     def clear_filters(self):
