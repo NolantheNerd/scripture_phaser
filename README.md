@@ -31,21 +31,10 @@ When you first start scripture_phaser, you are dropped into the standard mode ("
 * i/inquire     - List available translations
 * p/practice    - Practice the current reference
 * v/view        - Preview current reference
-* s/stats       - Enter statistics mode
+* s/stats       - Prints recitation statistics
+* d/delete      - Deletes all past statistics
 * h/help        - Prints this help message
 * q/quit        - Quits scripture_phaser
-
-You can enter statistics mode by pressing "s" in standard mode ("\[STATS\] >" prompt). In statistics mode, the following commands are available to you:
-
-* sd/start      - Sets the earliest date to use when fetching past recitation attempts
-* ed/end        - Sets the latest date to use when fetching past recitation attempts
-* l/list        - List current filters used in data selection (start/end date)
-* c/clear       - Clears all current filters used in data selection (start/end date)
-* a/all         - List all references ever attempted
-* r/rank        - Rank all attempted verses by average recall accuracy
-* d/delete      - Reset all statistics
-* h/help        - Prints stats mode help message
-* q/quit        - Return to the standard mode
 
 You can enter fast recitation mode if you have fast recitations set to True and you press "p" to practice the passage (blank prompt). In fast recitation mode, the following commands are available to you:
 

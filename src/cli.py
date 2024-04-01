@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import pdb
 import os
 import platform
 import readchar
@@ -58,10 +57,6 @@ class CLISTR:
     @staticmethod
     def CLI_PROMPT():
         return "> "
-
-    @staticmethod
-    def STATS_CLI_PROMPT():
-        return f"{TC.WHITE}[{TC.GREEN}STATS{TC.WHITE}] > "
 
     @staticmethod
     def DESCRIPTION():
@@ -91,13 +86,6 @@ class CLISTR:
         )
 
     @staticmethod
-    def WELCOME_STATS():
-        return (
-            f"You are now in the statistics viewer!\n"
-            f"To exit back to the main prompt, press 'q'."
-        )
-
-    @staticmethod
     def NO_REFERENCE():
         return f"Reference:{TC.RED} No reference set{TC.WHITE}"
 
@@ -106,10 +94,6 @@ class CLISTR:
         return (
             f"Are you sure that you want to reset your statistics? [{TC.RED}y{TC.WHITE}/{TC.GREEN}N{TC.WHITE}] "
         )
-
-    @staticmethod
-    def CLEAR_STATS_FILTERS():
-        return f"Clearing start date and end date filters."
 
     @staticmethod
     def STATS_RESET():
@@ -129,27 +113,11 @@ class CLISTR:
             f"\t{TC.BLUE}N{TC.WHITE} - Toggles whether or not to include the passage numbers\n"
             f"\t{TC.BLUE}P{TC.WHITE} - Practice the current reference\n"
             f"\t{TC.BLUE}R{TC.WHITE} - Sets the reference\n"
-            f"\t{TC.BLUE}S{TC.WHITE} - View your statistics\n"
+            f"\t{TC.BLUE}S{TC.WHITE} - View recitation statistics\n"
+            f"\t{TC.BLUE}D{TC.WHITE} - Deletes all past statistics\n"
             f"\t{TC.BLUE}T{TC.WHITE} - Set the translation\n"
             f"\t{TC.BLUE}V{TC.WHITE} - Preview current reference\n"
             f"\t{TC.BLUE}Q{TC.WHITE} - Quits"
-        )
-
-    @staticmethod
-    def STATS_HELP():
-        return (
-            f"This is the {TC.CYAN}Statistics Mode{TC.WHITE}.\n\n"
-            "Here you can view summary statistics based on your "
-            "past recitation attempts.\n\n"
-            f"The {TC.CYAN}Statistics Mode{TC.WHITE} can be "
-            "controlled using:\n"
-            f"\t{TC.BLUE}SD{TC.WHITE} - Set the start date used to filter your statistics\n"
-            f"\t{TC.BLUE}ED{TC.WHITE} - Set the end date used to filter your statistics\n"
-            f"\t{TC.BLUE}L{TC.WHITE}  - Show all filters and their values\n"
-            f"\t{TC.BLUE}C{TC.WHITE}  - Clear all filters\n"
-            f"\t{TC.BLUE}A{TC.WHITE}  - List all verses attempted\n"
-            f"\t{TC.BLUE}R{TC.WHITE}  - Rank all attempted passages by average score\n"
-            f"\t{TC.BLUE}D{TC.WHITE}  - Reset statistics"
         )
 
     @staticmethod
@@ -175,26 +143,6 @@ class CLISTR:
         return f"Translation: "
 
     @staticmethod
-    def SET_START_DATE():
-        return f"Set Start Date to Filter by: (Leave Blank to Unset)"
-
-    @staticmethod
-    def SET_END_DATE():
-        return f"Set End Date to Filter by: (Leave Blank to Unset):"
-
-    @staticmethod
-    def YEAR_PROMPT():
-        return f"Year (yyyy): "
-
-    @staticmethod
-    def MONTH_PROMPT():
-        return f"Month (mm): "
-
-    @staticmethod
-    def DAY_PROMPT():
-        return f"Day (dd): "
-
-    @staticmethod
     def NO_EDITOR():
         return (
             f"{TC.RED}No editor found! {TC.WHITE}"
@@ -207,49 +155,7 @@ class CLISTR:
     def EXIT_TO_NORMAL_MODE():
         return "Exiting to Normal Mode!"
 
-    def START_DATE(self): return f"Start Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.start_date}{TC.WHITE}"
-
-    def END_DATE(self):
-        return f"End Date (yyyy-mm-dd):{TC.YELLOW} {self.api.stats.end_date}{TC.WHITE}"
-
-    def ALL_ATTEMPTED_VERSES(self):
-        start = self.api.stats.start_date
-        if isinstance(start, datetime.date):
-            start = start.strftime("%B %d, %Y")
-
-        end = self.api.stats.end_date
-        if isinstance(end, datetime.date):
-            end = end.strftime("%B %d, %Y")
-
-        refs = self.api.stats.all_attempted_verses()
-        if len(refs) == 0:
-            string = "You haven't recorded any attempts yet!"
-        else:
-            last_ref = refs.pop()
-            if len(refs) == 0:
-                ref_str = last_ref
-            else:
-                ref_str = ", ".join(refs) + f" and {last_ref}"
-
-            if start is not None and end is not None:
-                string = f"Between {start} and {end}, you've attempted {ref_str}."
-            elif start is not None:
-                string = f"Since {start}, you've attempted {ref_str}."
-            elif end is not None:
-                string = f"Prior to {end}, you've attempted {ref_str}."
-            else:
-                string = f"You've attempted {ref_str} before."
-        return string
-
     def ALL_VERSES_RANKED(self):
-        start = self.api.stats.start_date
-        if isinstance(start, datetime.date):
-            start = start.strftime("%B %d, %Y")
-
-        end = self.api.stats.end_date
-        if isinstance(end, datetime.date):
-            end = end.strftime("%B %d, %Y")
-
         verses = self.api.stats.all_verses_ranked()
         if len(verses) == 0:
             string = "You haven't recorded any attempts yet!"
@@ -308,7 +214,7 @@ class CLISTR:
         return (
             f"{streak_str}\n"
             f"{past_year_attempt_count_str}\n\n"
-            f"{mon}\n{tue}\n{wed}\n{thr}\n{fri}\n{sat}\n{sun}"
+            f"{mon}\n{tue}\n{wed}\n{thr}\n{fri}\n{sat}\n{sun}\n"
         )
 
     def REFERENCE(self):
@@ -603,76 +509,8 @@ class CLI:
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":
-                self.stats_mainloop()
-
-            # Print Help
-            else:
-                print(self.messages.HELP())
-
-    def stats_mainloop(self):
-        print(self.messages.WELCOME_STATS())
-
-        while True:
-            user_input = input(self.messages.STATS_CLI_PROMPT()).strip().lower()
-
-            # Current State
-            if user_input == "l" or user_input == "list":
-                print(self.messages.START_DATE())
-                print(self.messages.END_DATE())
-
-            # Clear Filters
-            elif user_input == "c" or user_input == "clear":
-                print(self.messages.CLEAR_STATS_FILTERS())
-                self.api.stats.clear_filters()
-
-            # Set Start Date
-            elif user_input == "sd" or user_input == "start":
-                print(self.messages.SET_START_DATE())
-                year = input(self.messages.YEAR_PROMPT())
-                month = input(self.messages.MONTH_PROMPT())
-                day = input(self.messages.DAY_PROMPT())
-
-                if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
-                    self.api.stats.set_start_date(None)
-                else:
-                    try:
-                        self.api.stats.set_start_date(datetime.date(int(year), int(month), int(day)))
-                    except ValueError as e:
-                        print(e.__str__().capitalize())
-
-                    except InvalidDateFilter as e:
-                        print(e.__str__())
-
-            # Set End Date
-            elif user_input == "ed" or user_input == "end":
-                print(self.messages.SET_END_DATE())
-                year = input(self.messages.YEAR_PROMPT())
-                month = input(self.messages.MONTH_PROMPT())
-                day = input(self.messages.DAY_PROMPT())
-
-                if not (year.isdecimal() and month.isdecimal() and day.isdecimal()):
-                    self.api.stats.set_end_date(None)
-                else:
-                    try:
-                        self.api.stats.set_end_date(datetime.date(int(year), int(month), int(day)))
-
-                    except ValueError as e:
-                        print(e.__str__().capitalize())
-
-                    except InvalidDateFilter as e:
-                        print(e.__str__())
-
-            # See All Attempted Verses
-            elif user_input == "a" or user_input == "all":
-                print(self.messages.ALL_ATTEMPTED_VERSES())
-
-            # See All Verses Ranked By Score
-            elif user_input == "r" or user_input == "rank":
-                print(self.messages.ALL_VERSES_RANKED())
-
-            # See Gamification Stats
-            elif user_input == "g" or user_input == "game":
                 print(self.messages.STATS_GAMIFICATION())
+                print(self.messages.ALL_VERSES_RANKED())
 
             # Reset Statistics
             elif user_input == "d" or user_input == "delete":
@@ -681,10 +519,6 @@ class CLI:
                     self.api.stats.reset_db()
                     print(self.messages.STATS_RESET())
 
-            # Exit Stats
-            elif user_input == "q" or user_input == "quit":
-                break
-
-            # Print Stats Help
+            # Print Help
             else:
-                print(self.messages.STATS_HELP())
+                print(self.messages.HELP())
