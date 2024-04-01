@@ -156,18 +156,35 @@ class CLISTR:
         return "Exiting to Normal Mode!"
 
     def ALL_VERSES_RANKED(self):
-        verses = self.api.stats.all_verses_ranked()
-        if len(verses) == 0:
+        verse_scores, verse_counts = self.api.stats.all_verses_ranked()
+
+        # Used to Make Output Columnar
+        max_attempt_width = len(str(max(verse_counts.values())))
+
+        if len(verse_counts) == 0:
             string = "You haven't recorded any attempts yet!"
         else:
             string = ""
-            sorted_verses = sorted(verses.items(), key=lambda item: item[1], reverse=True)
+            sorted_verses = sorted(verse_scores.items(), key=lambda item: item[1], reverse=True)
             for ref, score in sorted_verses:
-                score = round(score * 100, 1)
-                if score > 75:
-                    string += f"({TC.GREEN}{score}%{TC.WHITE}) {ref}\n"
+                attempt_count = verse_counts[ref]
+                if attempt_count == 1:
+                    string += "[1 Attempt] "
+                    string += " " * max_attempt_width
                 else:
-                    string += f"({TC.RED}{score}%{TC.WHITE}) {ref}\n"
+                    string += f"[{attempt_count} Attempts] "
+                    string += " " * (max_attempt_width - 1)
+
+                score = round(score * 100, 1)
+                if score == 100:
+                    string += f"({TC.GREEN}{score}%{TC.WHITE}) {ref}\n"
+                elif score > 75:
+                    string += f"({TC.GREEN}{score}%{TC.WHITE})  {ref}\n"
+                elif score >= 10:
+                    string += f"({TC.RED}{score}%{TC.WHITE})  {ref}\n"
+                else:
+                    string += f"({TC.RED}{score}%{TC.WHITE})   {ref}\n"
+
             string = string[:-1]
         return string
 
@@ -214,7 +231,13 @@ class CLISTR:
         return (
             f"{streak_str}\n"
             f"{past_year_attempt_count_str}\n\n"
-            f"{mon}\n{tue}\n{wed}\n{thr}\n{fri}\n{sat}\n{sun}\n"
+            f"{mon}\n{tue}\n{wed}\n{thr}\n{fri}\n{sat}\n{sun}\n\n"
+            f"{many} = >{int(many_threshold)} Attempt" + \
+                    ("s" if int(many_threshold) != 1 else "") + "   "
+            f"{some} = >{int(some_threshold)} Attempt" + \
+                    ("s" if int(some_threshold) != 1 else "") + "   "
+            f"{few} = >0 Attempts   "
+            ". = 0 Attempts\n"
         )
 
     def REFERENCE(self):
