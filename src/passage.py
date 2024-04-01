@@ -31,10 +31,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from src.enums import Bible
 from src.verse import Verse
 from src.agents import Agents
-from src.enums import Reverse_Bible_Books
 from src.exceptions import InvalidReference
 
 
@@ -53,7 +51,8 @@ class Passage:
             verse.initialize(text, require_passage_numbers)
 
     def show(self, with_verse=False, with_ref=False):
-        if not self.populated: return ""
+        if not self.populated:
+            return ""
         else:
             if with_verse:
                 texts = [verse.show(with_verse=True) for verse in self.verses]

@@ -31,11 +31,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from unittest.mock import MagicMock
-from src.enums import App
 from src.verse import Verse
 from src.passage import Passage
 from src.reference import Reference
-from src.exceptions import InvalidReference
 from test.test_base import BaseTest
 
 

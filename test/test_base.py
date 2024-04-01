@@ -33,7 +33,6 @@
 
 import os
 import unittest
-from pathlib import Path
 from src.enums import App
 from src.enums import CONFIG_DIR
 

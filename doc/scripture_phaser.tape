@@ -42,9 +42,6 @@ Type@500ms "stnomb"
 Sleep 5000ms
 
 Type "s"
-Enter
-Sleep 10000ms
-Type "r"
 Sleep 800ms
 Enter
 Sleep 10000ms
