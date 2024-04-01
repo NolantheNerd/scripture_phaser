@@ -78,8 +78,7 @@ class Stats:
         today = datetime.date.today()
         days_since_monday = today.weekday()
         start_date = today - datetime.timedelta(days=days_since_monday, weeks=52)
-        results = {today - datetime.timedelta(days=i): 0 for i in range(52 * 7 + days_since_monday)}
-        results = [0] * (today - start_date).days
+        results = [0] * ((today - start_date).days + 1)
         day_counts = Attempt \
             .select(
                 Attempt.datetime,

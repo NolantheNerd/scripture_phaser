@@ -281,11 +281,11 @@ class CLISTR:
         attempts_by_day = self.api.stats.get_num_attempts_past_year_by_day()
 
         max_attempts = max(attempts_by_day)
-        few_threshold = 1
+        few_threshold = 0
         some_threshold = max_attempts / 3
         many_threshold = 2 * max_attempts / 3
 
-        blank, few, some, many = "X", "\u2591", "\u2592", "\u2593"
+        blank, few, some, many = ".", "\u2591", "\u2592", "\u2593"
         for i, day in enumerate(attempts_by_day):
             if day > many_threshold:
                 attempts_by_day[i] = many
