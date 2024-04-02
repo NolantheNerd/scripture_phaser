@@ -44,4 +44,4 @@ Sleep 5000ms
 Type "s"
 Sleep 800ms
 Enter
-Sleep 10000ms
+Sleep 12000ms

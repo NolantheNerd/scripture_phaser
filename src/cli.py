@@ -46,6 +46,7 @@ from src.exceptions import InvalidTranslation
 
 NUM_DAYS_FOR_GOOD_STREAK = 7
 GOOD_YEARLY_ATTEMPT_COUNT = 180
+GOOD_SCORE = 0.75
 
 
 class CLISTR:
@@ -273,19 +274,19 @@ class CLISTR:
 
     def TEXT_SCORE(self, score, diff):
         if score == 1.0:
-            return f"{TC.GREEN}Perfect!{TC.WHITE}"
-        elif score > 0.75:
-            return f"{TC.PINK}Not bad: {TC.GREEN}{round(score * 100, 0)}%{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
+            return f"({TC.GREEN}100%{TC.WHITE})"
+        elif score > GOOD_SCORE:
+            return f"({TC.GREEN}{round(score * 100, 0)}%{TC.WHITE})\n{TC.CYAN}{diff}{TC.WHITE}"
         else:
-            return f"{TC.RED}Not quite...{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
+            return f"({TC.RED}{round(score * 100, 0)}%{TC.WHITE})\n{TC.CYAN}{diff}{TC.WHITE}"
 
     def FAST_SCORE(self, score):
         if score == 1.0:
-            return f"{TC.GREEN}Perfect!{TC.WHITE}"
+            return f"({TC.GREEN}100%{TC.WHITE})"
         elif score > 0.75:
-            return f"{TC.PINK}Not bad: {round(score * 100, 0)}%{TC.WHITE}"
+            return f"({TC.GREEN}{round(score * 100, 0)}%{TC.WHITE})"
         else:
-            return f"{TC.RED}Not quite...{TC.WHITE}"
+            return f"({TC.RED}{round(score * 100, 0)}%{TC.WHITE})"
 
 
 class CLI:
