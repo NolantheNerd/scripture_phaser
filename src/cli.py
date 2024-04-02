@@ -35,7 +35,6 @@ import os
 import platform
 import readchar
 import argparse
-import datetime
 import subprocess
 from shutil import which
 from src.api import API
@@ -43,11 +42,11 @@ from src.enums import App
 from difflib import SequenceMatcher
 from src.enums import TermColours as TC
 from src.exceptions import EditorNotFound
-from src.exceptions import InvalidDateFilter
 from src.exceptions import InvalidTranslation
 
 NUM_DAYS_FOR_GOOD_STREAK = 7
 GOOD_YEARLY_ATTEMPT_COUNT = 180
+GOOD_SCORE = 0.75
 
 
 class CLISTR:
@@ -81,8 +80,8 @@ class CLISTR:
     @staticmethod
     def WELCOME():
         return (
-            f"scripture_phaser helps you to memorize the Bible.\n"
-            f"Copyright (C) 2023-2024 Nolan McMahon"
+            "scripture_phaser helps you to memorize the Bible.\n"
+            "Copyright (C) 2023-2024 Nolan McMahon"
         )
 
     @staticmethod
@@ -136,11 +135,11 @@ class CLISTR:
 
     @staticmethod
     def REFERENCE_PROMPT():
-        return f"Reference: "
+        return "Reference: "
 
     @staticmethod
     def TRANSLATION_PROMPT():
-        return f"Translation: "
+        return "Translation: "
 
     @staticmethod
     def NO_EDITOR():
@@ -199,7 +198,7 @@ class CLISTR:
         if past_year_attempt_count < GOOD_YEARLY_ATTEMPT_COUNT:
             past_year_attempt_count_str = f"{TC.RED}{past_year_attempt_count}{TC.WHITE} recitations in the past year."
         else:
-            past_year_attempt_count_str = f"{TC.GREEN}{past_year_attemp_count}{TC.WHITE} recitations in the past year!"
+            past_year_attempt_count_str = f"{TC.GREEN}{past_year_attempt_count}{TC.WHITE} recitations in the past year!"
 
         attempts_by_day = self.api.stats.get_num_attempts_past_year_by_day()
 
@@ -275,19 +274,19 @@ class CLISTR:
 
     def TEXT_SCORE(self, score, diff):
         if score == 1.0:
-            return f"{TC.GREEN}Perfect!{TC.WHITE}"
-        elif score > 0.75:
-            return f"{TC.PINK}Not bad: {TC.GREEN}{round(score * 100, 0)}%{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
+            return f"({TC.GREEN}100%{TC.WHITE})"
+        elif score > GOOD_SCORE:
+            return f"({TC.GREEN}{round(score * 100, 0)}%{TC.WHITE})\n{TC.CYAN}{diff}{TC.WHITE}"
         else:
-            return f"{TC.RED}Not quite...{TC.WHITE}\n{TC.CYAN}{diff}{TC.WHITE}"
+            return f"({TC.RED}{round(score * 100, 0)}%{TC.WHITE})\n{TC.CYAN}{diff}{TC.WHITE}"
 
     def FAST_SCORE(self, score):
         if score == 1.0:
-            return f"{TC.GREEN}Perfect!{TC.WHITE}"
+            return f"({TC.GREEN}100%{TC.WHITE})"
         elif score > 0.75:
-            return f"{TC.PINK}Not bad: {round(score * 100, 0)}%{TC.WHITE}"
+            return f"({TC.GREEN}{round(score * 100, 0)}%{TC.WHITE})"
         else:
-            return f"{TC.RED}Not quite...{TC.WHITE}"
+            return f"({TC.RED}{round(score * 100, 0)}%{TC.WHITE})"
 
 
 class CLI:
@@ -412,14 +411,14 @@ class CLI:
                 break
 
     def text_recitation(self, ref):
-        if self.editor == None:
+        if self.editor is None:
             print(self.messages.NO_EDITOR())
         else:
             if self.is_windows:
-                windows_filename = f"{reference.ref_str}".replace(":", ";")
+                windows_filename = f"{ref.ref_str}".replace(":", ";")
                 filename = self.api.cache_path / windows_filename
             else:
-                filename = self.api.cache_path / f"{reference.ref_str}"
+                filename = self.api.cache_path / f"{ref.ref_str}"
 
             filename.touch(exist_ok=True)
             subprocess.run([self.editor, filename])
@@ -434,7 +433,8 @@ class CLI:
                 if filename.exists():
                     os.remove(filename)
 
-            score = self.api.finish_recitation(reference, text)
+            score = self.api.finish_recitation(ref, text)
+            ans = self.api.get_recitation_ans(ref)
 
             diff = ""
             result = SequenceMatcher(a=text, b=ans).get_opcodes()

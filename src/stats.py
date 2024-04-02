@@ -34,7 +34,6 @@
 import datetime
 from peewee import fn
 from src.models import Attempt
-from src.exceptions import InvalidDateFilter
 
 
 class Stats:

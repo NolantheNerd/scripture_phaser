@@ -44,7 +44,6 @@ from src.models import Attempt
 from src.passage import Passage
 from src.enums import Translations
 from src.reference import Reference
-from src.exceptions import EditorNotFound
 from src.exceptions import InvalidReference
 from src.exceptions import InvalidTranslation
 
@@ -179,8 +178,6 @@ class API:
             else:
                 n_correct = sum([1 for i in range(len(ans)) if text[i] == ans[i]])
                 score = n_correct / len(ans)
-
-                passage_words = self.passage.show().split()
         else:
             ans = self.get_recitation_ans(reference)
 
@@ -201,7 +198,7 @@ class API:
 
                 score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
 
-        attempt = Attempt.create(
+        Attempt.create(
             random_single_verse=self.random_single_verse,
             reference=reference.ref_str,
             score=score,
@@ -226,6 +223,6 @@ class API:
         if self.random_single_verse:
             passage = Passage(reference, self.translation)
             passage.populate([v.text for v in self.passage.verses if v.reference.ref_str == reference.ref_str])
-            ans = passage.show()
+            return passage.show()
         else:
-            ans = self.passage.show()
+            return self.passage.show()
