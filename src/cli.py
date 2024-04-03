@@ -157,12 +157,12 @@ class CLISTR:
     def ALL_VERSES_RANKED(self):
         verse_scores, verse_counts = self.api.stats.all_verses_ranked()
 
-        # Used to Make Output Columnar
-        max_attempt_width = len(str(max(verse_counts.values())))
-
         if len(verse_counts) == 0:
             string = "You haven't recorded any attempts yet!"
         else:
+            # Used to Make Output Columnar
+            max_attempt_width = len(str(max(verse_counts.values())))
+
             string = ""
             sorted_verses = sorted(verse_scores.items(), key=lambda item: item[1], reverse=True)
             for ref, score in sorted_verses:

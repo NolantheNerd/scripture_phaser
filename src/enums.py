@@ -36,8 +36,8 @@ import enum
 import platform
 from pathlib import Path
 
-VERSION = "1.2.0"
-RELEASE_DATE = "2024-04-01"
+VERSION = "1.2.1"
+RELEASE_DATE = "2024-04-02"
 
 if platform.system() == "Windows":
     CONFIG_DIR = Path(os.environ["HOMEPATH"]) / ".config"
