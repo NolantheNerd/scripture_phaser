@@ -32,6 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from src.enums import Bible
+from itertools import accumulate
 from src.enums import Bible_Books
 from src.reference import Reference
 
@@ -43,6 +44,8 @@ class Verse:
         self.verse = verse
         self.reference = Reference(f"{Bible_Books[self.book]} {self.chapter + 1}:{self.verse + 1}")
         self.valid = self.validate(self)
+
+        self.id = self.reference_to_id(self.reference)
 
         self.initialized = text is not None
         if self.initialized:
@@ -68,6 +71,32 @@ class Verse:
             text = f"{text} - {self.reference.ref_str}"
 
         return text
+
+    @staticmethod
+    def reference_to_id(ref):
+        if ref.book_start == ref.book_end and \
+        ref.chapter_start == ref.chapter_end and \
+        ref.verse_start == ref.verse_end:
+            pass
+        else:
+            pass
+            
+
+    @staticmethod
+    def id_to_reference(id):
+        verse_sums = list(accumulate([sum(book) for book in Bible]))
+        book_id = [id <= bound for bound in verse_sums].index(True)
+
+        if book_id > 0:
+            id -= verse_sums[book_id - 1]
+
+        book_sums = list(accumulate(Bible[book_id]))
+        chapter_id = [id <= bound for bound in book_sums].index(True)
+
+        if chapter_id > 0:
+            id -= book_sums[chapter_id - 1]
+
+        return Reference(f"{Bible_Books[book_id]} {chapter_id + 1}:{id + 1}")
 
     @staticmethod
     def verse_equal(verse1, verse2):
