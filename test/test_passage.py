@@ -125,7 +125,7 @@ class PassageTests(BaseTest):
         'made that was made. [4] In him was life, and the life was the light of ' + \
         'men. [5] The light shines in the darkness, and the darkness has not ' + \
         'overcome it.\n\n'
-        passage.agent._fetch = MagicMock(return_value=mock_api_return)
+        passage.agent.fetch = MagicMock(return_value=mock_api_return)
 
         passage.populate()
 
@@ -157,7 +157,7 @@ class PassageTests(BaseTest):
         'born again to a living hope through the resurrection of Jesus Christ from the dead,'
         ]
 
-        passage.agent._fetch = MagicMock(return_value=mock_api_return)
+        passage.agent.fetch = MagicMock(return_value=mock_api_return)
 
         expected_clean = 'according to the foreknowledge of God the Father, ' + \
         'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \

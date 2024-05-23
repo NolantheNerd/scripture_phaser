@@ -43,17 +43,8 @@ class BaseAPIAgent:
     def __init__(self, translation):
         self.translation = translation
 
-    def _fetch(self, ref):
-        raise NotImplementedError("Child agent must implement _fetch()")
-
-    def _clean(self, text):
-        return text
-
-    def _split(self, text):
-        return text
-
-    def get(self, ref):
-        return self._split(self._clean(self._fetch(ref)))
+    def fetch(self, ref):
+        raise NotImplementedError("Child agent must implement fetch()")
 
 
 class BibleGatewayAgent(BaseAPIAgent):
@@ -67,7 +58,7 @@ class BibleGatewayAgent(BaseAPIAgent):
             use_ascii_punctuation=True
         )
 
-    def _fetch(self, ref):
+    def fetch(self, ref):
         b1 = Bible_Books[ref.book_start]
         c1 = ref.chapter_start + 1
         v1 = ref.verse_start + 1

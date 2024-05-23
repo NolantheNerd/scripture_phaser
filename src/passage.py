@@ -46,7 +46,7 @@ class Passage:
     def populate(self, texts=None, require_passage_numbers=False):
         self.populated = True
         if texts is None:
-            texts = self.agent.get(self.reference)
+            texts = self.agent.fetch(self.reference)
         for verse, text in zip(self.verses, texts):
             verse.initialize(text, require_passage_numbers)
 
