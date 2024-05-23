@@ -120,7 +120,7 @@ class AppDefaults:
 
 class App(enum.Enum):
     Name = "scripture_phaser"
-    Database = "scripture_phaser_db"
+    Database = "scripture_phaser.sqlite"
     translation = "translation"
     random_single_verse = "random_single_verse"
     reference = "reference"
