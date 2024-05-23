@@ -273,3 +273,49 @@ class ReferenceTests(BaseTest):
         verse_string16 = "Zedekiah 14:7 - JimBob 11:109"
         with self.assertRaises(InvalidReference):
             Reference(verse_string16)
+
+    def test_interpret_id(self):
+        # Genesis 1:1
+        start_id1 = 0
+        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 0, 0, 0
+        ref1 = Reference(id=start_id1)
+        self.assertEqual(eb1, ref1.book_start)
+        self.assertEqual(ec1, ref1.chapter_start)
+        self.assertEqual(ev1, ref1.verse_start)
+        self.assertEqual(eb2, ref1.book_end)
+        self.assertEqual(ec2, ref1.chapter_end)
+        self.assertEqual(ev2, ref1.verse_end)
+
+        # Exodus 1:1
+        start_id2 = 1533
+        eb1, ec1, ev1, eb2, ec2, ev2 = 1, 0, 0, 1, 0, 0
+        ref2 = Reference(id=start_id2)
+        self.assertEqual(eb1, ref2.book_start)
+        self.assertEqual(ec1, ref2.chapter_start)
+        self.assertEqual(ev1, ref2.verse_start)
+        self.assertEqual(eb2, ref2.book_end)
+        self.assertEqual(ec2, ref2.chapter_end)
+        self.assertEqual(ev2, ref2.verse_end)
+
+        # Exodus 1:1 - Leviticus 1:1
+        start_id3 = 1533
+        end_id3 = 2746
+        eb1, ec1, ev1, eb2, ec2, ev2 = 1, 0, 0, 2, 0, 0
+        ref3 = Reference(id=start_id3, end_id=end_id3)
+        self.assertEqual(eb1, ref3.book_start)
+        self.assertEqual(ec1, ref3.chapter_start)
+        self.assertEqual(ev1, ref3.verse_start)
+        self.assertEqual(eb2, ref3.book_end)
+        self.assertEqual(ec2, ref3.chapter_end)
+        self.assertEqual(ev2, ref3.verse_end)
+
+        # Revelation 22:21
+        start_id4 = 31102
+        eb1, ec1, ev1, eb2, ec2, ev2 = 65, 21, 20, 65, 21, 20
+        ref4 = Reference(id=start_id4)
+        self.assertEqual(eb1, ref4.book_start)
+        self.assertEqual(ec1, ref4.chapter_start)
+        self.assertEqual(ev1, ref4.verse_start)
+        self.assertEqual(eb2, ref4.book_end)
+        self.assertEqual(ec2, ref4.chapter_end)
+        self.assertEqual(ev2, ref4.verse_end)

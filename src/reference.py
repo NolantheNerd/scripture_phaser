@@ -52,7 +52,7 @@ class Reference:
                     self.interpret_reference(reference)
 
                 self.ref_str = self.standardize_reference()
-                self.start_id, self.end_id = self.reference_to_id(self.ref_str)
+                self.start_id, self.end_id = self.reference_to_id(self)
 
         elif id is not None:
             if id > 31102:
@@ -63,9 +63,9 @@ class Reference:
                 self.book_start, self.chapter_start, \
                         self.verse_start = self.id_to_reference(id)
 
-                if end_id is not None:
+                if end_id is not None and end_id < 31102:
                     self.book_end, self.chapter_end, \
-                        self.verse_end = self.id_to_reference(id_end)
+                        self.verse_end = self.id_to_reference(end_id)
                 else:
                     self.book_end = self.book_start
                     self.chapter_end = self.chapter_start
@@ -426,18 +426,18 @@ class Reference:
     @staticmethod
     def reference_to_id(ref):
         start_id = sum(
-            [sum(book) for book in Bible[:Reverse_Bible_Books[ref.book_start]]]
+            [sum(book) for book in Bible[:ref.book_start]]
         )
-        start_id += sum(Bible[Reverse_Bible_Books[ref.book_start]][:ref.chapter_start])
+        start_id += sum(Bible[ref.book_start][:ref.chapter_start])
         start_id += ref.verse_start
 
         if not ref.book_start == ref.book_end or \
         not ref.chapter_start == ref.chapter_end or \
         not ref.verse_start == ref.verse_end:
             end_id = sum(
-                [sum(book) for book in Bible[:Reverse_Bible_Books[ref.book_end]]]
+                [sum(book) for book in Bible[:ref.book_end]]
             )
-            end_id += sum(Bible[Reverse_Bible_Books[ref.book_end]][:ref.chapter_end])
+            end_id += sum(Bible[ref.book_end][:ref.chapter_end])
             end_id += ref.verse_end
         else:
             end_id = start_id
@@ -445,17 +445,17 @@ class Reference:
         return start_id, end_id
 
     @staticmethod
-    def id_to_reference(id):
+    def id_to_reference(verse_id):
         verse_sums = list(accumulate([sum(book) for book in Bible]))
-        book_id = [id <= bound for bound in verse_sums].index(True)
+        book_id = [verse_id < bound for bound in verse_sums].index(True)
 
         if book_id > 0:
-            id -= verse_sums[book_id - 1]
+            verse_id -= verse_sums[book_id - 1]
 
         book_sums = list(accumulate(Bible[book_id]))
-        chapter_id = [id <= bound for bound in book_sums].index(True)
+        chapter_id = [verse_id < bound for bound in book_sums].index(True)
 
         if chapter_id > 0:
-            id -= book_sums[chapter_id - 1]
+            verse_id -= book_sums[chapter_id - 1]
 
-        return Reference(f"{Bible_Books[book_id]} {chapter_id + 1}:{id + 1}")
+        return book_id, chapter_id, verse_id
