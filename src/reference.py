@@ -32,24 +32,46 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from src.enums import Bible
+from itertools import accumulate
 from src.enums import Bible_Books
 from src.enums import Reverse_Bible_Books
 from src.exceptions import InvalidReference
 
 
 class Reference:
-    def __init__(self, reference):
-        if reference.strip() == "":
-            self.empty = True
-            self.ref_str = ""
-        else:
-            self.empty = False
+    def __init__(self, reference=None, id=None, end_id=None):
+        if reference is not None:
+            if reference.strip() == "":
+                self.empty = True
+                self.ref_str = ""
+            else:
+                self.empty = False
 
-            self.book_start, self.chapter_start, self.verse_start, \
-            self.book_end, self.chapter_end, self.verse_end = \
-                self.interpret_reference(reference)
+                self.book_start, self.chapter_start, self.verse_start, \
+                self.book_end, self.chapter_end, self.verse_end = \
+                    self.interpret_reference(reference)
 
-            self.ref_str = self.standardize_reference()
+                self.ref_str = self.standardize_reference()
+                self.start_id, self.end_id = self.reference_to_id(self.ref_str)
+
+        elif id is not None:
+            if id > 31102:
+                self.empty = True
+                self.ref_str = ""
+            else:
+                self.empty = False
+                self.book_start, self.chapter_start, \
+                        self.verse_start = self.id_to_reference(id)
+
+                if end_id is not None:
+                    self.book_end, self.chapter_end, \
+                        self.verse_end = self.id_to_reference(id_end)
+                else:
+                    self.book_end = self.book_start
+                    self.chapter_end = self.chapter_start
+                    self.verse_end = self.verse_start
+
+                self.ref_str = self.standardize_reference()
 
     @staticmethod
     def reference_replacements(ref):
@@ -400,3 +422,40 @@ class Reference:
                     f"{self.verse_start + 1} - {Bible_Books[self.book_end]} "
                     f"{self.chapter_end + 1}:{self.verse_end + 1}"
                 )
+
+    @staticmethod
+    def reference_to_id(ref):
+        start_id = sum(
+            [sum(book) for book in Bible[:Reverse_Bible_Books[ref.book_start]]]
+        )
+        start_id += sum(Bible[Reverse_Bible_Books[ref.book_start]][:ref.chapter_start])
+        start_id += ref.verse_start
+
+        if not ref.book_start == ref.book_end or \
+        not ref.chapter_start == ref.chapter_end or \
+        not ref.verse_start == ref.verse_end:
+            end_id = sum(
+                [sum(book) for book in Bible[:Reverse_Bible_Books[ref.book_end]]]
+            )
+            end_id += sum(Bible[Reverse_Bible_Books[ref.book_end]][:ref.chapter_end])
+            end_id += ref.verse_end
+        else:
+            end_id = start_id
+
+        return start_id, end_id
+
+    @staticmethod
+    def id_to_reference(id):
+        verse_sums = list(accumulate([sum(book) for book in Bible]))
+        book_id = [id <= bound for bound in verse_sums].index(True)
+
+        if book_id > 0:
+            id -= verse_sums[book_id - 1]
+
+        book_sums = list(accumulate(Bible[book_id]))
+        chapter_id = [id <= bound for bound in book_sums].index(True)
+
+        if chapter_id > 0:
+            id -= book_sums[chapter_id - 1]
+
+        return Reference(f"{Bible_Books[book_id]} {chapter_id + 1}:{id + 1}")
