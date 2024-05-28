@@ -142,7 +142,7 @@ class API:
                 self.set_passage(self.reference.ref_str)
 
     def get_random_verse(self):
-        return random.choice(self.passage.verses).reference
+        return Reference(id=random.randrange(self.passage.reference.start_id, self.passage.reference.end_id + 1))
 
     def set_passage(self, reference):
         self.reference = Reference(reference)
@@ -211,7 +211,7 @@ class API:
     def get_fast_recitation_ans(self, reference):
         if self.random_single_verse:
             passage = Passage(reference, self.translation)
-            passage.populate([v.text for v in self.passage.verses if v.reference.ref_str == reference.ref_str])
+            passage.populate()
         else:
             passage = self.passage
 
@@ -222,7 +222,7 @@ class API:
     def get_recitation_ans(self, reference):
         if self.random_single_verse:
             passage = Passage(reference, self.translation)
-            passage.populate([v.text for v in self.passage.verses if v.reference.ref_str == reference.ref_str])
+            passage.populate()
             return passage.show()
         else:
             return self.passage.show()
