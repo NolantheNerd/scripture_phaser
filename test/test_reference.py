@@ -319,3 +319,15 @@ class ReferenceTests(BaseTest):
         self.assertEqual(eb2, ref4.book_end)
         self.assertEqual(ec2, ref4.chapter_end)
         self.assertEqual(ev2, ref4.verse_end)
+
+        with self.assertRaises(InvalidReference):
+            Reference(id=100, end_id=99)
+
+        with self.assertRaises(InvalidReference):
+            Reference("1 Samuel 1:200")
+
+        with self.assertRaises(InvalidReference):
+            Reference("Psalm 151:1")
+
+        with self.assertRaises(InvalidReference):
+            Reference("2 Samuel 1:1 - 1 Samuel 1:1")

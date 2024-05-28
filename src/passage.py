@@ -31,85 +31,49 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from src.verse import Verse
 from src.agents import Agents
-from src.exceptions import InvalidReference
+from src.reference import Reference
 
 
 class Passage:
-    def __init__(self, reference, translation):
+    def __init__(self, reference, translation, require_passage_numbers=False):
         self.agent = Agents[translation]
         self.reference = reference
-        self.verses = self.reference_to_verses()
+        self.texts = []
         self.populated = False
+        self.require_passage_numbers = require_passage_numbers
 
-    def populate(self, texts=None, require_passage_numbers=False):
+    def populate(self):
         self.populated = True
-        if texts is None:
-            texts = self.agent.fetch(self.reference)
-        for verse, text in zip(self.verses, texts):
-            verse.initialize(text, require_passage_numbers)
+        self.texts = self.agent.fetch(self.reference)
 
-    def show(self, with_verse=False, with_ref=False):
+    def show(self, index=None, with_verse=False, with_ref=False):
         if not self.populated:
             return ""
         else:
-            if with_verse:
-                texts = [verse.show(with_verse=True) for verse in self.verses]
-            else:
-                texts = [verse.show() for verse in self.verses]
+            if index is None:
+                if with_verse or self.require_passage_numbers:
+                    text = ""
+                    for i, content in enumerate(self.texts):
+                        _, _, verse_num = Reference.id_to_reference(self.reference.start_id + i)
+                        text += f"[{verse_num + 1}] " + content
+                else:
+                    text = " ".join(self.texts)
 
-            text = " ".join(texts)
+                if with_ref:
+                    text = f"{text} - {self.reference.ref_str}"
+
+            else:
+                if with_verse or self.require_passage_numbers:
+                    _, _, verse_num = Reference.id_to_reference(self.reference.start_id + index)
+                    text = f"[{verse_num + 1}]" + self.texts[index]
+                else:
+                    text = self.texts[index]
+
+                if with_ref:
+                    text = f"{text} - {Reference(id=index).ref_str}"
 
             # Spaces after new lines are no good
             text = text.replace("\n ", "\n")
 
-            if with_ref:
-                text = f"{text} - {self.reference.ref_str}"
             return text
-
-    def reference_to_verses(self):
-        first_verse = Verse(
-            self.reference.book_start,
-            self.reference.chapter_start,
-            self.reference.verse_start
-        )
-        last_verse = Verse(
-            self.reference.book_end,
-            self.reference.chapter_end,
-            self.reference.verse_end
-        )
-        self.validate(first_verse, last_verse)
-
-        if Verse.verse_equal(first_verse, last_verse):
-            return [first_verse]
-        else:
-            return self.infill_verse([first_verse, last_verse])
-
-    @staticmethod
-    def infill_verse(verses):
-        new_verse = Verse.next_verse(verses[-2])
-        while not Verse.verse_equal(verses[-1], new_verse):
-            verses.insert(-1, new_verse)
-            new_verse = Verse.next_verse(verses[-2])
-        return verses
-
-    def validate(self, start_verse, end_verse):
-        if (
-            not start_verse.valid or \
-            not end_verse.valid or \
-            not self.validate_verse_pair(start_verse, end_verse) \
-        ):
-            raise InvalidReference(self.reference)
-
-    @staticmethod
-    def validate_verse_pair(verse1, verse2):
-        if verse1.book > verse2.book:
-            return False
-        elif verse1.book == verse2.book:
-            if verse1.chapter > verse2.chapter:
-                return False
-            elif verse1.chapter == verse2.chapter:
-                if verse1.verse > verse2.verse:
-                    return False
-        return True

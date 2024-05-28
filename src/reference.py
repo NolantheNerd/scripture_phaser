@@ -51,6 +51,8 @@ class Reference:
                 self.book_end, self.chapter_end, self.verse_end = \
                     self.interpret_reference(reference)
 
+                self.validate_reference(reference)
+
                 self.ref_str = self.standardize_reference()
                 self.start_id, self.end_id = self.reference_to_id(self)
 
@@ -58,6 +60,8 @@ class Reference:
             if id > 31102:
                 self.empty = True
                 self.ref_str = ""
+            elif end_id is not None and id > end_id:
+                raise InvalidReference(id=id, end_id=end_id)
             else:
                 self.empty = False
                 self.book_start, self.chapter_start, \
@@ -422,6 +426,18 @@ class Reference:
                     f"{self.verse_start + 1} - {Bible_Books[self.book_end]} "
                     f"{self.chapter_end + 1}:{self.verse_end + 1}"
                 )
+
+    def validate_reference(self, ref):
+        if self.book_start > self.book_end:
+            raise InvalidReference(ref)
+        if self.chapter_start >= len(Bible[self.book_start]):
+            raise InvalidReference(ref)
+        if self.chapter_end >= len(Bible[self.book_end]):
+            raise InvalidReference(ref)
+        if self.verse_start >= Bible[self.book_start][self.chapter_start]:
+            raise InvalidReference(ref)
+        if self.verse_end >= Bible[self.book_end][self.chapter_end]:
+            raise InvalidReference(ref)
 
     @staticmethod
     def reference_to_id(ref):

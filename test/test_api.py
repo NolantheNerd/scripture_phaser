@@ -71,7 +71,8 @@ class APITests(BaseTest):
         ]
 
         passage = Passage(ref, translation)
-        passage.populate(raw_list)
+        passage.agent.fetch = MagicMock(return_value=raw_list)
+        passage.populate()
 
         api = API()
         api.passage = passage # "Mocking" the Passage Property

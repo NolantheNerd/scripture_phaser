@@ -32,8 +32,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 class InvalidReference(Exception):
-    def __init__(self, ref_string):
-        Exception.__init__(self, f"{ref_string} is not a valid Bible reference")
+    def __init__(self, ref_string=None, id=None, end_id=None):
+        if ref_string is not None:
+            Exception.__init__(self, f"{ref_string} is not a valid Bible reference")
+        elif id is not None and end_id is not None:
+            Exception.__init__(self, f"End Verse id ({end_id}) is greater than start verse id ({id}")
 
 class InvalidTranslation(Exception):
     def __init__(self, translation):
@@ -42,7 +45,3 @@ class InvalidTranslation(Exception):
 class EditorNotFound(Exception):
     def __init__(self):
         Exception.__init__(self, "Text editor not found; set the 'EDITOR' environmental variable and try again")
-
-class InvalidDateFilter(Exception):
-    def __init__(self):
-        Exception.__init__(self, "Start date must be before end date")
