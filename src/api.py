@@ -60,10 +60,10 @@ class API:
         self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
         self.require_passage_numbers = config.get(App.require_passage_numbers.name, AppDefaults().require_passage_numbers) == "True"
         self.fast_recitations = config.get(App.fast_recitations.name, AppDefaults().fast_recitations) == "True"
+
+        self.passages = []
         if not self.reference.empty:
-            self.set_passage(self.reference.ref_str)
-        else:
-            self.passage = None
+            self.add_passage(self.reference.ref_str)
 
         if not Attempt.table_exists():
             Attempt.create_table()
@@ -143,6 +143,34 @@ class API:
 
     def get_random_verse(self):
         return Reference(id=random.randrange(self.passage.reference.start_id, self.passage.reference.end_id + 1))
+
+    def add_passage(self, reference):
+        for i, passage in enumerate(self.passages):
+            # Start ID is Inside Passage
+            if reference.start_id >= passage.reference.start_id and reference.start_id <= passage.reference.end_id:
+                # New Reference Extends Past Existing Passage
+                if reference.end_id > passage.reference.end_id:
+                    start_id = passage.reference.start_id
+                    end_id = reference.end_id
+                    self.delete_passage(i)
+                    self.add_passage(Reference(id=start_id, end_id=end_id))
+            # End ID is Inside Passage
+            elif reference.end_id >= passage.reference.start_id and reference.end_id <= passage.reference.end_id:
+                # New Reference Extends Before Existing Passage
+                if reference.start_id < passage.reference.start_id:
+                    start_id = reference.start_id
+                    end_id = passage.reference.end_id
+                    self.delete_passage(i)
+                    self.add_passage(Reference(id=start_id, end_id=end_id))
+
+        self.passages.append(Passage(reference, self.translation))
+        self.passages.sort(key=lambda passage: passage.start_id, reverse=True)
+
+    def list_passages(self):
+        return self.passages
+
+    def delete_passage(self, index):
+        del self.passages[index]
 
     def set_passage(self, reference):
         self.reference = Reference(reference)
