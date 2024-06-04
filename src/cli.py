@@ -38,7 +38,9 @@ import argparse
 import subprocess
 from shutil import which
 from src.api import API
-from src.enums import App
+from src.enums import VERSION
+from src.enums import RELEASE_DATE
+from src.enums import license_text
 from difflib import SequenceMatcher
 from src.enums import TermColours as TC
 from src.exceptions import EditorNotFound
@@ -63,11 +65,11 @@ class CLISTR:
 
     @staticmethod
     def LICENSE():
-        return App.license.value
+        return license_text
 
     @staticmethod
     def VERSION():
-        return f"{App.Name.value} version {App.version.value}, Release Date: {App.release_date.value}"
+        return f"scripture_phaser version {VERSION}, Release Date: {RELEASE_DATE}"
 
     @staticmethod
     def VERSION_HELP():

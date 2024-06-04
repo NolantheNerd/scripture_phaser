@@ -118,19 +118,6 @@ class AppDefaults:
         self.fast_recitations = False
 
 
-class App(enum.Enum):
-    Name = "scripture_phaser"
-    Database = "scripture_phaser.sqlite"
-    translation = "translation"
-    random_single_verse = "random_single_verse"
-    reference = "reference"
-    require_passage_numbers = "require_passage_numbers"
-    fast_recitations = "fast_recitations"
-    license = license_text
-    version = VERSION
-    release_date = RELEASE_DATE
-
-
 Translations = ["ESV", "NIV", "KJV", "NKJV", "NLT", "NASB", "NRSV", "WEB"]
 
 Genesis = [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27,

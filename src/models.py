@@ -38,7 +38,6 @@ from peewee import FloatField
 from peewee import BooleanField
 from peewee import DateTimeField
 from peewee import SqliteDatabase
-from src.enums import App
 from src.enums import DATA_DIR
 
 class Attempt(Model):
@@ -50,5 +49,5 @@ class Attempt(Model):
 
     class Meta:
         database = SqliteDatabase(
-            DATA_DIR / App.Name.value / App.Database.value
+            DATA_DIR / "scripture_phaser" / "scripture_phaser.sqlite"
         )

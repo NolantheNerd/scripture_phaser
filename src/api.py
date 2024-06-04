@@ -37,7 +37,6 @@ import datetime
 from difflib import SequenceMatcher
 from src.enums import CACHE_DIR
 from src.enums import CONFIG_DIR
-from src.enums import App
 from src.enums import AppDefaults
 from src.stats import Stats
 from src.models import Attempt
@@ -51,15 +50,15 @@ from src.exceptions import InvalidTranslation
 class API:
     def __init__(self):
         self.stats = Stats()
-        self.config_path = CONFIG_DIR / App.Name.value
-        self.cache_path = CACHE_DIR / App.Name.value
+        self.config_path = CONFIG_DIR / "scripture_phaser"
+        self.cache_path = CACHE_DIR / "scripture_phaser"
 
         config = self.load_config()
-        self.translation = config.get(App.translation.name, AppDefaults().translation)
-        self.random_single_verse = config.get(App.random_single_verse.name, AppDefaults().random_single_verse) == "True"
-        self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
-        self.require_passage_numbers = config.get(App.require_passage_numbers.name, AppDefaults().require_passage_numbers) == "True"
-        self.fast_recitations = config.get(App.fast_recitations.name, AppDefaults().fast_recitations) == "True"
+        self.translation = config.get("translation", AppDefaults().translation)
+        self.random_single_verse = config.get("random_single_verse", AppDefaults().random_single_verse) == "True"
+        self.reference = Reference(config.get("reference", AppDefaults().reference))
+        self.require_passage_numbers = config.get("require_passage_numbers", AppDefaults().require_passage_numbers) == "True"
+        self.fast_recitations = config.get("fast_recitaitons", AppDefaults().fast_recitations) == "True"
 
         self.passages = []
         if not self.reference.empty:
