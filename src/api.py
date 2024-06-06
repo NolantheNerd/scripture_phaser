@@ -54,11 +54,11 @@ class API:
         self.cache_path = CACHE_DIR / "scripture_phaser"
 
         config = self.load_config()
-        self.translation = config.get("translation", AppDefaults().translation)
-        self.random_single_verse = config.get("random_single_verse", AppDefaults().random_single_verse) == "True"
-        self.reference = Reference(config.get("reference", AppDefaults().reference))
-        self.require_passage_numbers = config.get("require_passage_numbers", AppDefaults().require_passage_numbers) == "True"
-        self.fast_recitations = config.get("fast_recitaitons", AppDefaults().fast_recitations) == "True"
+        self.translation = config.get("translation", AppDefaults.translation)
+        self.random_single_verse = config.get("random_single_verse", AppDefaults.random_single_verse) == "True"
+        self.reference = Reference(config.get("reference", AppDefaults.reference))
+        self.require_passage_numbers = config.get("require_passage_numbers", AppDefaults.require_passage_numbers) == "True"
+        self.fast_recitations = config.get("fast_recitaitons", AppDefaults.fast_recitations) == "True"
 
         self.passages = []
         if not self.reference.empty:
@@ -71,7 +71,7 @@ class API:
         config_file = self.config_path / "config"
         if not config_file.exists():
             with open(config_file, "w") as file:
-                for default_key, default_value in vars(AppDefaults()).items():
+                for default_key, default_value in vars(AppDefaults).items():
                     file.write(f"{default_key}={default_value}\n")
 
         with open(config_file, "r") as file:
@@ -83,14 +83,14 @@ class API:
             config[key] = value
 
         missing_keys = []
-        for default_key in vars(AppDefaults()):
+        for default_key in vars(AppDefaults):
             if default_key not in config:
                 missing_keys.append(default_key)
         if len(missing_keys) > 0:
             with open(config_file, "a") as file:
                 for key in missing_keys:
-                    file.write(f"{key}={getattr(AppDefaults(), key)}\n")
-                    config[key] = getattr(AppDefaults(), key)
+                    file.write(f"{key}={getattr(AppDefaults, key)}\n")
+                    config[key] = getattr(AppDefaults, key)
 
         return config
 

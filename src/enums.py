@@ -32,7 +32,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import enum
 import platform
 from pathlib import Path
 
@@ -110,12 +109,11 @@ class TermColours:
 
 
 class AppDefaults:
-    def __init__(self):
-        self.translation = "NIV"
-        self.random_single_verse = False
-        self.reference = ""
-        self.require_passage_numbers = False
-        self.fast_recitations = False
+    translation = "NIV"
+    random_single_verse = False
+    reference = ""
+    require_passage_numbers = False
+    fast_recitations = False
 
 
 Translations = ["ESV", "NIV", "KJV", "NKJV", "NLT", "NASB", "NRSV", "WEB"]
