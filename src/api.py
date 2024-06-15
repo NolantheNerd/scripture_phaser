@@ -54,12 +54,22 @@ class API:
         self.cache_path = CACHE_DIR / "scripture_phaser"
 
         config = self.load_config()
-        self.translation = config.get("translation", AppDefaults.translation)
+
+        # Single, Boolean
+        # Get: api.{property}; Set: api.toggle_{property}()
         self.random_single_verse = config.get("random_single_verse", AppDefaults.random_single_verse) == "True"
-        self.reference = Reference(config.get("reference", AppDefaults.reference))
         self.require_passage_numbers = config.get("require_passage_numbers", AppDefaults.require_passage_numbers) == "True"
         self.fast_recitations = config.get("fast_recitaitons", AppDefaults.fast_recitations) == "True"
 
+        # Single, Finite Acceptable Value
+        # Get: api.{property}; Set: api.set_{property}(); View: api.view_{property}()
+        self.translation = config.get("translation", AppDefaults.translation)
+
+        # Multiple, Infinite Acceptable Values
+        # Add: api.add_{property}(); Remove: api.remove_{property}();
+        # Select: api.select_{property}(); DeSelect: api.deselect_{property}();
+        # View: api.view_{property}()
+        self.reference = Reference(config.get("reference", AppDefaults.reference))
         self.passages = []
         if not self.reference.empty:
             self.add_passage(self.reference.ref_str)
@@ -111,18 +121,15 @@ class API:
             for key in config.keys():
                 file.write(f"{key}={config[key]}\n")
 
-    def new_reference(self, reference):
-        return Reference(reference)
-
-    def set_random_single_verse(self):
+    def toggle_random_single_verse(self):
         self.random_single_verse = not self.random_single_verse
         self.save_config()
 
-    def set_fast_recitations(self):
+    def toggle_fast_recitations(self):
         self.fast_recitations = not self.fast_recitations
         self.save_config()
 
-    def set_require_passage_numbers(self):
+    def toggle_require_passage_numbers(self):
         self.require_passage_numbers = not self.require_passage_numbers
         self.set_passage(self.reference.ref_str)
         self.save_config()
