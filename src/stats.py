@@ -33,22 +33,24 @@
 
 import datetime
 from peewee import fn
+from typing import List, Tuple, Dict
 from src.models import Attempt
+from src.reference import Reference
 
 
 class Stats:
-    def __init__(self):
+    def __init__(self) -> None:
         if not Attempt.table_exists():
             Attempt.create_table()
 
     @staticmethod
-    def reset_db():
+    def reset_db() -> None:
         if Attempt.table_exists():
             Attempt.drop_table()
         Attempt.create_table()
 
     @staticmethod
-    def get_streak():
+    def get_streak() -> int:
         datetimes = Attempt.select(Attempt.datetime).order_by(Attempt.datetime.desc())
         dates = {dt.datetime.date() for dt in datetimes}
 
@@ -64,12 +66,12 @@ class Stats:
         return streak
 
     @staticmethod
-    def get_num_attempts_past_year():
+    def get_num_attempts_past_year() -> int:
         one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
         return Attempt.select().where(Attempt.datetime > one_year_ago).count()
 
     @staticmethod
-    def get_num_attempts_past_year_by_day():
+    def get_num_attempts_past_year_by_day() -> List[int]:
         today = datetime.date.today()
         days_since_monday = today.weekday()
         start_date = today - datetime.timedelta(days=days_since_monday, weeks=52)
@@ -77,7 +79,7 @@ class Stats:
         day_counts = Attempt \
             .select(
                 Attempt.datetime,
-                fn.COUNT(Attempt.id).alias("num")
+                fn.COUNT(Attempt).alias("num")
             ) \
             .where(Attempt.datetime > start_date) \
             .group_by(fn.date_trunc("day", Attempt.datetime)) \
@@ -89,7 +91,7 @@ class Stats:
         return results
 
     @staticmethod
-    def all_verses_ranked():
+    def all_verses_ranked() -> Tuple[Dict[Reference, float], Dict[Reference, int]]:
         verse_scores, verse_counts = {}, {}
         all_attempts = Attempt.select(Attempt.reference)
         for reference in all_attempts:

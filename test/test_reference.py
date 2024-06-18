@@ -40,7 +40,7 @@ class ReferenceTests(BaseTest):
     """
     Test the Reference Object
     """
-    def test_standardize_reference(self):
+    def test_standardize_reference(self) -> None:
         """
         Can reference strings be standardized?
         """
@@ -134,7 +134,7 @@ class ReferenceTests(BaseTest):
         ref18 = Reference(verse_string18)
         self.assertEqual(ref18.ref_str, expected_string18)
 
-    def test_interpret_reference(self):
+    def test_interpret_reference(self) -> None:
         """
         Can verse strings be interpreted?
         """
@@ -274,7 +274,7 @@ class ReferenceTests(BaseTest):
         with self.assertRaises(InvalidReference):
             Reference(verse_string16)
 
-    def test_interpret_id(self):
+    def test_interpret_id(self) -> None:
         # Genesis 1:1
         start_id1 = 0
         eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 0, 0, 0

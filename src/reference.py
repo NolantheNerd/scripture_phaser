@@ -34,12 +34,13 @@
 from src.enums import Bible
 from itertools import accumulate
 from src.enums import Bible_Books
+from typing import Optional, Tuple
 from src.enums import Reverse_Bible_Books
 from src.exceptions import InvalidReference
 
 
 class Reference:
-    def __init__(self, reference=None, id=None, end_id=None):
+    def __init__(self, reference: Optional[str] = None, id: Optional[int] = None, end_id: Optional[int] = None) -> None:
         if reference is not None:
             if reference.strip() == "":
                 self.empty = True
@@ -78,7 +79,7 @@ class Reference:
                 self.ref_str = self.standardize_reference()
 
     @staticmethod
-    def reference_replacements(ref):
+    def reference_replacements(ref: str) -> str:
         # Replace "Psalm" -> "Psalms" will also turn "Psalms" -> "Psalmss"
         ref = ref \
             .replace(".", "") \
@@ -177,7 +178,7 @@ class Reference:
         return ref
 
     @classmethod
-    def clean_reference(cls, ref):
+    def clean_reference(cls, ref: str) -> str:
         ref = " ".join(ref.split()) # Multiple Whitespaces -> One Whitespace
         ref = ref.strip().lower().title()
 
@@ -219,7 +220,7 @@ class Reference:
         return new_ref
 
     @classmethod
-    def interpret_reference(cls, ref):
+    def interpret_reference(cls, ref: str) -> Tuple[int, int, int, int, int, int]:
         ref = cls.clean_reference(ref)
 
         # Handle a Single Whole Book Reference [Genesis]
@@ -356,7 +357,7 @@ class Reference:
 
         return book_start, chapter_start, verse_start, book_end, chapter_end, verse_end
 
-    def standardize_reference(self):
+    def standardize_reference(self) -> str:
         # Single Book Reference? - Only Print Book Name Once
         if self.book_start == self.book_end:
             # Single Chapter Book? - No ":"s
@@ -427,7 +428,7 @@ class Reference:
                     f"{self.chapter_end + 1}:{self.verse_end + 1}"
                 )
 
-    def validate_reference(self, ref):
+    def validate_reference(self, ref: str) -> None:
         if self.book_start > self.book_end:
             raise InvalidReference(ref)
         if self.chapter_start >= len(Bible[self.book_start]):
@@ -440,7 +441,7 @@ class Reference:
             raise InvalidReference(ref)
 
     @staticmethod
-    def reference_to_id(ref):
+    def reference_to_id(ref: 'Reference') -> Tuple[int, int]:
         start_id = sum(
             [sum(book) for book in Bible[:ref.book_start]]
         )
@@ -461,7 +462,7 @@ class Reference:
         return start_id, end_id
 
     @staticmethod
-    def id_to_reference(verse_id):
+    def id_to_reference(verse_id: int) -> Tuple[int, int, int]:
         verse_sums = list(accumulate([sum(book) for book in Bible]))
         book_id = [verse_id < bound for bound in verse_sums].index(True)
 

@@ -31,23 +31,24 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from typing import Optional
 from src.agents import Agents
 from src.reference import Reference
 
 
 class Passage:
-    def __init__(self, reference, translation, require_passage_numbers=False):
+    def __init__(self, reference: Reference, translation: str, require_passage_numbers: bool = False) -> None:
         self.agent = Agents[translation]
         self.reference = reference
         self.texts = []
         self.populated = False
         self.require_passage_numbers = require_passage_numbers
 
-    def populate(self):
+    def populate(self) -> None:
         self.populated = True
         self.texts = self.agent.fetch(self.reference)
 
-    def show(self, index=None, with_verse=False, with_ref=False):
+    def show(self, index: Optional[int] = None, with_verse: bool = False, with_ref: bool = False) -> str:
         if not self.populated:
             return ""
         else:

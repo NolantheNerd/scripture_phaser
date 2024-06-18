@@ -40,7 +40,7 @@ class PassageTests(BaseTest):
     """
     Test the Passage Object
     """
-    def test_show(self):
+    def test_show(self) -> None:
         """
         Do passages display their content properly?
         """

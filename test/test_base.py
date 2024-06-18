@@ -38,7 +38,7 @@ from src.enums import CONFIG_DIR
 
 class BaseTest(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         config_path = CONFIG_DIR / "scripture_phaser"
         cls.config_file = config_path / "config"
         cls.temp_config_file = config_path / "config_TEST"
@@ -48,7 +48,7 @@ class BaseTest(unittest.TestCase):
             os.rename(cls.config_file, cls.temp_config_file)
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         if cls.temp_config_file.exists():
             if cls.config_file.exists():
                 os.remove(cls.config_file)

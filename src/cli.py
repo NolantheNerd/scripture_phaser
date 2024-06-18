@@ -45,63 +45,64 @@ from difflib import SequenceMatcher
 from src.enums import TermColours as TC
 from src.exceptions import EditorNotFound
 from src.exceptions import InvalidTranslation
+from src.reference import Reference
 
-NUM_DAYS_FOR_GOOD_STREAK = 7
-GOOD_YEARLY_ATTEMPT_COUNT = 180
-GOOD_SCORE = 0.75
+NUM_DAYS_FOR_GOOD_STREAK: int = 7
+GOOD_YEARLY_ATTEMPT_COUNT: int = 180
+GOOD_SCORE: float = 0.75
 
 
 class CLISTR:
-    def __init__(self, api):
+    def __init__(self, api: API) -> None:
         self.api = api
 
     @staticmethod
-    def CLI_PROMPT():
+    def CLI_PROMPT() -> str:
         return "> "
 
     @staticmethod
-    def DESCRIPTION():
+    def DESCRIPTION() -> str:
         return "scripture_phaser helps you to memorize the Bible."
 
     @staticmethod
-    def LICENSE():
+    def LICENSE() -> str:
         return license_text
 
     @staticmethod
-    def VERSION():
+    def VERSION() -> str:
         return f"scripture_phaser version {VERSION}, Release Date: {RELEASE_DATE}"
 
     @staticmethod
-    def VERSION_HELP():
+    def VERSION_HELP() -> str:
         return "show the version number and release date"
 
     @staticmethod
-    def LICENSE_HELP():
+    def LICENSE_HELP() -> str:
         return "show the license"
 
     @staticmethod
-    def WELCOME():
+    def WELCOME() -> str:
         return (
             "scripture_phaser helps you to memorize the Bible.\n"
             "Copyright (C) 2023-2024 Nolan McMahon"
         )
 
     @staticmethod
-    def NO_REFERENCE():
+    def NO_REFERENCE() -> str:
         return f"Reference:{TC.RED} No reference set{TC.WHITE}"
 
     @staticmethod
-    def STATS_RESET_WARNING():
+    def STATS_RESET_WARNING() -> str:
         return (
             f"Are you sure that you want to reset your statistics? [{TC.RED}y{TC.WHITE}/{TC.GREEN}N{TC.WHITE}] "
         )
 
     @staticmethod
-    def STATS_RESET():
+    def STATS_RESET() -> str:
         return f"Statistics reset{TC.WHITE}"
 
     @staticmethod
-    def HELP():
+    def HELP() -> str:
         return (
             f"This is the {TC.CYAN}Normal Mode{TC.WHITE}.\n\n"
             "Here you configure scripture_phaser, view the passage "
@@ -122,7 +123,7 @@ class CLISTR:
         )
 
     @staticmethod
-    def FAST_HELP():
+    def FAST_HELP() -> str:
         return (
             f"This is the {TC.CYAN}Fast Recitation Mode{TC.WHITE}.\n\n"
             f"Type the first letter of the next word in the passage "
@@ -136,15 +137,15 @@ class CLISTR:
         )
 
     @staticmethod
-    def REFERENCE_PROMPT():
+    def REFERENCE_PROMPT() -> str:
         return "Reference: "
 
     @staticmethod
-    def TRANSLATION_PROMPT():
+    def TRANSLATION_PROMPT() -> str:
         return "Translation: "
 
     @staticmethod
-    def NO_EDITOR():
+    def NO_EDITOR() -> str:
         return (
             f"{TC.RED}No editor found! {TC.WHITE}"
             "Try setting your 'EDITOR' environmental variable and "
@@ -153,10 +154,10 @@ class CLISTR:
         )
 
     @staticmethod
-    def EXIT_TO_NORMAL_MODE():
+    def EXIT_TO_NORMAL_MODE() -> str:
         return "Exiting to Normal Mode!"
 
-    def ALL_VERSES_RANKED(self):
+    def ALL_VERSES_RANKED(self) -> str:
         verse_scores, verse_counts = self.api.stats.all_verses_ranked()
 
         if len(verse_counts) == 0:
@@ -189,7 +190,7 @@ class CLISTR:
             string = string[:-1]
         return string
 
-    def STATS_GAMIFICATION(self):
+    def STATS_GAMIFICATION(self) -> str:
         streak = self.api.stats.get_streak()
         if streak < NUM_DAYS_FOR_GOOD_STREAK:
             streak_str = f"Current Recititation Streak is {TC.RED}{streak}{TC.WHITE}."
@@ -241,40 +242,40 @@ class CLISTR:
             ". = 0 Attempts\n"
         )
 
-    def REFERENCE(self):
+    def REFERENCE(self) -> str:
         return f"Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
 
-    def TRANSLATION(self):
+    def TRANSLATION(self) -> str:
         return f"Translation:{TC.YELLOW} {self.api.translation}{TC.WHITE}"
 
-    def RANDOM_SINGLE_VERSE(self):
+    def RANDOM_SINGLE_VERSE(self) -> str:
         return f"Random Single Verse Recitations:{TC.YELLOW} {self.api.random_single_verse}{TC.WHITE}"
 
-    def REQUIRE_PASSAGE_NUMBERS(self):
+    def REQUIRE_PASSAGE_NUMBERS(self) -> str:
         return f"Require Passage Numbers:{TC.YELLOW} {self.api.require_passage_numbers}{TC.WHITE}"
 
-    def FAST_RECITATIONS(self):
+    def FAST_RECITATIONS(self) -> str:
         return f"Fast Recitations:{TC.YELLOW} {self.api.fast_recitations}{TC.WHITE}"
 
-    def SET_RANDOM_SINGLE_VERSE(self):
+    def SET_RANDOM_SINGLE_VERSE(self) -> str:
         return f"Toggled random single verse recitations to {TC.YELLOW}{self.api.random_single_verse}{TC.WHITE}"
 
-    def SET_PASSAGE_NUMBERS(self):
+    def SET_PASSAGE_NUMBERS(self) -> str:
         return f"Toggled require passage numbers to {TC.YELLOW}{self.api.require_passage_numbers}{TC.WHITE}"
 
-    def SET_FAST_RECITATIONS(self):
+    def SET_FAST_RECITATIONS(self) -> str:
         return f"Toggled fast recitations to {TC.YELLOW}{self.api.fast_recitations}{TC.WHITE}"
 
-    def INVALID_TRANSLATION(self):
+    def INVALID_TRANSLATION(self) -> str:
         return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.YELLOW}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
-    def AVAILABLE_TRANSLATIONS(self):
+    def AVAILABLE_TRANSLATIONS(self) -> str:
         return f"Available Translations:\n{TC.YELLOW}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
-    def PASSAGE(self):
+    def PASSAGE(self) -> str:
         return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
 
-    def TEXT_SCORE(self, score, diff):
+    def TEXT_SCORE(self, score: float, diff: str) -> str:
         if score == 1.0:
             return f"({TC.GREEN}100%{TC.WHITE})"
         elif score > GOOD_SCORE:
@@ -282,7 +283,7 @@ class CLISTR:
         else:
             return f"({TC.RED}{round(score * 100, 0)}%{TC.WHITE})\n{TC.CYAN}{diff}{TC.WHITE}"
 
-    def FAST_SCORE(self, score):
+    def FAST_SCORE(self, score: float) -> str:
         if score == 1.0:
             return f"({TC.GREEN}100%{TC.WHITE})"
         elif score > 0.75:
@@ -292,7 +293,7 @@ class CLISTR:
 
 
 class CLI:
-    def __init__(self):
+    def __init__(self) -> None:
         self.api = API()
         self.messages = CLISTR(self.api)
 
@@ -348,20 +349,22 @@ class CLI:
         if not getattr(args, "version") and not getattr(args, "license"):
             self.mainloop()
 
-    def clear(self):
+    def clear(self) -> None:
         if self.is_windows:
             os.system("cls")
         else:
             os.system("clear")
 
-    def fast_recitation(self, ref):
+    def fast_recitation(self, ref: Reference) -> None:
         ans = self.api.get_fast_recitation_ans(ref)
         if self.api.random_single_verse:
             # @@@ TODO: The API should be able to pull a verse by reference
-            for verse in self.api.passage.verses:
-                if verse.reference.ref_str == ref.ref_str:
-                    passage_words = verse.text.split()
-                    break
+            # @@@ TODO: This is broken
+            #for verse in self.api.passage.verses:
+                #if verse.reference.ref_str == ref.ref_str:
+                    #passage_words = verse.text.split()
+                    #break
+            pass
         else:
             passage_words = self.api.passage.show().split()
 
@@ -370,7 +373,7 @@ class CLI:
 
         i = 0
         n_wrong, n_right = 0, 0
-        recitation = []
+        recitation = ""
         try_again = True
         passage_so_far = ""
         while True:
@@ -388,7 +391,7 @@ class CLI:
                 try_again = True
                 passage_so_far += f"{TC.GREEN}{passage_words[i]}{TC.WHITE} "
                 i += 1
-                recitation.append(key)
+                recitation += key
                 key_press = f"{TC.GREEN}{key}{TC.WHITE}"
             elif try_again:
                 try_again = False
@@ -398,7 +401,7 @@ class CLI:
                 try_again = True
                 passage_so_far += f"{TC.RED}{passage_words[i]}{TC.WHITE} "
                 i += 1
-                recitation.append(key)
+                recitation += key
                 key_press = f"{TC.RED}{key}{TC.WHITE}"
 
             self.clear()
@@ -412,7 +415,7 @@ class CLI:
                 print(self.messages.FAST_SCORE(score))
                 break
 
-    def text_recitation(self, ref):
+    def text_recitation(self, ref: Reference) -> None:
         if self.editor is None:
             print(self.messages.NO_EDITOR())
         else:
@@ -461,7 +464,7 @@ class CLI:
 
             print(self.messages.TEXT_SCORE(score, diff))
 
-    def mainloop(self):
+    def mainloop(self) -> None:
         print(self.messages.WELCOME())
 
         while True:
@@ -484,23 +487,24 @@ class CLI:
 
             # Set (Toggle) Random Single Verse
             elif user_input == "m" or user_input == "single":
-                self.api.set_random_single_verse()
+                self.api.toggle_random_single_verse()
                 print(self.messages.SET_RANDOM_SINGLE_VERSE())
 
             # Set (Toggle) the Passage Numbers
             elif user_input == "n" or user_input == "numbers":
-                self.api.set_require_passage_numbers()
+                self.api.toggle_require_passage_numbers()
                 print(self.messages.SET_PASSAGE_NUMBERS())
 
             # Set (Toggle) Fast Recitations
             elif user_input == "f" or user_input == "fast":
-                self.api.set_fast_recitations()
+                self.api.toggle_fast_recitations()
                 print(self.messages.SET_FAST_RECITATIONS())
 
             # Set Reference
             elif user_input == "r" or user_input == "reference":
                 ref_str = input(self.messages.REFERENCE_PROMPT())
-                self.api.set_passage(ref_str)
+                # @@@ TODO: Rather not make a Reference IN the CLI
+                self.api.set_passage(Reference(ref_str))
 
             # View Passage
             elif user_input == "v" or user_input == "view":

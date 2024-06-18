@@ -34,6 +34,7 @@
 import os
 import random
 import datetime
+from typing import List, Dict, Any
 from difflib import SequenceMatcher
 from src.enums import CACHE_DIR
 from src.enums import CONFIG_DIR
@@ -48,7 +49,7 @@ from src.exceptions import InvalidTranslation
 
 
 class API:
-    def __init__(self):
+    def __init__(self) -> None:
         self.stats = Stats()
         self.config_path = CONFIG_DIR / "scripture_phaser"
         self.cache_path = CACHE_DIR / "scripture_phaser"
@@ -72,12 +73,12 @@ class API:
         self.reference = Reference(config.get("reference", AppDefaults.reference))
         self.passages = []
         if not self.reference.empty:
-            self.add_passage(self.reference.ref_str)
+            self.add_passage(self.reference)
 
         if not Attempt.table_exists():
             Attempt.create_table()
 
-    def load_config(self):
+    def load_config(self) -> Dict[str, Any]:
         config_file = self.config_path / "config"
         if not config_file.exists():
             with open(config_file, "w") as file:
@@ -104,7 +105,7 @@ class API:
 
         return config
 
-    def save_config(self):
+    def save_config(self) -> None:
         config = {
             "translation": self.translation,
             "random_single_verse": self.random_single_verse,
@@ -121,23 +122,23 @@ class API:
             for key in config.keys():
                 file.write(f"{key}={config[key]}\n")
 
-    def toggle_random_single_verse(self):
+    def toggle_random_single_verse(self) -> None:
         self.random_single_verse = not self.random_single_verse
         self.save_config()
 
-    def toggle_fast_recitations(self):
+    def toggle_fast_recitations(self) -> None:
         self.fast_recitations = not self.fast_recitations
         self.save_config()
 
-    def toggle_require_passage_numbers(self):
+    def toggle_require_passage_numbers(self) -> None:
         self.require_passage_numbers = not self.require_passage_numbers
-        self.set_passage(self.reference.ref_str)
+        self.set_passage(self.reference)
         self.save_config()
 
-    def view_translation(self):
+    def view_translation(self) -> List[str]:
         return Translations
 
-    def set_translation(self, translation):
+    def set_translation(self, translation) -> None:
         if translation not in Translations:
             raise InvalidTranslation(translation)
         else:
@@ -145,12 +146,12 @@ class API:
             self.save_config()
 
             if not self.reference.empty:
-                self.set_passage(self.reference.ref_str)
+                self.set_passage(self.reference)
 
-    def get_random_verse(self):
+    def get_random_verse(self) -> Reference:
         return Reference(id=random.randrange(self.passage.reference.start_id, self.passage.reference.end_id + 1))
 
-    def add_passage(self, reference):
+    def add_passage(self, reference: Reference) -> None:
         for i, passage in enumerate(self.passages):
             # Start ID is Inside Passage
             if reference.start_id >= passage.reference.start_id and reference.start_id <= passage.reference.end_id:
@@ -172,38 +173,38 @@ class API:
         self.passages.append(Passage(reference, self.translation))
         self.passages.sort(key=lambda passage: passage.start_id, reverse=True)
 
-    def list_passages(self):
+    def list_passages(self) -> List[Passage]:
         return self.passages
 
-    def delete_passage(self, index):
+    def delete_passage(self, index: int) -> None:
         del self.passages[index]
 
-    def set_passage(self, reference):
-        self.reference = Reference(reference)
+    def set_passage(self, reference: Reference) -> None:
+        self.reference = reference
         if self.reference.empty:
             self.passage = None
         else:
             try:
                 self.passage = Passage(self.reference, self.translation)
-                self.passage.populate(require_passage_numbers=self.require_passage_numbers)
+                self.passage.populate()
             except InvalidReference as e:
                 print(e.__str__())
 
         self.save_config()
 
-    def view_passage(self):
+    def view_passage(self) -> str:
         if self.passage is not None:
             return self.passage.show(with_ref=True)
         else:
             return ""
 
-    def new_recitation(self):
+    def new_recitation(self) -> Reference:
         if self.random_single_verse:
             return self.get_random_verse()
         else:
             return self.passage.reference
 
-    def finish_recitation(self, reference, text):
+    def finish_recitation(self, reference: Reference, text: str) -> float:
         if self.fast_recitations:
             ans = self.get_fast_recitation_ans(reference)
 
@@ -242,7 +243,7 @@ class API:
 
         return score
 
-    def get_fast_recitation_ans(self, reference):
+    def get_fast_recitation_ans(self, reference: Reference) -> List[str]:
         if self.random_single_verse:
             passage = Passage(reference, self.translation)
             passage.populate()
@@ -253,7 +254,7 @@ class API:
         text = "".join([char for char in raw_text if char.isalnum() or char.isspace()])
         return [word[0] for word in text.split()]
 
-    def get_recitation_ans(self, reference):
+    def get_recitation_ans(self, reference: Reference) -> str:
         if self.random_single_verse:
             passage = Passage(reference, self.translation)
             passage.populate()
