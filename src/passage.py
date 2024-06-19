@@ -51,30 +51,30 @@ class Passage:
     def show(self, index: Optional[int] = None, with_verse: bool = False, with_ref: bool = False) -> str:
         if not self.populated:
             return ""
-        else:
-            if index is None:
-                if with_verse or self.require_passage_numbers:
-                    text = ""
-                    for i, content in enumerate(self.texts):
-                        _, _, verse_num = Reference.id_to_reference(self.reference.start_id + i)
-                        text += f"[{verse_num + 1}] " + content
-                else:
-                    text = " ".join(self.texts)
 
-                if with_ref:
-                    text = f"{text} - {self.reference.ref_str}"
-
+        if index is None:
+            if with_verse or self.require_passage_numbers:
+                text = ""
+                for i, content in enumerate(self.texts):
+                    _, _, verse_num = Reference.id_to_reference(self.reference.start_id + i)
+                    text += f"[{verse_num + 1}] " + content
             else:
-                if with_verse or self.require_passage_numbers:
-                    _, _, verse_num = Reference.id_to_reference(self.reference.start_id + index)
-                    text = f"[{verse_num + 1}]" + self.texts[index]
-                else:
-                    text = self.texts[index]
+                text = " ".join(self.texts)
 
-                if with_ref:
-                    text = f"{text} - {Reference(id=index).ref_str}"
+            if with_ref:
+                text = f"{text} - {self.reference.ref_str}"
 
-            # Spaces after new lines are no good
-            text = text.replace("\n ", "\n")
+        else:
+            if with_verse or self.require_passage_numbers:
+                _, _, verse_num = Reference.id_to_reference(self.reference.start_id + index)
+                text = f"[{verse_num + 1}]" + self.texts[index]
+            else:
+                text = self.texts[index]
 
-            return text
+            if with_ref:
+                text = f"{text} - {Reference(id=index).ref_str}"
+
+        # Spaces after new lines are no good
+        text = text.replace("\n ", "\n")
+
+        return text

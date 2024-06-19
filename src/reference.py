@@ -39,8 +39,12 @@ from src.enums import Reverse_Bible_Books
 from src.exceptions import InvalidReference
 
 
+NUM_VERSES_IN_BIBLE = 31102
+
+
 class Reference:
     def __init__(self, reference: Optional[str] = None, id: Optional[int] = None, end_id: Optional[int] = None) -> None:
+
         if reference is not None:
             if reference.strip() == "":
                 self.empty = True
@@ -58,7 +62,7 @@ class Reference:
                 self.start_id, self.end_id = self.reference_to_id(self)
 
         elif id is not None:
-            if id > 31102:
+            if id > NUM_VERSES_IN_BIBLE:
                 self.empty = True
                 self.ref_str = ""
             elif end_id is not None and id > end_id:
@@ -68,7 +72,7 @@ class Reference:
                 self.book_start, self.chapter_start, \
                         self.verse_start = self.id_to_reference(id)
 
-                if end_id is not None and end_id < 31102:
+                if end_id is not None and end_id < NUM_VERSES_IN_BIBLE:
                     self.book_end, self.chapter_end, \
                         self.verse_end = self.id_to_reference(end_id)
                 else:

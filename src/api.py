@@ -34,7 +34,6 @@
 import os
 import random
 import datetime
-from typing import List, Dict, Any
 from difflib import SequenceMatcher
 from src.enums import CACHE_DIR
 from src.enums import CONFIG_DIR
@@ -44,6 +43,7 @@ from src.models import Attempt
 from src.passage import Passage
 from src.enums import Translations
 from src.reference import Reference
+from typing import List, Dict, Union
 from src.exceptions import InvalidReference
 from src.exceptions import InvalidTranslation
 
@@ -78,7 +78,7 @@ class API:
         if not Attempt.table_exists():
             Attempt.create_table()
 
-    def load_config(self) -> Dict[str, Any]:
+    def load_config(self) -> Dict[str, Union[str, bool]]:
         config_file = self.config_path / "config"
         if not config_file.exists():
             with open(config_file, "w") as file:
