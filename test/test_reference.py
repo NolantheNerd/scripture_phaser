@@ -31,6 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from unittest.mock import MagicMock
 from test.test_base import BaseTest
 from src.reference import Reference
 from src.exceptions import InvalidReference
@@ -44,103 +45,107 @@ class ReferenceTests(BaseTest):
         """
         Can reference strings be standardized?
         """
+        translation = "ESV"
+
         verse_string1 = "1 John 3:5"
         expected_string1 = "1 John 3:5"
-        ref1 = Reference(verse_string1)
+        ref1 = Reference(translation, verse_string1)
         self.assertEqual(ref1.ref_str, expected_string1)
 
         verse_string2 = "genesis 5:1"
         expected_string2 = "Genesis 5:1"
-        ref2 = Reference(verse_string2)
+        ref2 = Reference(translation, verse_string2)
         self.assertEqual(ref2.ref_str, expected_string2)
 
         verse_string3 = "exodus 1 -   2"
         expected_string3 = "Exodus 1:1-2:25"
-        ref3 = Reference(verse_string3)
+        ref3 = Reference(translation, verse_string3)
         self.assertEqual(ref3.ref_str, expected_string3)
 
         verse_string4 = "First Peter - 2 peter 1 : 5"
         expected_string4 = "1 Peter 1:1 - 2 Peter 1:5"
-        ref4 = Reference(verse_string4)
+        ref4 = Reference(translation, verse_string4)
         self.assertEqual(ref4.ref_str, expected_string4)
 
         verse_string5 = "psalm-proverbs"
         expected_string5 = "Psalms 1:1 - Proverbs 31:31"
-        ref5 = Reference(verse_string5)
+        ref5 = Reference(translation, verse_string5)
         self.assertEqual(ref5.ref_str, expected_string5)
 
         verse_string6 = "Ezra 1 : 2-2 : 1"
         expected_string6 = "Ezra 1:2-2:1"
-        ref6 = Reference(verse_string6)
+        ref6 = Reference(translation, verse_string6)
         self.assertEqual(ref6.ref_str, expected_string6)
 
         verse_string7 = "First Peter - 2 peter 1 : 5"
         expected_string7 = "1 Peter 1:1 - 2 Peter 1:5"
-        ref7 = Reference(verse_string7)
+        ref7 = Reference(translation, verse_string7)
         self.assertEqual(ref7.ref_str, expected_string7)
 
         verse_string8 = "First Peter 1:1 - 1 peter 1 : 5"
         expected_string8 = "1 Peter 1:1-5"
-        ref8 = Reference(verse_string8)
+        ref8 = Reference(translation, verse_string8)
         self.assertEqual(ref8.ref_str, expected_string8)
 
         verse_string9 = "1 Peter 1:1 - 1 : 5"
         expected_string9 = "1 Peter 1:1-5"
-        ref9 = Reference(verse_string9)
+        ref9 = Reference(translation, verse_string9)
         self.assertEqual(ref9.ref_str, expected_string9)
 
         verse_string10 = "1 Peter 1:1 - 2 peter 1 : 5"
         expected_string10 = "1 Peter 1:1 - 2 Peter 1:5"
-        ref10 = Reference(verse_string10)
+        ref10 = Reference(translation, verse_string10)
         self.assertEqual(ref10.ref_str, expected_string10)
 
         verse_string11 = "1pet1:1 -2 pet 1 : 5"
         expected_string11 = "1 Peter 1:1 - 2 Peter 1:5"
-        ref11 = Reference(verse_string11)
+        ref11 = Reference(translation, verse_string11)
         self.assertEqual(ref11.ref_str, expected_string11)
 
         verse_string12 = "philem 10 - pHiLeM 11"
         expected_string12 = "Philemon 10-11"
-        ref12 = Reference(verse_string12)
+        ref12 = Reference(translation, verse_string12)
         self.assertEqual(ref12.ref_str, expected_string12)
 
         verse_string13 = "First  Peter -  2  peter  1  :  5"
         expected_string13 = "1 Peter 1:1 - 2 Peter 1:5"
-        ref13 = Reference(verse_string13)
+        ref13 = Reference(translation, verse_string13)
         self.assertEqual(ref13.ref_str, expected_string13)
 
         verse_string14 = "1 Peter 1:1 - 2 : 5"
         expected_string14 = "1 Peter 1:1-2:5"
-        ref14 = Reference(verse_string14)
+        ref14 = Reference(translation, verse_string14)
         self.assertEqual(ref14.ref_str, expected_string14)
 
         verse_string15 = "1Peter1:1 - 2 : 5"
         expected_string15 = "1 Peter 1:1-2:5"
-        ref15 = Reference(verse_string15)
+        ref15 = Reference(translation, verse_string15)
         self.assertEqual(ref15.ref_str, expected_string15)
 
         verse_string16 = "Obadiah 5 - Jude 20"
         expected_string16 = "Obadiah 5 - Jude 20"
-        ref16 = Reference(verse_string16)
+        ref16 = Reference(translation, verse_string16)
         self.assertEqual(ref16.ref_str, expected_string16)
 
         verse_string17 = "Obadiah5-Jonah2:2"
         expected_string17 = "Obadiah 5 - Jonah 2:2"
-        ref17 = Reference(verse_string17)
+        ref17 = Reference(translation, verse_string17)
         self.assertEqual(ref17.ref_str, expected_string17)
 
         verse_string18 = "1 John 1:1 - 2 John 13"
         expected_string18 = "1 John 1:1 - 2 John 13"
-        ref18 = Reference(verse_string18)
+        ref18 = Reference(translation, verse_string18)
         self.assertEqual(ref18.ref_str, expected_string18)
 
     def test_interpret_reference(self) -> None:
         """
         Can verse strings be interpreted?
         """
+        translation = "ESV"
+
         verse_string1 = "1 John 3:5"
         eb1, ec1, ev1, eb2, ec2, ev2 = 61, 2, 4, 61, 2, 4
-        ref1 = Reference(verse_string1)
+        ref1 = Reference(translation, verse_string1)
         self.assertEqual(eb1, ref1.book_start)
         self.assertEqual(ec1, ref1.chapter_start)
         self.assertEqual(ev1, ref1.verse_start)
@@ -150,7 +155,7 @@ class ReferenceTests(BaseTest):
 
         verse_string2 = "Genesis 49:2 - 49:8"
         eb1, ec1, ev1, eb2, ec2, ev2 = 0, 48, 1, 0, 48, 7
-        ref2 = Reference(verse_string2)
+        ref2 = Reference(translation, verse_string2)
         self.assertEqual(eb1, ref2.book_start)
         self.assertEqual(ec1, ref2.chapter_start)
         self.assertEqual(ev1, ref2.verse_start)
@@ -160,7 +165,7 @@ class ReferenceTests(BaseTest):
 
         verse_string3 = "Esther 3:7 - 10"
         eb1, ec1, ev1, eb2, ec2, ev2 = 16, 2, 6, 16, 2, 9
-        ref3 = Reference(verse_string3)
+        ref3 = Reference(translation, verse_string3)
         self.assertEqual(eb1, ref3.book_start)
         self.assertEqual(ec1, ref3.chapter_start)
         self.assertEqual(ev1, ref3.verse_start)
@@ -170,7 +175,7 @@ class ReferenceTests(BaseTest):
 
         verse_string4 = "1 Kings 4"
         eb1, ec1, ev1, eb2, ec2, ev2 = 10, 3, 0, 10, 3, 33
-        ref4 = Reference(verse_string4)
+        ref4 = Reference(translation, verse_string4)
         self.assertEqual(eb1, ref4.book_start)
         self.assertEqual(ec1, ref4.chapter_start)
         self.assertEqual(ev1, ref4.verse_start)
@@ -180,7 +185,7 @@ class ReferenceTests(BaseTest):
 
         verse_string5 = "Exodus 3 - 4:3"
         eb1, ec1, ev1, eb2, ec2, ev2 = 1, 2, 0, 1, 3, 2
-        ref5 = Reference(verse_string5)
+        ref5 = Reference(translation, verse_string5)
         self.assertEqual(eb1, ref5.book_start)
         self.assertEqual(ec1, ref5.chapter_start)
         self.assertEqual(ev1, ref5.verse_start)
@@ -190,7 +195,7 @@ class ReferenceTests(BaseTest):
 
         verse_string6 = "Jude 10"
         eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 9, 64, 0, 9
-        ref6 = Reference(verse_string6)
+        ref6 = Reference(translation, verse_string6)
         self.assertEqual(eb1, ref6.book_start)
         self.assertEqual(ec1, ref6.chapter_start)
         self.assertEqual(ev1, ref6.verse_start)
@@ -200,7 +205,7 @@ class ReferenceTests(BaseTest):
 
         verse_string7 = "Genesis"
         eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 0, 49, 25
-        ref7 = Reference(verse_string7)
+        ref7 = Reference(translation, verse_string7)
         self.assertEqual(eb1, ref7.book_start)
         self.assertEqual(ec1, ref7.chapter_start)
         self.assertEqual(ev1, ref7.verse_start)
@@ -210,7 +215,7 @@ class ReferenceTests(BaseTest):
 
         verse_string8 = "Genesis - Leviticus"
         eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 2, 26, 33
-        ref8 = Reference(verse_string8)
+        ref8 = Reference(translation, verse_string8)
         self.assertEqual(eb1, ref8.book_start)
         self.assertEqual(ec1, ref8.chapter_start)
         self.assertEqual(ev1, ref8.verse_start)
@@ -220,7 +225,7 @@ class ReferenceTests(BaseTest):
 
         verse_string9 = "Exodus 3 - 4"
         eb1, ec1, ev1, eb2, ec2, ev2 = 1, 2, 0, 1, 3, 30
-        ref9 = Reference(verse_string9)
+        ref9 = Reference(translation, verse_string9)
         self.assertEqual(eb1, ref9.book_start)
         self.assertEqual(ec1, ref9.chapter_start)
         self.assertEqual(ev1, ref9.verse_start)
@@ -230,7 +235,7 @@ class ReferenceTests(BaseTest):
 
         verse_string10 = "Jude 10 - 11"
         eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 9, 64, 0, 10
-        ref10 = Reference(verse_string10)
+        ref10 = Reference(translation, verse_string10)
         self.assertEqual(eb1, ref10.book_start)
         self.assertEqual(ec1, ref10.chapter_start)
         self.assertEqual(ev1, ref10.verse_start)
@@ -240,7 +245,7 @@ class ReferenceTests(BaseTest):
 
         verse_string11 = "Genesis 50 - Exodus 1"
         eb1, ec1, ev1, eb2, ec2, ev2 = 0, 49, 0, 1, 0, 21
-        ref11 = Reference(verse_string11)
+        ref11 = Reference(translation, verse_string11)
         self.assertEqual(eb1, ref11.book_start)
         self.assertEqual(ec1, ref11.chapter_start)
         self.assertEqual(ev1, ref11.verse_start)
@@ -250,7 +255,7 @@ class ReferenceTests(BaseTest):
 
         verse_string12 = "Jude - Revelation 1"
         eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 0, 65, 0, 19
-        ref12 = Reference(verse_string12)
+        ref12 = Reference(translation, verse_string12)
         self.assertEqual(eb1, ref12.book_start)
         self.assertEqual(ec1, ref12.chapter_start)
         self.assertEqual(ev1, ref12.verse_start)
@@ -260,25 +265,27 @@ class ReferenceTests(BaseTest):
 
         verse_string13 = "Billy"
         with self.assertRaises(InvalidReference):
-            Reference(verse_string13)
+            Reference(translation, verse_string13)
 
         verse_string14 = "Genesis 1:1 - Billy"
         with self.assertRaises(InvalidReference):
-            Reference(verse_string14)
+            Reference(translation, verse_string14)
 
         verse_string15 = "Zedekiah 14:7 - Leviticus 1:5"
         with self.assertRaises(InvalidReference):
-            Reference(verse_string15)
+            Reference(translation, verse_string15)
 
         verse_string16 = "Zedekiah 14:7 - JimBob 11:109"
         with self.assertRaises(InvalidReference):
-            Reference(verse_string16)
+            Reference(translation, verse_string16)
 
     def test_interpret_id(self) -> None:
+        translation = "ESV"
+
         # Genesis 1:1
         start_id1 = 0
         eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 0, 0, 0
-        ref1 = Reference(id=start_id1)
+        ref1 = Reference(translation, id=start_id1)
         self.assertEqual(eb1, ref1.book_start)
         self.assertEqual(ec1, ref1.chapter_start)
         self.assertEqual(ev1, ref1.verse_start)
@@ -289,7 +296,7 @@ class ReferenceTests(BaseTest):
         # Exodus 1:1
         start_id2 = 1533
         eb1, ec1, ev1, eb2, ec2, ev2 = 1, 0, 0, 1, 0, 0
-        ref2 = Reference(id=start_id2)
+        ref2 = Reference(translation, id=start_id2)
         self.assertEqual(eb1, ref2.book_start)
         self.assertEqual(ec1, ref2.chapter_start)
         self.assertEqual(ev1, ref2.verse_start)
@@ -301,7 +308,7 @@ class ReferenceTests(BaseTest):
         start_id3 = 1533
         end_id3 = 2746
         eb1, ec1, ev1, eb2, ec2, ev2 = 1, 0, 0, 2, 0, 0
-        ref3 = Reference(id=start_id3, end_id=end_id3)
+        ref3 = Reference(translation, id=start_id3, end_id=end_id3)
         self.assertEqual(eb1, ref3.book_start)
         self.assertEqual(ec1, ref3.chapter_start)
         self.assertEqual(ev1, ref3.verse_start)
@@ -312,7 +319,7 @@ class ReferenceTests(BaseTest):
         # Revelation 22:21
         start_id4 = 31102
         eb1, ec1, ev1, eb2, ec2, ev2 = 65, 21, 20, 65, 21, 20
-        ref4 = Reference(id=start_id4)
+        ref4 = Reference(translation, id=start_id4)
         self.assertEqual(eb1, ref4.book_start)
         self.assertEqual(ec1, ref4.chapter_start)
         self.assertEqual(ev1, ref4.verse_start)
@@ -321,13 +328,68 @@ class ReferenceTests(BaseTest):
         self.assertEqual(ev2, ref4.verse_end)
 
         with self.assertRaises(InvalidReference):
-            Reference(id=100, end_id=99)
+            Reference(translation, id=100, end_id=99)
 
         with self.assertRaises(InvalidReference):
-            Reference("1 Samuel 1:200")
+            Reference(translation, "1 Samuel 1:200")
 
         with self.assertRaises(InvalidReference):
-            Reference("Psalm 151:1")
+            Reference(translation, "Psalm 151:1")
 
         with self.assertRaises(InvalidReference):
-            Reference("2 Samuel 1:1 - 1 Samuel 1:1")
+            Reference(translation, "2 Samuel 1:1 - 1 Samuel 1:1")
+
+    def test_view(self) -> None:
+        """
+        Do passages display their content properly?
+        """
+        translation = "ESV"
+
+        reference = Reference(translation, "1 Peter 1:2 - 1:3")
+
+        mock_api_return = [
+        'according to the foreknowledge of God the Father, in the sanctification of '
+        'the Spirit, for obedience to Jesus Christ and for sprinkling with his blood:'
+        '\nMay grace and peace be multiplied to you. \n', 'Blessed be the God and Father '
+        'of our Lord Jesus Christ! According to his great mercy, he has caused us to be '
+        'born again to a living hope through the resurrection of Jesus Christ from the dead,'
+        ]
+
+        reference.agent.fetch = MagicMock(return_value=mock_api_return)
+
+        expected_clean = 'according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
+        'you. \nBlessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead,'
+
+        expected_verse = '[2] according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
+        'you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead,'
+
+        expected_ref = 'according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
+        'you. \nBlessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead, ' + \
+        '- 1 Peter 1:2-3'
+
+        expected_full = '[2] according to the foreknowledge of God the Father, ' + \
+        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
+        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
+        'you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
+        'According to his great mercy, he has caused us to be born again to a ' + \
+        'living hope through the resurrection of Jesus Christ from the dead, ' + \
+        '- 1 Peter 1:2-3'
+
+        reference.populate()
+
+        self.assertEqual(reference.view(include_verse_numbers=False, include_ref=True), expected_ref)
+        self.assertEqual(reference.view(include_verse_numbers=True, include_ref=True), expected_full)
+        self.assertEqual(reference.view(include_verse_numbers=False, include_ref=False), expected_clean)
+        self.assertEqual(reference.view(include_verse_numbers=True, include_ref=False), expected_verse)
