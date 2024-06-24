@@ -40,7 +40,6 @@ from src.enums import CONFIG_DIR
 from src.enums import AppDefaults
 from src.stats import Stats
 from src.models import Attempt
-from src.passage import Passage
 from src.enums import Translations
 from src.reference import Reference
 from typing import List, Dict, Union
@@ -68,10 +67,11 @@ class API:
 
         # Multiple, Infinite Acceptable Values
         # Add: api.add_{property}(); Remove: api.remove_{property}();
-        # Select: api.select_{property}(); DeSelect: api.deselect_{property}();
+        # @@@ (Nolan) Fontend Responsibility? Select: api.select_{property}(); DeSelect: api.deselect_{property}();
         # View: api.view_{property}()
-        self.reference = Reference(config.get("reference", AppDefaults.reference))
-        self.passages = []
+
+        # @@@ (Nolan): API Should only State Control Passages
+        self.references = config.get("reference", [])
         if not self.reference.empty:
             self.add_passage(self.reference)
 
@@ -91,7 +91,11 @@ class API:
         for entry in entries:
             key, value = entry.split("=")
             key, value = key.strip(), value.strip()
-            config[key] = value
+
+            if key == "reference":
+                config[key] = config.get(key, []) + [value]
+            else:
+                config[key] = value
 
         missing_keys = []
         for default_key in vars(AppDefaults):
@@ -100,7 +104,7 @@ class API:
         if len(missing_keys) > 0:
             with open(config_file, "a") as file:
                 for key in missing_keys:
-                    file.write(f"{key}={getattr(AppDefaults, key)}\n")
+                    file.write(f"={getattr(AppDefaults, key)}\n")
                     config[key] = getattr(AppDefaults, key)
 
         return config
@@ -109,7 +113,7 @@ class API:
         config = {
             "translation": self.translation,
             "random_single_verse": self.random_single_verse,
-            "reference": self.reference.ref_str,
+            "reference": [self.reference.ref_str],
             "require_passage_numbers": self.require_passage_numbers,
             "fast_recitations": self.fast_recitations
         }
@@ -120,7 +124,11 @@ class API:
 
         with open(config_file, "w") as file:
             for key in config.keys():
-                file.write(f"{key}={config[key]}\n")
+                if key == "reference":
+                    for ref in config["reference"]:
+                        file.write(f"reference={ref}\n")
+                else:
+                    file.write(f"{key}={config[key]}\n")
 
     def toggle_random_single_verse(self) -> None:
         self.random_single_verse = not self.random_single_verse
@@ -170,15 +178,26 @@ class API:
                     self.delete_passage(i)
                     self.add_passage(Reference(id=start_id, end_id=end_id))
 
-        self.passages.append(Passage(reference, self.translation))
+        #self.passages.append(Passage(reference, self.translation))
         self.passages.sort(key=lambda passage: passage.start_id, reverse=True)
 
-    def list_passages(self) -> List[Passage]:
-        return self.passages
+    #def view_passage(self) -> List[Passage]:
+        #return self.passages
 
     def delete_passage(self, index: int) -> None:
         del self.passages[index]
 
+    def bulk_delete_passage(self, indices: List[int]) -> None:
+        for index in sorted(indices, reverse=True):
+            self.delete_passage(index)
+
+    def select_passage(self) -> None:
+        pass
+
+    def deselect_passage(self) -> None:
+        pass
+
+    # @@@ (Nolan): Yeet this bad boi
     def set_passage(self, reference: Reference) -> None:
         self.reference = reference
         if self.reference.empty:
