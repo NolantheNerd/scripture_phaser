@@ -49,5 +49,5 @@ class Attempt(Model):
 
     class Meta:
         database = SqliteDatabase(
-            DATA_DIR / "scripture_phaser" / "scripture_phaser.sqlite"
+            DATA_DIR / "scripture_phaser.sqlite"
         )

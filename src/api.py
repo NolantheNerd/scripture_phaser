@@ -35,7 +35,6 @@ import os
 import random
 import datetime
 from difflib import SequenceMatcher
-from src.enums import CACHE_DIR
 from src.enums import CONFIG_DIR
 from src.enums import AppDefaults
 from src.stats import Stats
@@ -50,8 +49,6 @@ from src.exceptions import InvalidTranslation
 class API:
     def __init__(self) -> None:
         self.stats = Stats()
-        self.config_path = CONFIG_DIR / "scripture_phaser"
-        self.cache_path = CACHE_DIR / "scripture_phaser"
 
         config = self.load_config()
 
@@ -79,7 +76,7 @@ class API:
             Attempt.create_table()
 
     def load_config(self) -> Dict[str, Union[str, bool]]:
-        config_file = self.config_path / "config"
+        config_file = CONFIG_DIR / "config"
         if not config_file.exists():
             with open(config_file, "w") as file:
                 for default_key, default_value in vars(AppDefaults).items():
@@ -118,7 +115,7 @@ class API:
             "fast_recitations": self.fast_recitations
         }
 
-        config_file = self.config_path / "config"
+        config_file = CONFIG_DIR / "config"
 
         os.remove(config_file)
 
