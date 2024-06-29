@@ -109,14 +109,6 @@ class TermColours:
     UNDERLINE = '\033[4m'
 
 
-class AppDefaults:
-    translation = "NIV"
-    random_single_verse = False
-    reference = ""
-    require_passage_numbers = False
-    fast_recitations = False
-
-
 Translations: List[str]  = ["ESV", "NIV", "KJV", "NKJV", "NLT", "NASB", "NRSV", "WEB"]
 
 Genesis: List[int] = [31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27,

@@ -36,7 +36,6 @@ import random
 import datetime
 from difflib import SequenceMatcher
 from src.enums import CONFIG_DIR
-from src.enums import AppDefaults
 from src.stats import Stats
 from src.models import Attempt
 from src.enums import Translations
@@ -44,6 +43,14 @@ from src.reference import Reference
 from typing import List, Dict, Union
 from src.exceptions import InvalidReference
 from src.exceptions import InvalidTranslation
+
+
+class SPDefault:
+    translation = "NIV"
+    random_single_verse = "False"
+    reference = ""
+    require_passage_numbers = "False"
+    fast_recitations = "False"
 
 
 class API:
@@ -54,13 +61,13 @@ class API:
 
         # Single, Boolean
         # Get: api.{property}; Set: api.toggle_{property}()
-        self.random_single_verse = config.get("random_single_verse", AppDefaults.random_single_verse) == "True"
-        self.require_passage_numbers = config.get("require_passage_numbers", AppDefaults.require_passage_numbers) == "True"
-        self.fast_recitations = config.get("fast_recitaitons", AppDefaults.fast_recitations) == "True"
+        self.random_single_verse = config.get("random_single_verse", SPDefault.random_single_verse) == "True"
+        self.require_passage_numbers = config.get("require_passage_numbers", SPDefault.require_passage_numbers) == "True"
+        self.fast_recitations = config.get("fast_recitaitons", SPDefault.fast_recitations) == "True"
 
         # Single, Finite Acceptable Value
         # Get: api.{property}; Set: api.set_{property}(); View: api.view_{property}()
-        self.translation = config.get("translation", AppDefaults.translation)
+        self.translation = config.get("translation", SPDefault.translation)
 
         # Multiple, Infinite Acceptable Values
         # Add: api.add_{property}(); Remove: api.remove_{property}();
@@ -79,7 +86,7 @@ class API:
         config_file = CONFIG_DIR / "config"
         if not config_file.exists():
             with open(config_file, "w") as file:
-                for default_key, default_value in vars(AppDefaults).items():
+                for default_key, default_value in vars(SPDefault).items():
                     file.write(f"{default_key}={default_value}\n")
 
         with open(config_file, "r") as file:
@@ -95,14 +102,14 @@ class API:
                 config[key] = value
 
         missing_keys = []
-        for default_key in vars(AppDefaults):
+        for default_key in vars(SPDefault):
             if default_key not in config:
                 missing_keys.append(default_key)
         if len(missing_keys) > 0:
             with open(config_file, "a") as file:
                 for key in missing_keys:
-                    file.write(f"={getattr(AppDefaults, key)}\n")
-                    config[key] = getattr(AppDefaults, key)
+                    file.write(f"={getattr(SPDefault, key)}\n")
+                    config[key] = getattr(SPDefault, key)
 
         return config
 
