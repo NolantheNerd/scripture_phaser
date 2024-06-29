@@ -41,6 +41,7 @@ from src.models import Attempt
 from src.enums import Translations
 from src.reference import Reference
 from typing import List, Dict, Union
+from src.exceptions import NoReferences
 from src.exceptions import InvalidReference
 from src.exceptions import InvalidTranslation
 
@@ -48,7 +49,6 @@ from src.exceptions import InvalidTranslation
 class SPDefault:
     translation = "NIV"
     random_single_verse = "False"
-    reference = ""
     require_passage_numbers = "False"
     fast_recitations = "False"
 
@@ -56,28 +56,17 @@ class SPDefault:
 class API:
     def __init__(self) -> None:
         self.stats = Stats()
-
         config = self.load_config()
 
-        # Single, Boolean
-        # Get: api.{property}; Set: api.toggle_{property}()
         self.random_single_verse = config.get("random_single_verse", SPDefault.random_single_verse) == "True"
         self.require_passage_numbers = config.get("require_passage_numbers", SPDefault.require_passage_numbers) == "True"
         self.fast_recitations = config.get("fast_recitaitons", SPDefault.fast_recitations) == "True"
 
-        # Single, Finite Acceptable Value
-        # Get: api.{property}; Set: api.set_{property}(); View: api.view_{property}()
         self.translation = config.get("translation", SPDefault.translation)
 
-        # Multiple, Infinite Acceptable Values
-        # Add: api.add_{property}(); Remove: api.remove_{property}();
-        # @@@ (Nolan) Fontend Responsibility? Select: api.select_{property}(); DeSelect: api.deselect_{property}();
-        # View: api.view_{property}()
-
-        # @@@ (Nolan): API Should only State Control Passages
-        self.references = config.get("reference", [])
-        if not self.reference.empty:
-            self.add_passage(self.reference)
+        self.references = []
+        for ref in config["reference"]:
+            self.add_reference(ref)
 
         if not Attempt.table_exists():
             Attempt.create_table()
@@ -117,13 +106,12 @@ class API:
         config = {
             "translation": self.translation,
             "random_single_verse": self.random_single_verse,
-            "reference": [self.reference.ref_str],
+            "reference": [ref.ref_str for ref in self.references],
             "require_passage_numbers": self.require_passage_numbers,
             "fast_recitations": self.fast_recitations
         }
 
         config_file = CONFIG_DIR / "config"
-
         os.remove(config_file)
 
         with open(config_file, "w") as file:
@@ -163,63 +151,49 @@ class API:
     def get_random_verse(self) -> Reference:
         return Reference(id=random.randrange(self.passage.reference.start_id, self.passage.reference.end_id + 1))
 
-    def add_passage(self, reference: Reference) -> None:
-        for i, passage in enumerate(self.passages):
+    def add_reference(self, ref: str) -> None:
+        recursed = False
+        new_reference = Reference(ref)
+        for i, old_reference in enumerate(self.references):
             # Start ID is Inside Passage
-            if reference.start_id >= passage.reference.start_id and reference.start_id <= passage.reference.end_id:
+            if new_reference.start_id >= old_reference.start_id and new_reference.start_id <= old_reference.end_id:
                 # New Reference Extends Past Existing Passage
-                if reference.end_id > passage.reference.end_id:
-                    start_id = passage.reference.start_id
-                    end_id = reference.end_id
-                    self.delete_passage(i)
-                    self.add_passage(Reference(id=start_id, end_id=end_id))
+                if new_reference.end_id > old_reference.end_id:
+                    recursed = True
+                    start_id = old_reference.start_id
+                    end_id = new_reference.end_id
+                    self.delete_reference(i)
+                    self.add_reference(Reference(id=start_id, end_id=end_id))
             # End ID is Inside Passage
-            elif reference.end_id >= passage.reference.start_id and reference.end_id <= passage.reference.end_id:
+            elif new_reference.end_id >= old_reference.start_id and new_reference.end_id <= old_reference.end_id:
                 # New Reference Extends Before Existing Passage
-                if reference.start_id < passage.reference.start_id:
-                    start_id = reference.start_id
-                    end_id = passage.reference.end_id
-                    self.delete_passage(i)
-                    self.add_passage(Reference(id=start_id, end_id=end_id))
+                if new_reference.start_id < old_reference.start_id:
+                    recursed = True
+                    start_id = new_reference.start_id
+                    end_id = old_reference.end_id
+                    self.delete_reference(i)
+                    self.add_reference(Reference(id=start_id, end_id=end_id))
 
-        #self.passages.append(Passage(reference, self.translation))
-        self.passages.sort(key=lambda passage: passage.start_id, reverse=True)
+        if not recursed:
+            self.references.append(new_reference)
+            self.references.sort(key=lambda reference: reference.start_id)
+            self.save_config()
 
-    #def view_passage(self) -> List[Passage]:
-        #return self.passages
+    def list_references(self) -> List[str]:
+        if len(self.references) == 0:
+           raise NoReferences()
 
-    def delete_passage(self, index: int) -> None:
-        del self.passages[index]
+        return [reference.ref_str for reference in self.references]
 
-    def bulk_delete_passage(self, indices: List[int]) -> None:
-        for index in sorted(indices, reverse=True):
-            self.delete_passage(index)
+    def view_reference(self, index: int) -> str:
+        if len(self.references) == 0:
+           raise NoReferences()
 
-    def select_passage(self) -> None:
-        pass
+        return self.references[index].view(include_verse_numbers=False, include_ref=True)
 
-    def deselect_passage(self) -> None:
-        pass
+    def delete_reference(self, index: int) -> None:
+        del self.references[index]
 
-    # @@@ (Nolan): Yeet this bad boi
-    def set_passage(self, reference: Reference) -> None:
-        self.reference = reference
-        if self.reference.empty:
-            self.passage = None
-        else:
-            try:
-                self.passage = Passage(self.reference, self.translation)
-                self.passage.populate()
-            except InvalidReference as e:
-                print(e.__str__())
-
-        self.save_config()
-
-    def view_passage(self) -> str:
-        if self.passage is not None:
-            return self.passage.show(with_ref=True)
-        else:
-            return ""
 
     def new_recitation(self) -> Reference:
         if self.random_single_verse:

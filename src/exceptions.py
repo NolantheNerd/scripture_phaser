@@ -47,3 +47,7 @@ class InvalidTranslation(Exception):
 class EditorNotFound(Exception):
     def __init__(self) -> None:
         Exception.__init__(self, "Text editor not found; set the 'EDITOR' environmental variable and try again")
+
+class NoReferences(Exception):
+    def __init__(self) -> None:
+        Exception.__init__(self, "No available references")
