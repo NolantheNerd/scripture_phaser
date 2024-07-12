@@ -35,14 +35,12 @@ from peewee import Model
 from peewee import TextField
 from peewee import CharField
 from peewee import FloatField
-from peewee import BooleanField
 from peewee import DateTimeField
 from peewee import SqliteDatabase
 from src.enums import DATA_DIR
 
 class Attempt(Model):
     datetime = DateTimeField(null=True)
-    random_single_verse = BooleanField()
     reference = CharField()
     score = FloatField(null=True)
     attempt = TextField(null=True)

@@ -114,12 +114,12 @@ class Reference:
         if not self.populated:
             self.populate()
 
-        if include_verse_numbers:
+        if not include_verse_numbers:
             text = self.texts
         else:
             text = ""
             for i, content in enumerate(self.texts):
-                _, _, verse_num = Reference.id_to_reference(self.reference.start_id + i)
+                _, _, verse_num = Reference.id_to_reference(self.start_id + i)
                 text += f"[{verse_num + 1}] {content}"
 
         text = "".join([char for char in text if char.isalnum() or char.isspace()])

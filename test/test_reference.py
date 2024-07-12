@@ -393,3 +393,20 @@ class ReferenceTests(BaseTest):
         self.assertEqual(reference.view(include_verse_numbers=True, include_ref=True), expected_full)
         self.assertEqual(reference.view(include_verse_numbers=False, include_ref=False), expected_clean)
         self.assertEqual(reference.view(include_verse_numbers=True, include_ref=False), expected_verse)
+
+    def test_get_fast_recitation_ans(self) -> None:
+        """
+        Can the Reference fetch the first letter of each word in a passage?
+        """
+        reference = Reference("ESV", "2 Timothy 3:16-17")
+        content = "All Scripture is breathed out by God and profitable " + \
+        "for teaching, for reproof, for correction, and for training in " + \
+        "righteousness, that the man of God may be complete, equipped " + \
+        "for every good work."
+        reference.agent.fetch = MagicMock(return_value=content)
+
+        expected = ["A", "S", "i", "b", "o", "b", "G", "a", "p", "f", "t",
+                    "f", "r", "f", "c", "a", "f", "t", "i", "r", "t", "t",
+                    "m", "o", "G", "m", "b", "c", "e", "f", "e", "g", "w"]
+
+        self.assertEqual(reference.view_first_letter(include_verse_numbers=False), expected)
