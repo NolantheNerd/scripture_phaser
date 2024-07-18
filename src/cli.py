@@ -43,6 +43,7 @@ from src.enums import RELEASE_DATE
 from src.enums import license_text
 from difflib import SequenceMatcher
 from src.enums import TermColours as TC
+from src.exceptions import NoReferences
 from src.exceptions import EditorNotFound
 from src.exceptions import InvalidTranslation
 from src.reference import Reference
@@ -243,13 +244,16 @@ class CLISTR:
         )
 
     def REFERENCE(self) -> str:
-        return f"Reference:{TC.YELLOW} {self.api.passage.reference.ref_str}{TC.WHITE}"
+        try:
+            return f"References:{TC.YELLOW} {"\t, ".join(self.api.list_references())}{TC.WHITE}"
+        except NoReferences:
+            return f"Reference:{TC.RED} No references set{TC.WHITE}"
 
     def TRANSLATION(self) -> str:
         return f"Translation:{TC.YELLOW} {self.api.translation}{TC.WHITE}"
 
-    def RANDOM_SINGLE_VERSE(self) -> str:
-        return f"Random Single Verse Recitations:{TC.YELLOW} {self.api.random_single_verse}{TC.WHITE}"
+    def SINGLE_VERSE_RECITATIONS(self) -> str:
+        return f"Single Verse Recitations:{TC.YELLOW} {self.api.one_verse_recitation}{TC.WHITE}"
 
     def REQUIRE_PASSAGE_NUMBERS(self) -> str:
         return f"Require Passage Numbers:{TC.YELLOW} {self.api.require_passage_numbers}{TC.WHITE}"
@@ -257,11 +261,11 @@ class CLISTR:
     def FAST_RECITATIONS(self) -> str:
         return f"Fast Recitations:{TC.YELLOW} {self.api.fast_recitations}{TC.WHITE}"
 
-    def SET_RANDOM_SINGLE_VERSE(self) -> str:
-        return f"Toggled random single verse recitations to {TC.YELLOW}{self.api.random_single_verse}{TC.WHITE}"
+    def SET_ONE_VERSE_RECITATION(self) -> str:
+        return f"Toggled recitations to {TC.YELLOW}{self.api.random_single_verse}{TC.WHITE}"
 
     def SET_PASSAGE_NUMBERS(self) -> str:
-        return f"Toggled require passage numbers to {TC.YELLOW}{self.api.require_passage_numbers}{TC.WHITE}"
+        return f"Toggled include passage numbers to {TC.YELLOW}{self.api.require_passage_numbers}{TC.WHITE}"
 
     def SET_FAST_RECITATIONS(self) -> str:
         return f"Toggled fast recitations to {TC.YELLOW}{self.api.fast_recitations}{TC.WHITE}"
@@ -270,10 +274,13 @@ class CLISTR:
         return f"{TC.RED}Invalid Translation\n{TC.WHITE}Choose one of:\n{TC.YELLOW}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
 
     def AVAILABLE_TRANSLATIONS(self) -> str:
-        return f"Available Translations:\n{TC.YELLOW}" + "\n".join(self.api.view_translation()) + f"{TC.WHITE}"
+        return f"Available Translations:\n{TC.YELLOW}" + "\n".join(self.api.view_translations()) + f"{TC.WHITE}"
 
     def PASSAGE(self) -> str:
-        return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
+        try:
+            return f"{TC.CYAN}{self.api.view_passage()}{TC.WHITE}"
+        except NoReferences:
+            return f"Reference:{TC.RED} No references set{TC.WHITE}"
 
     def TEXT_SCORE(self, score: float, diff: str) -> str:
         if score == 1.0:
@@ -476,23 +483,20 @@ class CLI:
 
             # Current State
             elif user_input == "l" or user_input == "list":
-                if self.api.passage is not None:
-                    print(self.messages.REFERENCE())
-                else:
-                    print(self.messages.NO_REFERENCE())
+                print(self.messages.REFERENCE())
                 print(self.messages.TRANSLATION())
-                print(self.messages.RANDOM_SINGLE_VERSE())
+                print(self.messages.SINGLE_VERSE_RECITATIONS())
                 print(self.messages.REQUIRE_PASSAGE_NUMBERS())
                 print(self.messages.FAST_RECITATIONS())
 
             # Set (Toggle) Random Single Verse
             elif user_input == "m" or user_input == "single":
-                self.api.toggle_random_single_verse()
-                print(self.messages.SET_RANDOM_SINGLE_VERSE())
+                self.api.toggle_one_verse_recitation()
+                print(self.messages.SET_ONE_VERSE_RECITATION())
 
             # Set (Toggle) the Passage Numbers
             elif user_input == "n" or user_input == "numbers":
-                self.api.toggle_require_passage_numbers()
+                self.api.toggle_include_verse_numbers()
                 print(self.messages.SET_PASSAGE_NUMBERS())
 
             # Set (Toggle) Fast Recitations
@@ -500,24 +504,23 @@ class CLI:
                 self.api.toggle_fast_recitations()
                 print(self.messages.SET_FAST_RECITATIONS())
 
+            # @@@ FIX
             # Set Reference
             elif user_input == "r" or user_input == "reference":
                 ref_str = input(self.messages.REFERENCE_PROMPT())
                 # @@@ TODO: Rather not make a Reference IN the CLI
                 self.api.set_passage(Reference(ref_str))
 
+            # @@@ FIX
             # View Passage
             elif user_input == "v" or user_input == "view":
-                if self.api.passage is not None:
-                    print(self.messages.PASSAGE())
-                else:
-                    print(self.messages.NO_REFERENCE())
+                print(self.messages.PASSAGE())
 
             # Set Translation
             elif user_input == "t" or user_input == "translation":
-                trn_str = input(self.messages.TRANSLATION_PROMPT()).upper()
+                translation = input(self.messages.TRANSLATION_PROMPT()).upper()
                 try:
-                    self.api.set_translation(trn_str)
+                    self.api.set_translation(translation)
                 except InvalidTranslation:
                     print(self.messages.INVALID_TRANSLATION())
 
@@ -525,16 +528,17 @@ class CLI:
             elif user_input == "i" or user_input == "inquire":
                 print(self.messages.AVAILABLE_TRANSLATIONS())
 
+            # @@@ FIX
             # Practice Passage
             elif user_input == "p" or user_input == "practice":
-                if self.api.passage is None:
-                    print(self.messages.NO_REFERENCE())
-                else:
-                    reference = self.api.new_recitation()
+                try:
+                    reference = self.api.get_reference()
                     if self.api.fast_recitations:
                         self.fast_recitation(reference)
                     else:
                         self.text_recitation(reference)
+                except NoReferences:
+                    print(self.messages.NO_REFERENCE())
 
             # Show Stats
             elif user_input == "s" or user_input == "stats":

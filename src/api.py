@@ -141,7 +141,7 @@ class API:
         self.include_verse_numbers = not self.include_verse_numbers
         self.save_config()
 
-    def view_translation(self) -> List[str]:
+    def view_translations(self) -> List[str]:
         return Translations
 
     def set_translation(self, translation) -> None:
