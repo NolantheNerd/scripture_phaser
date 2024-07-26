@@ -475,7 +475,10 @@ class CLI:
         print(self.messages.WELCOME())
 
         while True:
-            user_input = input(self.messages.CLI_PROMPT()).strip().lower()
+            try:
+                user_input = input(self.messages.CLI_PROMPT()).strip().lower()
+            except KeyboardInterrupt:
+                break
 
             # Exit
             if user_input == "q" or user_input == "quit":
