@@ -22,8 +22,8 @@ scripture_phaser has a modal CLI. This means that the commands that are availabl
 
 When you first start scripture_phaser, you are dropped into the standard mode (">" prompt) and have the following commands are available to you:
 
-* l/list        - Lists selected reference, random single verse selection, translation, whether or not to show the passage numbers and whether or not fast recitation mode is selected
-* n/numbers     - Toggles whether or not to include the passage numbers
+* l/list        - Lists selected reference, random single verse selection, translation, whether or not to show the reference numbers and whether or not fast recitation mode is selected
+* n/numbers     - Toggles whether or not to include the reference numbers
 * m/single      - Toggles whether or not to practice random single verses
 * f/fast        - Toggles whether or not to use fast recitation mode when reciting
 * r/reference   - Sets the reference

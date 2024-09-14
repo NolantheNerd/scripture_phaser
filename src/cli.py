@@ -113,7 +113,7 @@ class CLISTR:
             f"\t{TC.BLUE}I{TC.WHITE} - List available translations\n"
             f"\t{TC.BLUE}L{TC.WHITE} - Lists selected reference, random single verse recitations and translation\n"
             f"\t{TC.BLUE}M{TC.WHITE} - Toggles whether or not to practice random single verses\n"
-            f"\t{TC.BLUE}N{TC.WHITE} - Toggles whether or not to include the passage numbers\n"
+            f"\t{TC.BLUE}N{TC.WHITE} - Toggles whether or not to include the reference numbers\n"
             f"\t{TC.BLUE}P{TC.WHITE} - Practice the current reference\n"
             f"\t{TC.BLUE}R{TC.WHITE} - Sets the reference\n"
             f"\t{TC.BLUE}S{TC.WHITE} - View recitation statistics\n"
@@ -157,6 +157,10 @@ class CLISTR:
     @staticmethod
     def EXIT_TO_NORMAL_MODE() -> str:
         return "Exiting to Normal Mode!"
+
+    @staticmethod
+    def CONFIRM_REFERENCE_DELETION() -> str:
+        return "Are you sure that you want to delete the selected references? [y/N] "
 
     def ALL_VERSES_RANKED(self) -> str:
         verse_scores, verse_counts = self.api.stats.all_verses_ranked()
@@ -255,8 +259,8 @@ class CLISTR:
     def SINGLE_VERSE_RECITATIONS(self) -> str:
         return f"Single Verse Recitations:{TC.YELLOW} {self.api.one_verse_recitation}{TC.WHITE}"
 
-    def REQUIRE_PASSAGE_NUMBERS(self) -> str:
-        return f"Require Passage Numbers:{TC.YELLOW} {self.api.require_passage_numbers}{TC.WHITE}"
+    def INLCUDE_VERSE_NUMBERS(self) -> str:
+        return f"Include Verse Numbers:{TC.YELLOW} {self.api.include_verse_numbers}{TC.WHITE}"
 
     def FAST_RECITATIONS(self) -> str:
         return f"Fast Recitations:{TC.YELLOW} {self.api.fast_recitations}{TC.WHITE}"
@@ -264,8 +268,8 @@ class CLISTR:
     def SET_ONE_VERSE_RECITATION(self) -> str:
         return f"Toggled recitations to {TC.YELLOW}{self.api.random_single_verse}{TC.WHITE}"
 
-    def SET_PASSAGE_NUMBERS(self) -> str:
-        return f"Toggled include passage numbers to {TC.YELLOW}{self.api.require_passage_numbers}{TC.WHITE}"
+    def SET_VERSE_NUMBERS(self) -> str:
+        return f"Toggled include verse numbers to {TC.YELLOW}{self.api.include_verse_numbers}{TC.WHITE}"
 
     def SET_FAST_RECITATIONS(self) -> str:
         return f"Toggled fast recitations to {TC.YELLOW}{self.api.fast_recitations}{TC.WHITE}"
@@ -471,6 +475,40 @@ class CLI:
 
             print(self.messages.TEXT_SCORE(score, diff))
 
+    def referenceloop(self) -> None:
+        print(self.messages.REFERENCE_WELCOME())
+        selected_reference_indices = []
+
+        while True:
+            try:
+                key = readchar.readkey().lower()
+            except KeyboardInterrupt:
+                break
+
+            # Exit
+            if user_input == "q":
+                break
+
+            # Add Reference
+            elif user_input == "a":
+                ref_str = input(self.messages.REFERENCE_PROMPT())
+                self.api.add_reference(ref_str)
+
+            # Delete Selected References
+            elif user_input == "d":
+                confirmation = input(self.messages.CONFIRM_REFERENCE_DELETION()).lower()
+                if confirmation == "y" or confirmation == "yes":
+                    for index in selected_reference_indices:
+                        self.api.delete_reference(index)
+
+            # Toggle Reference Selection
+            elif user_input == " ":
+                pass
+
+            # Practice Reference
+            elif user_input == "p":
+                pass
+
     def mainloop(self) -> None:
         print(self.messages.WELCOME())
 
@@ -489,7 +527,7 @@ class CLI:
                 print(self.messages.REFERENCE())
                 print(self.messages.TRANSLATION())
                 print(self.messages.SINGLE_VERSE_RECITATIONS())
-                print(self.messages.REQUIRE_PASSAGE_NUMBERS())
+                print(self.messages.INLCUDE_VERSE_NUMBERS())
                 print(self.messages.FAST_RECITATIONS())
 
             # Set (Toggle) Random Single Verse
@@ -497,10 +535,10 @@ class CLI:
                 self.api.toggle_one_verse_recitation()
                 print(self.messages.SET_ONE_VERSE_RECITATION())
 
-            # Set (Toggle) the Passage Numbers
+            # Set (Toggle) the Verse Numbers
             elif user_input == "n" or user_input == "numbers":
                 self.api.toggle_include_verse_numbers()
-                print(self.messages.SET_PASSAGE_NUMBERS())
+                print(self.messages.SET_VERSE_NUMBERS())
 
             # Set (Toggle) Fast Recitations
             elif user_input == "f" or user_input == "fast":
