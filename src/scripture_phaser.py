@@ -34,7 +34,7 @@
 from src.cli import CLI
 
 
-def scripture_phaser():
+def scripture_phaser() -> None:
     CLI()
 
 

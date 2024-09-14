@@ -31,6 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from typing import List, Dict
 from src.enums import Bible
 from src.enums import Bible_Books
 from src.enums import Reverse_Bible_Books
@@ -40,15 +41,15 @@ from meaningless.bible_web_extractor import WebExtractor
 # Remains Distinct from BibleGateway Agent in the Event that Another API is
 # Needs to be Used
 class BaseAPIAgent:
-    def __init__(self, translation):
+    def __init__(self, translation: str) -> None:
         self.translation = translation
 
-    def fetch(self, ref):
+    def fetch(self, book_start: int, chapter_start: int, verse_start: int, book_end: int, chapter_end: int, verse_end: int) -> List[str]:
         raise NotImplementedError("Child agent must implement fetch()")
 
 
 class BibleGatewayAgent(BaseAPIAgent):
-    def __init__(self, translation):
+    def __init__(self, translation: str) -> None:
         self.translation = translation
         self.xtcr = WebExtractor(
             show_passage_numbers=False,
@@ -58,103 +59,103 @@ class BibleGatewayAgent(BaseAPIAgent):
             use_ascii_punctuation=True
         )
 
-    def fetch(self, ref):
-        b1 = Bible_Books[ref.book_start]
-        c1 = ref.chapter_start + 1
-        v1 = ref.verse_start + 1
-        b2 = Bible_Books[ref.book_end]
-        c2 = ref.chapter_end + 1
-        v2 = ref.verse_end + 1
+    def fetch(self, book_start: int, chapter_start: int, verse_start: int, book_end: int, chapter_end: int, verse_end: int) -> List[str]:
+        book_start = Bible_Books[book_start]
+        chapter_start += 1
+        verse_start += 1
+        book_end = Bible_Books[book_end]
+        chapter_end += 1
+        verse_end += 1
 
-        if b1 == b2:
+        if book_start == book_end:
             return self.xtcr.get_passage_range(
-                book=b1,
-                chapter_from=c1,
-                passage_from=v1,
-                chapter_to=c2,
-                passage_to=v2
+                book=book_start,
+                chapter_from=chapter_start,
+                passage_from=verse_start,
+                chapter_to=chapter_end,
+                passage_to=verse_end
             )
         else:
             verses = []
-            while b1 != b2:
+            while book_start != book_end:
                 verses.extend(self.xtcr.get_passage_range(
-                        book=b1,
-                        chapter_from=c1,
-                        passage_from=v1,
-                        chapter_to=len(Bible[b1]),
-                        passage_to=Bible[b1][-1]
+                        book=book_start,
+                        chapter_from=chapter_start,
+                        passage_from=verse_start,
+                        chapter_to=len(Bible[Reverse_Bible_Books[book_start]]),
+                        passage_to=Bible[Reverse_Bible_Books[book_start]][-1]
                     )
                 )
-                b1 = Bible_Books[Reverse_Bible_Books[b1] + 1]
-                c1, v1 = 0, 0
+                book_start = Bible_Books[Reverse_Bible_Books[book_start] + 1]
+                chapter_start, verse_start = 0, 0
 
             verses.extend(self.xtcr.get_passage_range(
-                    book=b1,
-                    chapter_from=c1,
-                    passage_from=v1,
-                    chapter_to=c2,
-                    passage_to=v2
+                    book=book_start,
+                    chapter_from=chapter_start,
+                    passage_from=verse_start,
+                    chapter_to=chapter_end,
+                    passage_to=verse_end
                 )
             )
             return verses
 
 class KJVBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             translation="KJV"
         )
 
 
 class WEBBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             translation="WEB"
         )
 
 
 class ESVBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             translation="ESV"
         )
 
 
 class NIVBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             translation="NIV"
         )
 
 
 class NKJVBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             translation="NKJV"
         )
 
 
 class NLTBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             translation="NLT"
         )
 
 
 class NASBBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             translation="NASB"
         )
 
 
 class NRSVBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             translation="NRSV"
         )
 
 
-Agents = {
+Agents: Dict[str, BibleGatewayAgent] = {
     "ESV": ESVBibleGatewayAgent(),
     "NIV": NIVBibleGatewayAgent(),
     "NASB": NASBBibleGatewayAgent(),

@@ -31,15 +31,22 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from typing import List
 from src.enums import Bible
+from src.agents import Agents
 from itertools import accumulate
 from src.enums import Bible_Books
+from typing import Optional, Tuple
 from src.enums import Reverse_Bible_Books
 from src.exceptions import InvalidReference
 
 
 class Reference:
-    def __init__(self, reference=None, id=None, end_id=None):
+    def __init__(self, translation: str, reference: Optional[str] = None, id: Optional[int] = None, end_id: Optional[int] = None) -> None:
+        self.agent = Agents[translation]
+        self.texts = []
+        self.populated = False
+
         if reference is not None:
             if reference.strip() == "":
                 self.empty = True
@@ -57,7 +64,9 @@ class Reference:
                 self.start_id, self.end_id = self.reference_to_id(self)
 
         elif id is not None:
-            if id > 31102:
+            NUM_VERSES_IN_BIBLE = 31102
+
+            if id > NUM_VERSES_IN_BIBLE:
                 self.empty = True
                 self.ref_str = ""
             elif end_id is not None and id > end_id:
@@ -67,7 +76,7 @@ class Reference:
                 self.book_start, self.chapter_start, \
                         self.verse_start = self.id_to_reference(id)
 
-                if end_id is not None and end_id < 31102:
+                if end_id is not None and end_id < NUM_VERSES_IN_BIBLE:
                     self.book_end, self.chapter_end, \
                         self.verse_end = self.id_to_reference(end_id)
                 else:
@@ -77,8 +86,47 @@ class Reference:
 
                 self.ref_str = self.standardize_reference()
 
+    def populate(self) -> None:
+        self.texts = self.agent.fetch(
+            self.book_start, self.chapter_start, self.verse_start,
+            self.book_end, self.chapter_end, self.verse_end
+        )
+        self.populated = True
+
+    def view(self, include_verse_numbers: bool, include_ref: bool) -> str:
+        if not self.populated:
+            self.populate()
+
+        if not include_verse_numbers:
+            text = f"{' '.join(self.texts)}".replace("\n ", "\n")
+        else:
+            text = ""
+            for i, content in enumerate(self.texts):
+                _, _, verse_num = Reference.id_to_reference(self.start_id + i)
+                text += f"[{verse_num + 1}] {content}"
+
+        if include_ref:
+            return f"{text} - {self.ref_str}"
+        else:
+            return f"{text}".replace("\n ", "\n")
+
+    def view_first_letter(self, include_verse_numbers: bool) -> List[str]:
+        if not self.populated:
+            self.populate()
+
+        if not include_verse_numbers:
+            text = self.texts
+        else:
+            text = ""
+            for i, content in enumerate(self.texts):
+                _, _, verse_num = Reference.id_to_reference(self.start_id + i)
+                text += f"[{verse_num + 1}] {content}"
+
+        text = "".join([char for char in text if char.isalnum() or char.isspace()])
+        return [word[0] for word in text.split()]
+
     @staticmethod
-    def reference_replacements(ref):
+    def reference_replacements(ref: str) -> str:
         # Replace "Psalm" -> "Psalms" will also turn "Psalms" -> "Psalmss"
         ref = ref \
             .replace(".", "") \
@@ -177,7 +225,7 @@ class Reference:
         return ref
 
     @classmethod
-    def clean_reference(cls, ref):
+    def clean_reference(cls, ref: str) -> str:
         ref = " ".join(ref.split()) # Multiple Whitespaces -> One Whitespace
         ref = ref.strip().lower().title()
 
@@ -219,7 +267,7 @@ class Reference:
         return new_ref
 
     @classmethod
-    def interpret_reference(cls, ref):
+    def interpret_reference(cls, ref: str) -> Tuple[int, int, int, int, int, int]:
         ref = cls.clean_reference(ref)
 
         # Handle a Single Whole Book Reference [Genesis]
@@ -356,7 +404,7 @@ class Reference:
 
         return book_start, chapter_start, verse_start, book_end, chapter_end, verse_end
 
-    def standardize_reference(self):
+    def standardize_reference(self) -> str:
         # Single Book Reference? - Only Print Book Name Once
         if self.book_start == self.book_end:
             # Single Chapter Book? - No ":"s
@@ -427,7 +475,7 @@ class Reference:
                     f"{self.chapter_end + 1}:{self.verse_end + 1}"
                 )
 
-    def validate_reference(self, ref):
+    def validate_reference(self, ref: str) -> None:
         if self.book_start > self.book_end:
             raise InvalidReference(ref)
         if self.chapter_start >= len(Bible[self.book_start]):
@@ -440,7 +488,7 @@ class Reference:
             raise InvalidReference(ref)
 
     @staticmethod
-    def reference_to_id(ref):
+    def reference_to_id(ref: 'Reference') -> Tuple[int, int]:
         start_id = sum(
             [sum(book) for book in Bible[:ref.book_start]]
         )
@@ -461,7 +509,7 @@ class Reference:
         return start_id, end_id
 
     @staticmethod
-    def id_to_reference(verse_id):
+    def id_to_reference(verse_id: int) -> Tuple[int, int, int]:
         verse_sums = list(accumulate([sum(book) for book in Bible]))
         book_id = [verse_id < bound for bound in verse_sums].index(True)
 

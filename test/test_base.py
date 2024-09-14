@@ -33,23 +33,21 @@
 
 import os
 import unittest
-from src.enums import App
 from src.enums import CONFIG_DIR
 
 
 class BaseTest(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
-        config_path = CONFIG_DIR / App.Name.value
-        cls.config_file = config_path / "config"
-        cls.temp_config_file = config_path / "config_TEST"
+    def setUpClass(cls) -> None:
+        cls.config_file = CONFIG_DIR / "config"
+        cls.temp_config_file = CONFIG_DIR / "config_TEST"
         if cls.temp_config_file.exists():
             os.remove(cls.temp_config_file)
         if cls.config_file.exists():
             os.rename(cls.config_file, cls.temp_config_file)
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         if cls.temp_config_file.exists():
             if cls.config_file.exists():
                 os.remove(cls.config_file)

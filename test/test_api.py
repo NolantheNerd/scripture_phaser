@@ -36,7 +36,6 @@ from unittest.mock import patch
 from unittest.mock import MagicMock
 from test.test_base import BaseTest
 from src.api import API
-from src.passage import Passage
 from src.reference import Reference
 from src.exceptions import InvalidTranslation
 
@@ -45,7 +44,7 @@ class APITests(BaseTest):
     """
     Test Backend API
     """
-    def test_translation_setter(self):
+    def test_translation_setter(self) -> None:
         """
         Are invalid translation selections rejected?
         """
@@ -53,12 +52,12 @@ class APITests(BaseTest):
         with self.assertRaises(InvalidTranslation):
             api.set_translation("EESV")
 
-    def test_get_random_verse(self):
+    def test_get_random_verse(self) -> None:
         """
         Can random verses be selected from a passage?
         """
-        ref = Reference("John 1:1-5")
         translation = "ESV"
+        ref = Reference(translation, "John 1:1-5")
 
         raw_list = [
         'In the beginning was the Word, and the Word was with God, and the ' +
@@ -70,60 +69,42 @@ class APITests(BaseTest):
         'The light shines in the darkness, and the darkness has not overcome it.'
         ]
 
-        passage = Passage(ref, translation)
-        passage.agent.fetch = MagicMock(return_value=raw_list)
-        passage.populate()
+        ref.agent.fetch = MagicMock(return_value=raw_list)
+        ref.populate()
 
         api = API()
-        api.passage = passage # "Mocking" the Passage Property
+
+        if api.complete_recitation:
+            api.toggle_complete_recitation()
+        if not api.one_verse_recitation:
+            api.toggle_one_verse_recitation()
+
+        api.add_reference(ref)
 
         random.seed(45)
-        self.assertEqual(api.get_random_verse().ref_str, "John 1:3")
+        self.assertEqual(api.get_reference().ref_str, "John 1:4")
 
-    def test_grade(self):
+    def test_grade(self) -> None:
         """
         Can the correct grade be assigned to a recitation?
         """
         api = API()
-        if api.random_single_verse:
-            api.set_random_single_verse()
+
+        if api.one_verse_recitation:
+            api.toggle_one_verse_recitation()
 
         correct_string = "This is the correct way to write this string."
         attempt_string = "This is an attempted way to write this string."
 
         expected_score = 0.6923076923076923
 
-        api.reference = MagicMock()
-        api.reference.ref_str = "2 Hesitations 7:490"
-
-        api.get_recitation_ans = MagicMock()
-        api.get_recitation_ans.return_value = correct_string
+        api.reference = Reference("NIV", "Genesis 1:1")
+        api.reference.agent.fetch = MagicMock(return_value=[correct_string])
 
         # Prevent this test from adding entries into the DB
-        with patch("src.api.Attempt"):
-            score = api.finish_recitation(api.reference, attempt_string)
+        with patch("src.api.Attempt") as attempt:
+            # This gets the score - its ugly and I wrote it using the debugger
+            _ = api.recite(api.reference, attempt_string)
+            score = attempt.method_calls[0]._get_call_arguments()[1]["score"]
 
         self.assertAlmostEqual(expected_score, score)
-
-    def test_get_fast_recitation_ans(self):
-        """
-        Can the API fetch the first letter of each word in a passage?
-        """
-        api = API()
-        content = "All Scripture is breathed out by God and profitable " + \
-        "for teaching, for reproof, for correction, and for training in " + \
-        "righteousness, that the man of God may be complete, equipped " + \
-        "for every good work."
-
-        api.reference = MagicMock()
-        api.reference.ref_str = "2 Timothy 3:16-17"
-
-        api.passage = MagicMock()
-        api.passage.reference = api.reference
-        api.passage.show.return_value = content
-
-        expected = ["A", "S", "i", "b", "o", "b", "G", "a", "p", "f", "t", 
-                    "f", "r", "f", "c", "a", "f", "t", "i", "r", "t", "t",
-                    "m", "o", "G", "m", "b", "c", "e", "f", "e", "g", "w"]
-
-        self.assertEqual(api.get_fast_recitation_ans(api.reference), expected)

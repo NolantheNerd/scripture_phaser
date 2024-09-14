@@ -32,47 +32,52 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import random
 import datetime
+import random as rd
 from difflib import SequenceMatcher
-from src.enums import CACHE_DIR
 from src.enums import CONFIG_DIR
-from src.enums import App
-from src.enums import AppDefaults
 from src.stats import Stats
 from src.models import Attempt
-from src.passage import Passage
 from src.enums import Translations
 from src.reference import Reference
-from src.exceptions import InvalidReference
+from typing import List, Dict, Union
+from src.exceptions import NoReferences
 from src.exceptions import InvalidTranslation
 
 
-class API:
-    def __init__(self):
-        self.stats = Stats()
-        self.config_path = CONFIG_DIR / App.Name.value
-        self.cache_path = CACHE_DIR / App.Name.value
+class SPDefault:
+    translation: str = "NIV"
+    complete_recitation: str = "False"
+    one_verse_recitation: str = "False"
+    include_verse_numbers: str = "False"
+    fast_recitations: str = "False"
+    reference: str = ""
 
+
+class API:
+    def __init__(self) -> None:
+        self.stats = Stats()
         config = self.load_config()
-        self.translation = config.get(App.translation.name, AppDefaults().translation)
-        self.random_single_verse = config.get(App.random_single_verse.name, AppDefaults().random_single_verse) == "True"
-        self.reference = Reference(config.get(App.reference.name, AppDefaults().reference))
-        self.require_passage_numbers = config.get(App.require_passage_numbers.name, AppDefaults().require_passage_numbers) == "True"
-        self.fast_recitations = config.get(App.fast_recitations.name, AppDefaults().fast_recitations) == "True"
-        if not self.reference.empty:
-            self.set_passage(self.reference.ref_str)
-        else:
-            self.passage = None
+
+        self.complete_recitation = config.get("complete_recitation", SPDefault.complete_recitation) == "True"
+        self.one_verse_recitation = config.get("one_verse_recitation", SPDefault.one_verse_recitation) == "True"
+        self.include_verse_numbers = config.get("include_verse_numbers", SPDefault.include_verse_numbers) == "True"
+        self.fast_recitations = config.get("fast_recitaitons", SPDefault.fast_recitations) == "True"
+
+        self.translation = config.get("translation", SPDefault.translation)
+
+        self.references = []
+        for ref in config["reference"]:
+            self.add_reference(ref)
 
         if not Attempt.table_exists():
             Attempt.create_table()
 
-    def load_config(self):
-        config_file = self.config_path / "config"
+    def load_config(self) -> Dict[str, Union[str, List[str]]]:
+        config_file = CONFIG_DIR / "config"
         if not config_file.exists():
             with open(config_file, "w") as file:
-                for default_key, default_value in vars(AppDefaults()).items():
+                for default_key, default_value in vars(SPDefault).items():
                     file.write(f"{default_key}={default_value}\n")
 
         with open(config_file, "r") as file:
@@ -81,97 +86,141 @@ class API:
         for entry in entries:
             key, value = entry.split("=")
             key, value = key.strip(), value.strip()
-            config[key] = value
+
+            if key == "reference":
+                config[key] = config.get(key, []) + [value]
+            else:
+                config[key] = value
 
         missing_keys = []
-        for default_key in vars(AppDefaults()):
+        for default_key in vars(SPDefault):
             if default_key not in config:
                 missing_keys.append(default_key)
         if len(missing_keys) > 0:
             with open(config_file, "a") as file:
                 for key in missing_keys:
-                    file.write(f"{key}={getattr(AppDefaults(), key)}\n")
-                    config[key] = getattr(AppDefaults(), key)
+                    file.write(f"={getattr(SPDefault, key)}\n")
+                    config[key] = getattr(SPDefault, key)
 
         return config
 
-    def save_config(self):
+    def save_config(self) -> None:
         config = {
             "translation": self.translation,
-            "random_single_verse": self.random_single_verse,
-            "reference": self.reference.ref_str,
-            "require_passage_numbers": self.require_passage_numbers,
+            "one_verse_recitation": self.one_verse_recitation,
+            "complete_recitation": self.complete_recitation,
+            "reference": [ref.ref_str for ref in self.references],
+            "include_verse_numbers": self.include_verse_numbers,
             "fast_recitations": self.fast_recitations
         }
 
-        config_file = self.config_path / "config"
-
+        config_file = CONFIG_DIR / "config"
         os.remove(config_file)
 
         with open(config_file, "w") as file:
             for key in config.keys():
-                file.write(f"{key}={config[key]}\n")
+                if key == "reference":
+                    for ref in config["reference"]:
+                        file.write(f"reference={ref}\n")
+                else:
+                    file.write(f"{key}={config[key]}\n")
 
-    def new_reference(self, reference):
-        return Reference(reference)
-
-    def set_random_single_verse(self):
-        self.random_single_verse = not self.random_single_verse
+    def toggle_one_verse_recitation(self) -> None:
+        self.one_verse_recitation = not self.one_verse_recitation
         self.save_config()
 
-    def set_fast_recitations(self):
+    def toggle_complete_recitation(self) -> None:
+        self.complete_recitation = not self.complete_recitation
+        self.save_config()
+
+    def toggle_fast_recitations(self) -> None:
         self.fast_recitations = not self.fast_recitations
         self.save_config()
 
-    def set_require_passage_numbers(self):
-        self.require_passage_numbers = not self.require_passage_numbers
-        self.set_passage(self.reference.ref_str)
+    def toggle_include_verse_numbers(self) -> None:
+        self.include_verse_numbers = not self.include_verse_numbers
         self.save_config()
 
-    def view_translation(self):
+    def view_translations(self) -> List[str]:
         return Translations
 
-    def set_translation(self, translation):
+    def set_translation(self, translation) -> None:
         if translation not in Translations:
             raise InvalidTranslation(translation)
         else:
             self.translation = translation
             self.save_config()
 
-            if not self.reference.empty:
-                self.set_passage(self.reference.ref_str)
+    def add_reference(self, ref: Union[str, Reference]) -> None:
+        recursed = False
 
-    def get_random_verse(self):
-        return Reference(id=random.randrange(self.passage.reference.start_id, self.passage.reference.end_id + 1))
-
-    def set_passage(self, reference):
-        self.reference = Reference(reference)
-        if self.reference.empty:
-            self.passage = None
+        if not isinstance(ref, Reference):
+            new_reference = Reference(self.translation, ref)
         else:
-            try:
-                self.passage = Passage(self.reference, self.translation)
-                self.passage.populate(require_passage_numbers=self.require_passage_numbers)
-            except InvalidReference as e:
-                print(e.__str__())
+            new_reference = ref
 
-        self.save_config()
+        if new_reference.empty:
+            return
 
-    def view_passage(self):
-        if self.passage is not None:
-            return self.passage.show(with_ref=True)
+        for i, old_reference in enumerate(self.references):
+            # Start ID is Inside Passage
+            if new_reference.start_id >= old_reference.start_id and new_reference.start_id <= old_reference.end_id:
+                # New Reference Extends Past Existing Passage
+                if new_reference.end_id > old_reference.end_id:
+                    recursed = True
+                    start_id = old_reference.start_id
+                    end_id = new_reference.end_id
+                    self.delete_reference(i)
+                    self.add_reference(Reference(self.translation, id=start_id, end_id=end_id))
+            # End ID is Inside Passage
+            elif new_reference.end_id >= old_reference.start_id and new_reference.end_id <= old_reference.end_id:
+                # New Reference Extends Before Existing Passage
+                if new_reference.start_id < old_reference.start_id:
+                    recursed = True
+                    start_id = new_reference.start_id
+                    end_id = old_reference.end_id
+                    self.delete_reference(i)
+                    self.add_reference(Reference(self.translation, id=start_id, end_id=end_id))
+
+        if not recursed:
+            self.references.append(new_reference)
+            self.references.sort(key=lambda reference: reference.start_id)
+            self.save_config()
+
+    def list_references(self) -> List[str]:
+        if len(self.references) == 0:
+           raise NoReferences()
+
+        return [reference.ref_str for reference in self.references]
+
+    def view_reference(self, index: int) -> str:
+        if len(self.references) == 0:
+           raise NoReferences()
+
+        return self.references[index].view(include_verse_numbers=False, include_ref=True)
+
+    def delete_reference(self, index: int) -> None:
+        del self.references[index]
+
+    def get_reference(self) -> Reference:
+        if len(self.references) == 0:
+            raise NoReferences()
+
+        chosen_reference = rd.choice(self.references)
+        if not self.complete_recitation:
+            if self.one_verse_recitation:
+                chosen_id = rd.randrange(chosen_reference.start_id, chosen_reference.end_id + 1)
+                return Reference(self.translation, id=chosen_id)
+            else:
+                chosen_start_id = rd.randrange(chosen_reference.start_id, chosen_reference.end_id + 1)
+                chosen_end_id = rd.randrange(chosen_start_id, chosen_reference.end_id + 1)
+                return Reference(self.translation, id=chosen_start_id, end_id=chosen_end_id)
         else:
-            return ""
+            return chosen_reference
 
-    def new_recitation(self):
-        if self.random_single_verse:
-            return self.get_random_verse()
-        else:
-            return self.passage.reference
-
-    def finish_recitation(self, reference, text):
+    def recite(self, reference: Reference, text: str) -> Attempt:
         if self.fast_recitations:
-            ans = self.get_fast_recitation_ans(reference)
+            ans = reference.view_first_letter(self.include_verse_numbers)
 
             if text == ans:
                 score = 1
@@ -179,7 +228,7 @@ class API:
                 n_correct = sum([1 for i in range(len(ans)) if text[i] == ans[i]])
                 score = n_correct / len(ans)
         else:
-            ans = self.get_recitation_ans(reference)
+            ans = reference.view(self.include_verse_numbers, include_ref=False)
 
             if text == ans:
                 score = 1
@@ -198,31 +247,9 @@ class API:
 
                 score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
 
-        Attempt.create(
-            random_single_verse=self.random_single_verse,
+        return Attempt.create(
             reference=reference.ref_str,
             score=score,
             attempt=text,
             datetime=datetime.datetime.now()
         )
-
-        return score
-
-    def get_fast_recitation_ans(self, reference):
-        if self.random_single_verse:
-            passage = Passage(reference, self.translation)
-            passage.populate()
-        else:
-            passage = self.passage
-
-        raw_text = passage.show()
-        text = "".join([char for char in raw_text if char.isalnum() or char.isspace()])
-        return [word[0] for word in text.split()]
-
-    def get_recitation_ans(self, reference):
-        if self.random_single_verse:
-            passage = Passage(reference, self.translation)
-            passage.populate()
-            return passage.show()
-        else:
-            return self.passage.show()
