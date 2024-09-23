@@ -31,21 +31,35 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from peewee import Model
-from peewee import TextField
-from peewee import CharField
-from peewee import FloatField
-from peewee import DateTimeField
-from peewee import SqliteDatabase
+import peewee as pw
 from src.enums import DATA_DIR
 
-class Attempt(Model):
-    datetime = DateTimeField(null=True)
-    reference = CharField()
-    score = FloatField(null=True)
-    attempt = TextField(null=True)
-
+class ScripturePhaser(pw.Model):
     class Meta:
-        database = SqliteDatabase(
+        database = pw.SqliteDatabase(
             DATA_DIR / "scripture_phaser.sqlite"
         )
+
+class User(ScripturePhaser):
+    username = pw.TextField(unique=True)
+    password = pw.TextField()
+    email = pw.TextField(unique=True)
+    translation = pw.TextField()
+    one_verse_recitation = pw.BooleanField()
+    complete_recitation = pw.BooleanField()
+    include_verse_numbers = pw.BooleanField()
+    fast_recitations = pw.BooleanField()
+
+class Reference(ScripturePhaser):
+    user = pw.ForeignKeyField(User, on_delete="CASCADE")
+    reference = pw.TextField()
+    translation = pw.TextField()
+    include_verse_numbers = pw.BooleanField()
+    active = pw.BooleanField(default=True)
+
+class Attempt(ScripturePhaser):
+    datetime = pw.DateTimeField(null=True)
+    reference = pw.ForeignKeyField(Reference, on_delete="CASCADE")
+    score = pw.FloatField(null=True)
+    attempt = pw.TextField(null=True)
+    user = pw.ForeignKeyField(User, on_delete="CASCADE")
