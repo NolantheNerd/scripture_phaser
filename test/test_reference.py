@@ -33,8 +33,8 @@
 
 from unittest.mock import MagicMock
 from test.test_base import BaseTest
-from src.reference import Reference
-from src.exceptions import InvalidReference
+from scripture_phaser.backend.reference import Reference
+from scripture_phaser.backend.exceptions import InvalidReference
 
 
 class ReferenceTests(BaseTest):

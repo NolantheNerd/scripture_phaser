@@ -33,7 +33,7 @@
 
 import os
 import unittest
-from src.enums import CONFIG_DIR
+from scripture_phaser.backend.enums import CONFIG_DIR
 
 
 class BaseTest(unittest.TestCase):

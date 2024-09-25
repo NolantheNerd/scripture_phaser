@@ -35,14 +35,14 @@ import os
 import datetime
 import random as rd
 from difflib import SequenceMatcher
-from src.enums import CONFIG_DIR
-from src.stats import Stats
-from src.models import Attempt
-from src.enums import Translations
-from src.reference import Reference
+from scripture_phaser.backend.enums import CONFIG_DIR
+from scripture_phaser.backend.stats import Stats
+from scripture_phaser.backend.models import Attempt
+from scripture_phaser.backend.enums import Translations
+from scripture_phaser.backend.reference import Reference
 from typing import List, Dict, Union
-from src.exceptions import NoReferences
-from src.exceptions import InvalidTranslation
+from scripture_phaser.backend.exceptions import NoReferences
+from scripture_phaser.backend.exceptions import InvalidTranslation
 
 
 class SPDefault:

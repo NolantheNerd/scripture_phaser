@@ -37,16 +37,16 @@ import readchar
 import argparse
 import subprocess
 from shutil import which
-from src.api import API
-from src.enums import VERSION
-from src.enums import RELEASE_DATE
-from src.enums import license_text
+from scripture_phaser.backend.api import API
+from scripture_phaser.backend.enums import VERSION
+from scripture_phaser.backend.enums import RELEASE_DATE
+from scripture_phaser.backend.enums import license_text
 from difflib import SequenceMatcher
-from src.enums import TermColours as TC
-from src.exceptions import NoReferences
-from src.exceptions import EditorNotFound
-from src.exceptions import InvalidTranslation
-from src.reference import Reference
+from scripture_phaser.backend.enums import TermColours as TC
+from scripture_phaser.backend.exceptions import NoReferences
+from scripture_phaser.backend.exceptions import EditorNotFound
+from scripture_phaser.backend.exceptions import InvalidTranslation
+from scripture_phaser.backend.reference import Reference
 
 NUM_DAYS_FOR_GOOD_STREAK: int = 7
 GOOD_YEARLY_ATTEMPT_COUNT: int = 180

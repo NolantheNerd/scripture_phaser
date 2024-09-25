@@ -35,9 +35,9 @@ import random
 from unittest.mock import patch
 from unittest.mock import MagicMock
 from test.test_base import BaseTest
-from src.api import API
-from src.reference import Reference
-from src.exceptions import InvalidTranslation
+from scripture_phaser.backend.api import API
+from scripture_phaser.backend.reference import Reference
+from scripture_phaser.backend.exceptions import InvalidTranslation
 
 
 class APITests(BaseTest):
@@ -102,7 +102,7 @@ class APITests(BaseTest):
         api.reference.agent.fetch = MagicMock(return_value=[correct_string])
 
         # Prevent this test from adding entries into the DB
-        with patch("src.api.Attempt") as attempt:
+        with patch("scripture_phaser.backend.api.Attempt") as attempt:
             # This gets the score - its ugly and I wrote it using the debugger
             _ = api.recite(api.reference, attempt_string)
             score = attempt.method_calls[0]._get_call_arguments()[1]["score"]

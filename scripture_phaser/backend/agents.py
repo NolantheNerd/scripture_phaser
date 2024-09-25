@@ -32,9 +32,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from typing import List, Dict
-from src.enums import Bible
-from src.enums import Bible_Books
-from src.enums import Reverse_Bible_Books
+from scripture_phaser.backend.enums import Bible
+from scripture_phaser.backend.enums import Bible_Books
+from scripture_phaser.backend.enums import Reverse_Bible_Books
 from meaningless.bible_web_extractor import WebExtractor
 
 

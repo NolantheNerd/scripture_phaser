@@ -31,35 +31,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import peewee as pw
-from src.enums import DATA_DIR
+from scripture_phaser.backend.cli import CLI
 
-class ScripturePhaser(pw.Model):
-    class Meta:
-        database = pw.SqliteDatabase(
-            DATA_DIR / "scripture_phaser.sqlite"
-        )
 
-class User(ScripturePhaser):
-    username = pw.TextField(unique=True)
-    password = pw.TextField()
-    email = pw.TextField(unique=True)
-    translation = pw.TextField()
-    one_verse_recitation = pw.BooleanField()
-    complete_recitation = pw.BooleanField()
-    include_verse_numbers = pw.BooleanField()
-    fast_recitations = pw.BooleanField()
+def scripture_phaser() -> None:
+    CLI()
 
-class Reference(ScripturePhaser):
-    user = pw.ForeignKeyField(User, on_delete="CASCADE")
-    reference = pw.TextField()
-    translation = pw.TextField()
-    include_verse_numbers = pw.BooleanField()
-    active = pw.BooleanField(default=True)
 
-class Attempt(ScripturePhaser):
-    datetime = pw.DateTimeField(null=True)
-    reference = pw.ForeignKeyField(Reference, on_delete="CASCADE")
-    score = pw.FloatField(null=True)
-    attempt = pw.TextField(null=True)
-    user = pw.ForeignKeyField(User, on_delete="CASCADE")
+if __name__ == "__main__":
+    scripture_phaser()

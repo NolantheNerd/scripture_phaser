@@ -32,13 +32,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from typing import List
-from src.enums import Bible
-from src.agents import Agents
+from scripture_phaser.backend.enums import Bible
+from scripture_phaser.backend.agents import Agents
 from itertools import accumulate
-from src.enums import Bible_Books
+from scripture_phaser.backend.enums import Bible_Books
 from typing import Optional, Tuple
-from src.enums import Reverse_Bible_Books
-from src.exceptions import InvalidReference
+from scripture_phaser.backend.enums import Reverse_Bible_Books
+from scripture_phaser.backend.exceptions import InvalidReference
 
 
 class Reference:

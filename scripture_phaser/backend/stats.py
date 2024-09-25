@@ -34,8 +34,8 @@
 import datetime
 from peewee import fn
 from typing import List, Tuple, Dict
-from src.models import Attempt
-from src.reference import Reference
+from scripture_phaser.backend.models import Attempt
+from scripture_phaser.backend.reference import Reference
 
 
 class Stats:
