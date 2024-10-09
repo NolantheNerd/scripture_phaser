@@ -33,4 +33,4 @@
 
 meaningless
 peewee
-readchar
+fastapi[standard]

@@ -39,7 +39,51 @@ from scripture_phaser.backend.enums import Bible_Books
 from typing import Optional, Tuple
 from scripture_phaser.backend.enums import Reverse_Bible_Books
 from scripture_phaser.backend.exceptions import InvalidReference
+from scripture_phaser.backend.models import Reference as Ref
+from scripture_phaser.backend.models import User
 
+def add_reference(user: User, new_reference: Reference) -> None:
+    user_references = Ref.select(
+        Ref.reference,
+        Ref.start_id,
+        Ref.end_id
+    ).where(
+        Reference.user == user
+    )
+
+    recursed = False
+    if new_reference.empty:
+        return
+
+    for i, old_reference in enumerate(user_references):
+        # Start ID is Inside Passage
+        if new_reference.start_id >= old_reference.start_id and new_reference.start_id <= old_reference.end_id:
+            # New Reference Extends Past Existing Passage
+            if new_reference.end_id > old_reference.end_id:
+                recursed = True
+                start_id = old_reference.start_id
+                end_id = new_reference.end_id
+                old_reference.delete_instance()
+                add_reference(Reference(user.translation, id=start_id, end_id=end_id))
+        # End ID is Inside Passage
+        elif new_reference.end_id >= old_reference.start_id and new_reference.end_id <= old_reference.end_id:
+            # New Reference Extends Before Existing Passage
+            if new_reference.start_id < old_reference.start_id:
+                recursed = True
+                start_id = new_reference.start_id
+                end_id = old_reference.end_id
+                old_reference.delete_instance()
+                add_reference(Reference(user.translation, id=start_id, end_id=end_id))
+
+    if not recursed:
+        Ref.create(
+            user=user,
+            reference=new_reference.ref_str,
+            start_id=new_reference.start_id,
+            end_id=new_reference.end_id,
+            translation=new_reference.translation,
+            include_verse_numbers=user.include_verse_numbers
+        )
 
 class Reference:
     def __init__(self, translation: str, reference: Optional[str] = None, id: Optional[int] = None, end_id: Optional[int] = None) -> None:

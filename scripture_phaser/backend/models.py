@@ -42,24 +42,45 @@ class ScripturePhaser(pw.Model):
 
 class User(ScripturePhaser):
     username = pw.TextField(unique=True)
-    password = pw.TextField()
+    password_hash = pw.BlobField()
+    salt = pw.BlobField()
+    iterations = pw.IntegerField()
+    hash_algorithm = pw.TextField()
     email = pw.TextField(unique=True)
-    translation = pw.TextField()
-    one_verse_recitation = pw.BooleanField()
-    complete_recitation = pw.BooleanField()
-    include_verse_numbers = pw.BooleanField()
-    fast_recitations = pw.BooleanField()
+    translation = pw.TextField(default="NIV")
+    one_verse_recitation = pw.BooleanField(default=False)
+    complete_recitation = pw.BooleanField(default=False)
+    include_verse_numbers = pw.BooleanField(default=False)
+    fast_recitations = pw.BooleanField(default=False)
+
+class UserToken(ScripturePhaser):
+    user = pw.ForeignKeyField(User, on_delete="CASCADE")
+    token = pw.TextField()
+    expiry = pw.DateTimeField()
 
 class Reference(ScripturePhaser):
     user = pw.ForeignKeyField(User, on_delete="CASCADE")
-    reference = pw.TextField()
+    reference = pw.TextField(null=True)
+    start_id = pw.IntegerField(null=True)
+    end_id = pw.IntegerField(null=True)
     translation = pw.TextField()
     include_verse_numbers = pw.BooleanField()
-    active = pw.BooleanField(default=True)
 
 class Attempt(ScripturePhaser):
     datetime = pw.DateTimeField(null=True)
-    reference = pw.ForeignKeyField(Reference, on_delete="CASCADE")
+    reference = pw.TextField()
+    translation = pw.TextField()
+    include_verse_numbers = pw.BooleanField()
     score = pw.FloatField(null=True)
     attempt = pw.TextField(null=True)
     user = pw.ForeignKeyField(User, on_delete="CASCADE")
+
+if __name__ == "__main__":
+    User.drop_table()
+    UserToken.drop_table()
+    Reference.drop_table()
+    Attempt.drop_table()
+    User.create_table()
+    UserToken.create_table()
+    Reference.create_table()
+    Attempt.create_table()

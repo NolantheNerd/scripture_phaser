@@ -30,13 +30,13 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-from scripture_phaser.backend.cli import CLI
-
-
-def scripture_phaser() -> None:
-    CLI()
-
-
-if __name__ == "__main__":
-    scripture_phaser()
+#
+#from scripture_phaser.backend.cli import CLI
+#
+#
+#def scripture_phaser() -> None:
+#    CLI()
+#
+#
+#if __name__ == "__main__":
+#    scripture_phaser()
