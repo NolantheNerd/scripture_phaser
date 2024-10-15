@@ -34,11 +34,11 @@
 import peewee as pw
 from scripture_phaser.backend.enums import DATA_DIR
 
+
 class ScripturePhaser(pw.Model):
     class Meta:
-        database = pw.SqliteDatabase(
-            DATA_DIR / "scripture_phaser.sqlite"
-        )
+        database = pw.SqliteDatabase(DATA_DIR / "scripture_phaser.sqlite")
+
 
 class User(ScripturePhaser):
     username = pw.TextField(unique=True)
@@ -53,10 +53,12 @@ class User(ScripturePhaser):
     include_verse_numbers = pw.BooleanField(default=False)
     fast_recitations = pw.BooleanField(default=False)
 
+
 class UserToken(ScripturePhaser):
     user = pw.ForeignKeyField(User, on_delete="CASCADE")
     token = pw.TextField()
     expiry = pw.DateTimeField()
+
 
 class Reference(ScripturePhaser):
     user = pw.ForeignKeyField(User, on_delete="CASCADE")
@@ -66,6 +68,7 @@ class Reference(ScripturePhaser):
     translation = pw.TextField()
     include_verse_numbers = pw.BooleanField()
 
+
 class Attempt(ScripturePhaser):
     datetime = pw.DateTimeField(null=True)
     reference = pw.TextField()
@@ -74,6 +77,7 @@ class Attempt(ScripturePhaser):
     score = pw.FloatField(null=True)
     attempt = pw.TextField(null=True)
     user = pw.ForeignKeyField(User, on_delete="CASCADE")
+
 
 if __name__ == "__main__":
     User.drop_table()

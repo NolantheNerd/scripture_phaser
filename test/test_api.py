@@ -44,6 +44,7 @@ class APITests(BaseTest):
     """
     Test Backend API
     """
+
     def test_translation_setter(self) -> None:
         """
         Are invalid translation selections rejected?
@@ -60,13 +61,13 @@ class APITests(BaseTest):
         ref = Reference(translation, "John 1:1-5")
 
         raw_list = [
-        'In the beginning was the Word, and the Word was with God, and the ' +
-        'Word was God.',
-        'He was in the beginning with God.',
-        'All things were made through him, and without him was not any ' +
-        'thing made that was made.',
-        'In him was life, and the life was the light of men.',
-        'The light shines in the darkness, and the darkness has not overcome it.'
+            "In the beginning was the Word, and the Word was with God, and the "
+            + "Word was God.",
+            "He was in the beginning with God.",
+            "All things were made through him, and without him was not any "
+            + "thing made that was made.",
+            "In him was life, and the life was the light of men.",
+            "The light shines in the darkness, and the darkness has not overcome it.",
         ]
 
         ref.agent.fetch = MagicMock(return_value=raw_list)

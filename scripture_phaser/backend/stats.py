@@ -76,14 +76,12 @@ class Stats:
         days_since_monday = today.weekday()
         start_date = today - datetime.timedelta(days=days_since_monday, weeks=52)
         results = [0] * ((today - start_date).days + 1)
-        day_counts = Attempt \
-            .select(
-                Attempt.datetime,
-                fn.COUNT(Attempt).alias("num")
-            ) \
-            .where(Attempt.datetime > start_date) \
-            .group_by(fn.date_trunc("day", Attempt.datetime)) \
+        day_counts = (
+            Attempt.select(Attempt.datetime, fn.COUNT(Attempt).alias("num"))
+            .where(Attempt.datetime > start_date)
+            .group_by(fn.date_trunc("day", Attempt.datetime))
             .order_by(Attempt.datetime)
+        )
 
         for day in day_counts:
             results[(day.datetime.date() - start_date).days] = day.num

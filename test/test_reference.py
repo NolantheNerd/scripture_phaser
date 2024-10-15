@@ -41,6 +41,7 @@ class ReferenceTests(BaseTest):
     """
     Test the Reference Object
     """
+
     def test_standardize_reference(self) -> None:
         """
         Can reference strings be standardized?
@@ -348,65 +349,120 @@ class ReferenceTests(BaseTest):
         reference = Reference(translation, "1 Peter 1:2 - 1:3")
 
         mock_api_return = [
-        'according to the foreknowledge of God the Father, in the sanctification of '
-        'the Spirit, for obedience to Jesus Christ and for sprinkling with his blood:'
-        '\nMay grace and peace be multiplied to you. \n', 'Blessed be the God and Father '
-        'of our Lord Jesus Christ! According to his great mercy, he has caused us to be '
-        'born again to a living hope through the resurrection of Jesus Christ from the dead,'
+            "according to the foreknowledge of God the Father, in the sanctification of "
+            "the Spirit, for obedience to Jesus Christ and for sprinkling with his blood:"
+            "\nMay grace and peace be multiplied to you. \n",
+            "Blessed be the God and Father "
+            "of our Lord Jesus Christ! According to his great mercy, he has caused us to be "
+            "born again to a living hope through the resurrection of Jesus Christ from the dead,",
         ]
 
         reference.agent.fetch = MagicMock(return_value=mock_api_return)
 
-        expected_clean = 'according to the foreknowledge of God the Father, ' + \
-        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
-        'you. \nBlessed be the God and Father of our Lord Jesus Christ! ' + \
-        'According to his great mercy, he has caused us to be born again to a ' + \
-        'living hope through the resurrection of Jesus Christ from the dead,'
+        expected_clean = (
+            "according to the foreknowledge of God the Father, "
+            + "in the sanctification of the Spirit, for obedience to Jesus Christ and "
+            + "for sprinkling with his blood:\nMay grace and peace be multiplied to "
+            + "you. \nBlessed be the God and Father of our Lord Jesus Christ! "
+            + "According to his great mercy, he has caused us to be born again to a "
+            + "living hope through the resurrection of Jesus Christ from the dead,"
+        )
 
-        expected_verse = '[2] according to the foreknowledge of God the Father, ' + \
-        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
-        'you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
-        'According to his great mercy, he has caused us to be born again to a ' + \
-        'living hope through the resurrection of Jesus Christ from the dead,'
+        expected_verse = (
+            "[2] according to the foreknowledge of God the Father, "
+            + "in the sanctification of the Spirit, for obedience to Jesus Christ and "
+            + "for sprinkling with his blood:\nMay grace and peace be multiplied to "
+            + "you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! "
+            + "According to his great mercy, he has caused us to be born again to a "
+            + "living hope through the resurrection of Jesus Christ from the dead,"
+        )
 
-        expected_ref = 'according to the foreknowledge of God the Father, ' + \
-        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
-        'you. \nBlessed be the God and Father of our Lord Jesus Christ! ' + \
-        'According to his great mercy, he has caused us to be born again to a ' + \
-        'living hope through the resurrection of Jesus Christ from the dead, ' + \
-        '- 1 Peter 1:2-3'
+        expected_ref = (
+            "according to the foreknowledge of God the Father, "
+            + "in the sanctification of the Spirit, for obedience to Jesus Christ and "
+            + "for sprinkling with his blood:\nMay grace and peace be multiplied to "
+            + "you. \nBlessed be the God and Father of our Lord Jesus Christ! "
+            + "According to his great mercy, he has caused us to be born again to a "
+            + "living hope through the resurrection of Jesus Christ from the dead, "
+            + "- 1 Peter 1:2-3"
+        )
 
-        expected_full = '[2] according to the foreknowledge of God the Father, ' + \
-        'in the sanctification of the Spirit, for obedience to Jesus Christ and ' + \
-        'for sprinkling with his blood:\nMay grace and peace be multiplied to ' + \
-        'you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! ' + \
-        'According to his great mercy, he has caused us to be born again to a ' + \
-        'living hope through the resurrection of Jesus Christ from the dead, ' + \
-        '- 1 Peter 1:2-3'
+        expected_full = (
+            "[2] according to the foreknowledge of God the Father, "
+            + "in the sanctification of the Spirit, for obedience to Jesus Christ and "
+            + "for sprinkling with his blood:\nMay grace and peace be multiplied to "
+            + "you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! "
+            + "According to his great mercy, he has caused us to be born again to a "
+            + "living hope through the resurrection of Jesus Christ from the dead, "
+            + "- 1 Peter 1:2-3"
+        )
 
         reference.populate()
 
-        self.assertEqual(reference.view(include_verse_numbers=False, include_ref=True), expected_ref)
-        self.assertEqual(reference.view(include_verse_numbers=True, include_ref=True), expected_full)
-        self.assertEqual(reference.view(include_verse_numbers=False, include_ref=False), expected_clean)
-        self.assertEqual(reference.view(include_verse_numbers=True, include_ref=False), expected_verse)
+        self.assertEqual(
+            reference.view(include_verse_numbers=False, include_ref=True), expected_ref
+        )
+        self.assertEqual(
+            reference.view(include_verse_numbers=True, include_ref=True), expected_full
+        )
+        self.assertEqual(
+            reference.view(include_verse_numbers=False, include_ref=False),
+            expected_clean,
+        )
+        self.assertEqual(
+            reference.view(include_verse_numbers=True, include_ref=False),
+            expected_verse,
+        )
 
     def test_get_fast_recitation_ans(self) -> None:
         """
         Can the Reference fetch the first letter of each word in a passage?
         """
         reference = Reference("ESV", "2 Timothy 3:16-17")
-        content = "All Scripture is breathed out by God and profitable " + \
-        "for teaching, for reproof, for correction, and for training in " + \
-        "righteousness, that the man of God may be complete, equipped " + \
-        "for every good work."
+        content = (
+            "All Scripture is breathed out by God and profitable "
+            + "for teaching, for reproof, for correction, and for training in "
+            + "righteousness, that the man of God may be complete, equipped "
+            + "for every good work."
+        )
         reference.agent.fetch = MagicMock(return_value=content)
 
-        expected = ["A", "S", "i", "b", "o", "b", "G", "a", "p", "f", "t",
-                    "f", "r", "f", "c", "a", "f", "t", "i", "r", "t", "t",
-                    "m", "o", "G", "m", "b", "c", "e", "f", "e", "g", "w"]
+        expected = [
+            "A",
+            "S",
+            "i",
+            "b",
+            "o",
+            "b",
+            "G",
+            "a",
+            "p",
+            "f",
+            "t",
+            "f",
+            "r",
+            "f",
+            "c",
+            "a",
+            "f",
+            "t",
+            "i",
+            "r",
+            "t",
+            "t",
+            "m",
+            "o",
+            "G",
+            "m",
+            "b",
+            "c",
+            "e",
+            "f",
+            "e",
+            "g",
+            "w",
+        ]
 
-        self.assertEqual(reference.view_first_letter(include_verse_numbers=False), expected)
+        self.assertEqual(
+            reference.view_first_letter(include_verse_numbers=False), expected
+        )

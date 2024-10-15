@@ -51,20 +51,19 @@ from scripture_phaser.backend.exceptions import InvalidTranslation
 
 api = FastAPI()
 
+
 @api.post("/create_account/")
 def new_user(username: str, password: str, email: str) -> str:
-    user_already_exists = User.get_or_none(
-            (User.username == username) | (User.email == email)
-    ) is not None
+    user_already_exists = (
+        User.get_or_none((User.username == username) | (User.email == email))
+        is not None
+    )
     if user_already_exists:
         raise HTTPException(status_code=409, detail="Username/email already taken")
 
     salt = os.urandom(16)
     password_hash = hashlib.pbkdf2_hmac(
-        "sha256",
-        password.encode("utf-8"),
-        salt,
-        100000
+        "sha256", password.encode("utf-8"), salt, 100000
     )
     new_user = User.create(
         username=username,
@@ -72,28 +71,28 @@ def new_user(username: str, password: str, email: str) -> str:
         salt=salt,
         hash_algorithm="PBKDF2",
         iterations=100000,
-        email=email
+        email=email,
     )
     token = uuid.uuid4().hex
     UserToken.create(
         user=new_user,
         token=token,
-        expiry=datetime.datetime.now() + datetime.timedelta(days=7)
+        expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
 
     return token
 
+
 @api.get("/login/")
 def authenticate(username: str, password: str) -> str:
     try:
-        selected_user = User.select(
-            User.password_hash,
-            User.salt,
-            User.iterations,
-            User.hash_algorithm
-        ).where(
-            User.username == username
-        ).get()
+        selected_user = (
+            User.select(
+                User.password_hash, User.salt, User.iterations, User.hash_algorithm
+            )
+            .where(User.username == username)
+            .get()
+        )
     except pw.DoesNotExist:
         raise HTTPException(status_code=404, detail="User DNE")
 
@@ -101,7 +100,7 @@ def authenticate(username: str, password: str) -> str:
         selected_user.hash_algorithm,
         password,
         selected_user.salt,
-        selected_user.iterations
+        selected_user.iterations,
     )
 
     if hashed_password == selected_user.password_hash:
@@ -109,19 +108,22 @@ def authenticate(username: str, password: str) -> str:
         UserToken.create(
             user=selected_user,
             token=token,
-            expiry=datetime.datetime.now() + datetime.timedelta(days=7)
+            expiry=datetime.datetime.now() + datetime.timedelta(days=7),
         )
         return token
     raise HTTPException(status_code=403, detail="Incorrect password")
+
 
 @api.delete("/logout/")
 def logout(user_token: str) -> None:
     UserToken.get(UserToken.token == user_token).delete_instance()
 
+
 # @@@ TODO
 @api.get("/forgot_password/")
 def forgot_password(username: str) -> None:
     pass
+
 
 @api.post("/new_reference/")
 def add_reference(user_token: str, ref: str) -> None:
@@ -129,11 +131,13 @@ def add_reference(user_token: str, ref: str) -> None:
     ref = Reference(user.translation, ref)
     add_reference(user, ref)
 
+
 @api.delete("/remove_reference/")
 def remove_reference(user_token: str, ref: str) -> None:
     user = UserToken.get(UserToken.token == user_token).user
     ref = Reference(ref)
     Ref.get(Ref.user == user & Ref.reference == ref.ref_str).delete_instance()
+
 
 @api.post("/toggle_one_verse_rectitation/")
 def toggle_one_verse_recitation(user_token: str) -> None:
@@ -141,11 +145,13 @@ def toggle_one_verse_recitation(user_token: str) -> None:
     user.one_verse_recitation = not user.one_verse_recitation
     user.save()
 
+
 @api.post("/toggle_complete_recitation/")
 def toggle_complete_recitation(user_token: str) -> None:
     user = UserToken.get(UserToken.token == user_token).user
     user.complete_recitation = not user.complete_recitation
     user.save()
+
 
 @api.post("/toggle_fast_recitations/")
 def toggle_fast_recitations(user_token: str) -> None:
@@ -153,11 +159,13 @@ def toggle_fast_recitations(user_token: str) -> None:
     user.fast_recitations = not user.fast_recitations
     user.save()
 
+
 @api.post("/toggle_include_verse_numbers/")
 def toggle_include_verse_numbers(user_token: str) -> None:
     user = UserToken.get(UserToken.token == user_token).user
     user.include_verse_numbers = not user.include_verse_numbers
     user.save()
+
 
 @api.post("/set_translation/")
 def set_translation(user_token: str, translation: str) -> None:
@@ -168,25 +176,28 @@ def set_translation(user_token: str, translation: str) -> None:
     user.translation = translation
     user.save()
 
+
 @api.get("/list_references/")
 def list_references(user_token: str) -> List[str]:
     user = UserToken.get(UserToken.token == user_token).user
     if len(references) == 0:
-       raise NoReferences()
+        raise NoReferences()
 
     return [reference.ref_str for reference in self.references]
+
 
 @api.get("/view_reference/")
 def view_reference(user_token: str, ref: Ref) -> str:
     if len(references) == 0:
-       raise NoReferences()
+        raise NoReferences()
 
     return references[index].view(include_verse_numbers=False, include_ref=True)
 
-#def delete_reference(self, index: int) -> None:
+
+# def delete_reference(self, index: int) -> None:
 #    del self.references[index]
 #
-#def get_reference(self) -> Reference:
+# def get_reference(self) -> Reference:
 #    if len(self.references) == 0:
 #        raise NoReferences()
 #
@@ -202,7 +213,7 @@ def view_reference(user_token: str, ref: Ref) -> str:
 #    else:
 #        return chosen_reference
 #
-#def recite(self, reference: Reference, text: str) -> Attempt:
+# def recite(self, reference: Reference, text: str) -> Attempt:
 #    if self.fast_recitations:
 #        ans = reference.view_first_letter(self.include_verse_numbers)
 #

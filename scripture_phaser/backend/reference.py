@@ -42,12 +42,9 @@ from scripture_phaser.backend.exceptions import InvalidReference
 from scripture_phaser.backend.models import Reference as Ref
 from scripture_phaser.backend.models import User
 
-def add_reference(user: User, new_reference: Reference) -> None:
-    user_references = Ref.select(
-        Ref.reference,
-        Ref.start_id,
-        Ref.end_id
-    ).where(
+
+def add_reference(user: User, new_reference: "Reference") -> None:
+    user_references = Ref.select(Ref.reference, Ref.start_id, Ref.end_id).where(
         Reference.user == user
     )
 
@@ -57,7 +54,10 @@ def add_reference(user: User, new_reference: Reference) -> None:
 
     for i, old_reference in enumerate(user_references):
         # Start ID is Inside Passage
-        if new_reference.start_id >= old_reference.start_id and new_reference.start_id <= old_reference.end_id:
+        if (
+            new_reference.start_id >= old_reference.start_id
+            and new_reference.start_id <= old_reference.end_id
+        ):
             # New Reference Extends Past Existing Passage
             if new_reference.end_id > old_reference.end_id:
                 recursed = True
@@ -66,7 +66,10 @@ def add_reference(user: User, new_reference: Reference) -> None:
                 old_reference.delete_instance()
                 add_reference(Reference(user.translation, id=start_id, end_id=end_id))
         # End ID is Inside Passage
-        elif new_reference.end_id >= old_reference.start_id and new_reference.end_id <= old_reference.end_id:
+        elif (
+            new_reference.end_id >= old_reference.start_id
+            and new_reference.end_id <= old_reference.end_id
+        ):
             # New Reference Extends Before Existing Passage
             if new_reference.start_id < old_reference.start_id:
                 recursed = True
@@ -82,11 +85,18 @@ def add_reference(user: User, new_reference: Reference) -> None:
             start_id=new_reference.start_id,
             end_id=new_reference.end_id,
             translation=new_reference.translation,
-            include_verse_numbers=user.include_verse_numbers
+            include_verse_numbers=user.include_verse_numbers,
         )
 
+
 class Reference:
-    def __init__(self, translation: str, reference: Optional[str] = None, id: Optional[int] = None, end_id: Optional[int] = None) -> None:
+    def __init__(
+        self,
+        translation: str,
+        reference: Optional[str] = None,
+        id: Optional[int] = None,
+        end_id: Optional[int] = None,
+    ) -> None:
         self.agent = Agents[translation]
         self.texts = []
         self.populated = False
@@ -98,9 +108,14 @@ class Reference:
             else:
                 self.empty = False
 
-                self.book_start, self.chapter_start, self.verse_start, \
-                self.book_end, self.chapter_end, self.verse_end = \
-                    self.interpret_reference(reference)
+                (
+                    self.book_start,
+                    self.chapter_start,
+                    self.verse_start,
+                    self.book_end,
+                    self.chapter_end,
+                    self.verse_end,
+                ) = self.interpret_reference(reference)
 
                 self.validate_reference(reference)
 
@@ -117,12 +132,14 @@ class Reference:
                 raise InvalidReference(id=id, end_id=end_id)
             else:
                 self.empty = False
-                self.book_start, self.chapter_start, \
-                        self.verse_start = self.id_to_reference(id)
+                self.book_start, self.chapter_start, self.verse_start = (
+                    self.id_to_reference(id)
+                )
 
                 if end_id is not None and end_id < NUM_VERSES_IN_BIBLE:
-                    self.book_end, self.chapter_end, \
-                        self.verse_end = self.id_to_reference(end_id)
+                    self.book_end, self.chapter_end, self.verse_end = (
+                        self.id_to_reference(end_id)
+                    )
                 else:
                     self.book_end = self.book_start
                     self.chapter_end = self.chapter_start
@@ -132,8 +149,12 @@ class Reference:
 
     def populate(self) -> None:
         self.texts = self.agent.fetch(
-            self.book_start, self.chapter_start, self.verse_start,
-            self.book_end, self.chapter_end, self.verse_end
+            self.book_start,
+            self.chapter_start,
+            self.verse_start,
+            self.book_end,
+            self.chapter_end,
+            self.verse_end,
         )
         self.populated = True
 
@@ -172,111 +193,112 @@ class Reference:
     @staticmethod
     def reference_replacements(ref: str) -> str:
         # Replace "Psalm" -> "Psalms" will also turn "Psalms" -> "Psalmss"
-        ref = ref \
-            .replace(".", "") \
-            .replace("Psalm", "Psalms") \
-            .replace("Psalmss", "Psalms") \
-            .replace("First", "One") \
-            .replace("Second", "Two") \
-            .replace("Third", "Three") \
-            .replace("1 Samuel", "One Samuel") \
-            .replace("1 Kings", "One Kings") \
-            .replace("1 Chronicles", "One Chronicles") \
-            .replace("1 Corinthians", "One Corinthians") \
-            .replace("1 Thessalonians", "One Thessalonians") \
-            .replace("1 Timothy", "One Timothy") \
-            .replace("1 Peter", "One Peter") \
-            .replace("1 John", "One John") \
-            .replace("2 Samuel", "Two Samuel") \
-            .replace("2 Kings", "Two Kings") \
-            .replace("2 Chronicles", "Two Chronicles") \
-            .replace("2 Corinthians", "Two Corinthians") \
-            .replace("2 Thessalonians", "Two Thessalonians") \
-            .replace("2 Timothy", "Two Timothy") \
-            .replace("2 Peter", "Two Peter") \
-            .replace("2 John", "Two John") \
-            .replace("3 John", "Three John") \
-            .replace("Gen ", "Genesis ") \
-            .replace("Ex ", "Exodus ") \
-            .replace("Lev ", "Leviticus ") \
-            .replace("Num ", "Numbers ") \
-            .replace("Deut ", "Deuteronomy ") \
-            .replace("Josh ", "Joshua ") \
-            .replace("Judg ", "Judges ") \
-            .replace("1Sam ", "One Samuel ") \
-            .replace("1sam ", "One Samuel ") \
-            .replace("1 Sam ", "One Samuel ") \
-            .replace("2Sam ", "Two Samuel ") \
-            .replace("2sam ", "Two Samuel ") \
-            .replace("2 Sam ", "Two Samuel ") \
-            .replace("1Chron ", "One Chronicles ") \
-            .replace("1chron ", "One Chronicles ") \
-            .replace("1 Chron ", "One Chronicles ") \
-            .replace("Neh ", "Nehemiah ") \
-            .replace("Est ", "Esther ") \
-            .replace("Ps ", "Psalms ") \
-            .replace("Prov ", "Proverbs ") \
-            .replace("Eccles ", "Ecclesiastes ") \
-            .replace("Song ", "Song of Songs ") \
-            .replace("Isa ", "Isaiah ") \
-            .replace("Jer ", "Jeremiah ") \
-            .replace("Lam ", "Lamentations ") \
-            .replace("Ezek ", "Ezekiel ") \
-            .replace("Dan ", "Daniel ") \
-            .replace("Hos ", "Hosea ") \
-            .replace("Obad ", "Obadiah ") \
-            .replace("Mic ", "Micah ") \
-            .replace("Nah ", "Nahum ") \
-            .replace("Hab ", "Habakkuk ") \
-            .replace("Zeph ", "Zephaniah ") \
-            .replace("Hag ", "Haggai ") \
-            .replace("Zech ", "Zechariah ") \
-            .replace("Mal ", "Malachi ") \
-            .replace("Matt ", "Matthew ") \
-            .replace("Rom ", "Romans ") \
-            .replace("1Cor ", "One Corinthians ") \
-            .replace("1cor ", "One Corinthians ") \
-            .replace("1 Cor ", "One Corinthians ") \
-            .replace("2Cor ", "Two Corinthians ") \
-            .replace("2cor ", "Two Corinthians ") \
-            .replace("2 Cor ", "Two Corinthians ") \
-            .replace("Gal ", "Galatians ") \
-            .replace("Eph ", "Ephesians ") \
-            .replace("Phil ", "Philippians ") \
-            .replace("Col ", "Colossians ") \
-            .replace("1Thess ", "One Thessalonians ") \
-            .replace("1thess ", "One Thessalonians ") \
-            .replace("1 Thess ", "One Thessalonians ") \
-            .replace("2Thess ", "Two Thessalonians ") \
-            .replace("2thess ", "Two Thessalonians ") \
-            .replace("2 Thess ", "Two Thessalonians ") \
-            .replace("1Tim ", "One Timothy ") \
-            .replace("1tim ", "One Timothy ") \
-            .replace("1 Tim ", "One Timothy ") \
-            .replace("2Tim ", "Two Timothy ") \
-            .replace("2tim ", "Two Timothy ") \
-            .replace("2 Tim ", "Two Timothy ") \
-            .replace("Philem ", "Philemon ") \
-            .replace("Heb ", "Hebrews ") \
-            .replace("1Pet ", "One Peter ") \
-            .replace("1pet ", "One Peter ") \
-            .replace("1 Pet ", "One Peter ") \
-            .replace("2Pet ", "Two Peter ") \
-            .replace("2pet ", "Two Peter ") \
-            .replace("2 Pet ", "Two Peter ") \
+        ref = (
+            ref.replace(".", "")
+            .replace("Psalm", "Psalms")
+            .replace("Psalmss", "Psalms")
+            .replace("First", "One")
+            .replace("Second", "Two")
+            .replace("Third", "Three")
+            .replace("1 Samuel", "One Samuel")
+            .replace("1 Kings", "One Kings")
+            .replace("1 Chronicles", "One Chronicles")
+            .replace("1 Corinthians", "One Corinthians")
+            .replace("1 Thessalonians", "One Thessalonians")
+            .replace("1 Timothy", "One Timothy")
+            .replace("1 Peter", "One Peter")
+            .replace("1 John", "One John")
+            .replace("2 Samuel", "Two Samuel")
+            .replace("2 Kings", "Two Kings")
+            .replace("2 Chronicles", "Two Chronicles")
+            .replace("2 Corinthians", "Two Corinthians")
+            .replace("2 Thessalonians", "Two Thessalonians")
+            .replace("2 Timothy", "Two Timothy")
+            .replace("2 Peter", "Two Peter")
+            .replace("2 John", "Two John")
+            .replace("3 John", "Three John")
+            .replace("Gen ", "Genesis ")
+            .replace("Ex ", "Exodus ")
+            .replace("Lev ", "Leviticus ")
+            .replace("Num ", "Numbers ")
+            .replace("Deut ", "Deuteronomy ")
+            .replace("Josh ", "Joshua ")
+            .replace("Judg ", "Judges ")
+            .replace("1Sam ", "One Samuel ")
+            .replace("1sam ", "One Samuel ")
+            .replace("1 Sam ", "One Samuel ")
+            .replace("2Sam ", "Two Samuel ")
+            .replace("2sam ", "Two Samuel ")
+            .replace("2 Sam ", "Two Samuel ")
+            .replace("1Chron ", "One Chronicles ")
+            .replace("1chron ", "One Chronicles ")
+            .replace("1 Chron ", "One Chronicles ")
+            .replace("Neh ", "Nehemiah ")
+            .replace("Est ", "Esther ")
+            .replace("Ps ", "Psalms ")
+            .replace("Prov ", "Proverbs ")
+            .replace("Eccles ", "Ecclesiastes ")
+            .replace("Song ", "Song of Songs ")
+            .replace("Isa ", "Isaiah ")
+            .replace("Jer ", "Jeremiah ")
+            .replace("Lam ", "Lamentations ")
+            .replace("Ezek ", "Ezekiel ")
+            .replace("Dan ", "Daniel ")
+            .replace("Hos ", "Hosea ")
+            .replace("Obad ", "Obadiah ")
+            .replace("Mic ", "Micah ")
+            .replace("Nah ", "Nahum ")
+            .replace("Hab ", "Habakkuk ")
+            .replace("Zeph ", "Zephaniah ")
+            .replace("Hag ", "Haggai ")
+            .replace("Zech ", "Zechariah ")
+            .replace("Mal ", "Malachi ")
+            .replace("Matt ", "Matthew ")
+            .replace("Rom ", "Romans ")
+            .replace("1Cor ", "One Corinthians ")
+            .replace("1cor ", "One Corinthians ")
+            .replace("1 Cor ", "One Corinthians ")
+            .replace("2Cor ", "Two Corinthians ")
+            .replace("2cor ", "Two Corinthians ")
+            .replace("2 Cor ", "Two Corinthians ")
+            .replace("Gal ", "Galatians ")
+            .replace("Eph ", "Ephesians ")
+            .replace("Phil ", "Philippians ")
+            .replace("Col ", "Colossians ")
+            .replace("1Thess ", "One Thessalonians ")
+            .replace("1thess ", "One Thessalonians ")
+            .replace("1 Thess ", "One Thessalonians ")
+            .replace("2Thess ", "Two Thessalonians ")
+            .replace("2thess ", "Two Thessalonians ")
+            .replace("2 Thess ", "Two Thessalonians ")
+            .replace("1Tim ", "One Timothy ")
+            .replace("1tim ", "One Timothy ")
+            .replace("1 Tim ", "One Timothy ")
+            .replace("2Tim ", "Two Timothy ")
+            .replace("2tim ", "Two Timothy ")
+            .replace("2 Tim ", "Two Timothy ")
+            .replace("Philem ", "Philemon ")
+            .replace("Heb ", "Hebrews ")
+            .replace("1Pet ", "One Peter ")
+            .replace("1pet ", "One Peter ")
+            .replace("1 Pet ", "One Peter ")
+            .replace("2Pet ", "Two Peter ")
+            .replace("2pet ", "Two Peter ")
+            .replace("2 Pet ", "Two Peter ")
             .replace("Rev ", "Revelation ")
+        )
 
         return ref
 
     @classmethod
     def clean_reference(cls, ref: str) -> str:
-        ref = " ".join(ref.split()) # Multiple Whitespaces -> One Whitespace
+        ref = " ".join(ref.split())  # Multiple Whitespaces -> One Whitespace
         ref = ref.strip().lower().title()
 
         new_ref = ""
         prev_char = ""
         for i, char in enumerate(ref):
-            next_char = ref[min(len(ref)-1, i+1)]
+            next_char = ref[min(len(ref) - 1, i + 1)]
             # Insert Space After Book Name and Before Chapter/Verse Number
             if char.isdigit() and prev_char.isalpha():
                 new_ref += " "
@@ -334,7 +356,9 @@ class Reference:
                 i = 0
                 while i < len(split_components) and split_components[i].isalpha():
                     i += 1
-                book_start = book_end = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
+                book_start = book_end = Reverse_Bible_Books.get(
+                    " ".join(split_components[:i]), -1
+                )
 
                 # Book Name is not in the Bible (Billy)
                 if book_start == -1:
@@ -405,7 +429,9 @@ class Reference:
                     i = 0
                     while i < len(split_components) and split_components[i].isalpha():
                         i += 1
-                    book_end = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
+                    book_end = Reverse_Bible_Books.get(
+                        " ".join(split_components[:i]), -1
+                    )
                 # Second Book is Not Specified [John 1:1 - 1:2]
                 else:
                     book_end = book_start
@@ -455,10 +481,7 @@ class Reference:
             if len(Bible[self.book_start]) == 1:
                 # Single Verse? - No "-"
                 if self.verse_start == self.verse_end:
-                    return (
-                        f"{Bible_Books[self.book_start]} "
-                        f"{self.verse_start + 1}"
-                    )
+                    return f"{Bible_Books[self.book_start]} " f"{self.verse_start + 1}"
                 # Multiple Verses - Yes "-"
                 else:
                     return (
@@ -532,20 +555,18 @@ class Reference:
             raise InvalidReference(ref)
 
     @staticmethod
-    def reference_to_id(ref: 'Reference') -> Tuple[int, int]:
-        start_id = sum(
-            [sum(book) for book in Bible[:ref.book_start]]
-        )
-        start_id += sum(Bible[ref.book_start][:ref.chapter_start])
+    def reference_to_id(ref: "Reference") -> Tuple[int, int]:
+        start_id = sum([sum(book) for book in Bible[: ref.book_start]])
+        start_id += sum(Bible[ref.book_start][: ref.chapter_start])
         start_id += ref.verse_start
 
-        if not ref.book_start == ref.book_end or \
-        not ref.chapter_start == ref.chapter_end or \
-        not ref.verse_start == ref.verse_end:
-            end_id = sum(
-                [sum(book) for book in Bible[:ref.book_end]]
-            )
-            end_id += sum(Bible[ref.book_end][:ref.chapter_end])
+        if (
+            not ref.book_start == ref.book_end
+            or not ref.chapter_start == ref.chapter_end
+            or not ref.verse_start == ref.verse_end
+        ):
+            end_id = sum([sum(book) for book in Bible[: ref.book_end]])
+            end_id += sum(Bible[ref.book_end][: ref.chapter_end])
             end_id += ref.verse_end
         else:
             end_id = start_id

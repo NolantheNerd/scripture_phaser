@@ -33,20 +33,34 @@
 
 from typing import Optional
 
+
 class InvalidReference(Exception):
-    def __init__(self, ref_string: Optional[str] = None, id: Optional[int] = None, end_id: Optional[int] = None) -> None:
+    def __init__(
+        self,
+        ref_string: Optional[str] = None,
+        id: Optional[int] = None,
+        end_id: Optional[int] = None,
+    ) -> None:
         if ref_string is not None:
             Exception.__init__(self, f"{ref_string} is not a valid Bible reference")
         elif id is not None and end_id is not None:
-            Exception.__init__(self, f"End Verse id ({end_id}) is greater than start verse id ({id})")
+            Exception.__init__(
+                self, f"End Verse id ({end_id}) is greater than start verse id ({id})"
+            )
+
 
 class InvalidTranslation(Exception):
     def __init__(self, translation: str) -> None:
         Exception.__init__(self, f"{translation} is not a valid translation")
 
+
 class EditorNotFound(Exception):
     def __init__(self) -> None:
-        Exception.__init__(self, "Text editor not found; set the 'EDITOR' environmental variable and try again")
+        Exception.__init__(
+            self,
+            "Text editor not found; set the 'EDITOR' environmental variable and try again",
+        )
+
 
 class NoReferences(Exception):
     def __init__(self) -> None:
