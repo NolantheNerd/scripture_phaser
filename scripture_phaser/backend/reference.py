@@ -43,7 +43,7 @@ from scripture_phaser.backend.models import Reference as Ref
 from scripture_phaser.backend.models import User
 
 
-def add_reference(user: User, new_reference: "Reference") -> None:
+def add_new_reference(user: User, new_reference: "Reference") -> None:
     user_references = Ref.select(Ref.reference, Ref.start_id, Ref.end_id).where(
         Reference.user == user
     )
@@ -64,7 +64,9 @@ def add_reference(user: User, new_reference: "Reference") -> None:
                 start_id = old_reference.start_id
                 end_id = new_reference.end_id
                 old_reference.delete_instance()
-                add_reference(Reference(user.translation, id=start_id, end_id=end_id))
+                add_new_reference(
+                    Reference(user.translation, id=start_id, end_id=end_id)
+                )
         # End ID is Inside Passage
         elif (
             new_reference.end_id >= old_reference.start_id
@@ -76,7 +78,9 @@ def add_reference(user: User, new_reference: "Reference") -> None:
                 start_id = new_reference.start_id
                 end_id = old_reference.end_id
                 old_reference.delete_instance()
-                add_reference(Reference(user.translation, id=start_id, end_id=end_id))
+                add_new_reference(
+                    Reference(user.translation, id=start_id, end_id=end_id)
+                )
 
     if not recursed:
         Ref.create(

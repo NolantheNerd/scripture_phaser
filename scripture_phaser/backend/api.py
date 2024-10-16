@@ -36,17 +36,12 @@ import uuid
 import hashlib
 import datetime
 import peewee as pw
-import random as rd
-from difflib import SequenceMatcher
-from typing import List, Dict, Union
+from typing import List
 from fastapi import FastAPI, HTTPException
-from scripture_phaser.backend.enums import CONFIG_DIR
-from scripture_phaser.backend.stats import Stats
-from scripture_phaser.backend.models import Attempt, User, UserToken
+from scripture_phaser.backend.models import User, UserToken
 from scripture_phaser.backend.models import Reference as Ref
 from scripture_phaser.backend.enums import Translations
-from scripture_phaser.backend.reference import Reference, add_reference
-from scripture_phaser.backend.exceptions import NoReferences
+from scripture_phaser.backend.reference import Reference, add_new_reference
 from scripture_phaser.backend.exceptions import InvalidTranslation
 
 api = FastAPI()
@@ -129,7 +124,7 @@ def forgot_password(username: str) -> None:
 def add_reference(user_token: str, ref: str) -> None:
     user = UserToken.get(UserToken.token == user_token).user
     ref = Reference(user.translation, ref)
-    add_reference(user, ref)
+    add_new_reference(user, ref)
 
 
 @api.delete("/remove_reference/")
@@ -180,23 +175,19 @@ def set_translation(user_token: str, translation: str) -> None:
 @api.get("/list_references/")
 def list_references(user_token: str) -> List[str]:
     user = UserToken.get(UserToken.token == user_token).user
-    if len(references) == 0:
-        raise NoReferences()
-
-    return [reference.ref_str for reference in self.references]
+    user_references = Ref.select(Ref.reference).where(Reference.user == user)
+    return [ref.reference for ref in user_references]
 
 
 @api.get("/view_reference/")
-def view_reference(user_token: str, ref: Ref) -> str:
-    if len(references) == 0:
-        raise NoReferences()
+def view_reference(
+    ref: Ref, include_verse_numbers: bool = False, include_ref: bool = True
+) -> str:
+    return ref.view(
+        include_verse_numbers=include_verse_numbers, include_ref=include_ref
+    )
 
-    return references[index].view(include_verse_numbers=False, include_ref=True)
 
-
-# def delete_reference(self, index: int) -> None:
-#    del self.references[index]
-#
 # def get_reference(self) -> Reference:
 #    if len(self.references) == 0:
 #        raise NoReferences()
