@@ -35,7 +35,6 @@
 module Main exposing (..)
 
 import Browser
-import Reference exposing (Reference, getText)
 import Html exposing (Html, select, option, div, text)
 
 -- Main
@@ -50,8 +49,7 @@ type alias Model = {
   one_verse_recitation : Bool,
   complete_recitation : Bool,
   include_verse_numbers : Bool,
-  fast_recitations : Bool,
-  reference : List Reference
+  fast_recitations : Bool
   }
 
 init : Model
@@ -60,8 +58,7 @@ init = {
   one_verse_recitation = False,
   complete_recitation = False,
   include_verse_numbers = False,
-  fast_recitations = False,
-  reference = ""
+  fast_recitations = False
   }
 
 -- Update

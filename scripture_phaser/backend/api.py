@@ -179,15 +179,15 @@ def list_references(user_token: str) -> List[str]:
     return [ref.reference for ref in user_references]
 
 
-@api.get("/view_reference/")
-def view_reference(
-    ref: Ref, include_verse_numbers: bool = False, include_ref: bool = True
-) -> str:
-    return ref.view(
-        include_verse_numbers=include_verse_numbers, include_ref=include_ref
-    )
-
-
+#@api.get("/view_reference/")
+#def view_reference(
+#    ref: Ref, include_verse_numbers: bool = False, include_ref: bool = True
+#) -> str:
+#    return ref.view(
+#        include_verse_numbers=include_verse_numbers, include_ref=include_ref
+#    )
+#
+#
 # def get_reference(self) -> Reference:
 #    if len(self.references) == 0:
 #        raise NoReferences()
