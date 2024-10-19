@@ -396,7 +396,9 @@ class Reference:
                 i = 0
                 while i < len(split_components) and split_components[i].isalpha():
                     i += 1
-                book_start = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
+                book_start = Reverse_Bible_Books.get(
+                    " ".join(split_components[:i]), -1
+                )
 
                 # Book Name is not in the Bible (Billy)
                 if book_start == -1:
@@ -476,7 +478,14 @@ class Reference:
             else:
                 raise InvalidReference(ref)
 
-        return book_start, chapter_start, verse_start, book_end, chapter_end, verse_end
+        return (
+            book_start,
+            chapter_start,
+            verse_start,
+            book_end,
+            chapter_end,
+            verse_end,
+        )
 
     def standardize_reference(self) -> str:
         # Single Book Reference? - Only Print Book Name Once
@@ -485,7 +494,9 @@ class Reference:
             if len(Bible[self.book_start]) == 1:
                 # Single Verse? - No "-"
                 if self.verse_start == self.verse_end:
-                    return f"{Bible_Books[self.book_start]} " f"{self.verse_start + 1}"
+                    return (
+                        f"{Bible_Books[self.book_start]} " f"{self.verse_start + 1}"
+                    )
                 # Multiple Verses - Yes "-"
                 else:
                     return (

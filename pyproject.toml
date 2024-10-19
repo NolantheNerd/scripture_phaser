@@ -10,6 +10,7 @@ inputs = ["src", "test"]
 jobs = "auto"
 
 [tool.black]
+line-length = 86
 include = '\.pyi?$'
 
 [project]
