@@ -31,47 +31,39 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Optional
+import uuid
+import datetime
+from os import urandom
+from hashlib import pbkdf2_hmac
+from scripture_phaser.backend.models import User, UserToken
+from scripture_phaser.backend.exceptions import (
+    UsernameAlreadyTaken,
+    EmailAlreadyTaken,
+)
 
 
-class InvalidReference(Exception):
-    def __init__(
-        self,
-        ref_string: Optional[str] = None,
-        id: Optional[int] = None,
-        end_id: Optional[int] = None,
-    ) -> None:
-        if ref_string is not None:
-            Exception.__init__(self, f"{ref_string} is not a valid Bible reference")
-        elif id is not None and end_id is not None:
-            Exception.__init__(
-                self, f"End Verse id ({end_id}) is greater than start verse id ({id})"
-            )
+def create(username: str, password: str, email: str) -> UserToken:
+    username_already_taken = User.get_or_none(User.username == username) is not None
+    if username_already_taken:
+        raise UsernameAlreadyTaken()
 
+    email_already_taken = User.get_or_none(User.email == email) is not None
+    if email_already_taken:
+        raise EmailAlreadyTaken()
 
-class InvalidTranslation(Exception):
-    def __init__(self, translation: str) -> None:
-        Exception.__init__(self, f"{translation} is not a valid translation")
-
-
-class EditorNotFound(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(
-            self,
-            "Text editor not found; set the 'EDITOR' environmental variable and try again",
-        )
-
-
-class NoReferences(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(self, "No available references")
-
-
-class UsernameAlreadyTaken(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(self, "Username already taken")
-
-
-class EmailAlreadyTaken(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(self, "Email already taken")
+    salt = urandom(16)
+    password_hash = pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100000)
+    new_user = User.create(
+        username=username,
+        password_hash=password_hash,
+        salt=salt,
+        hash_algorithm="PBKDF2",
+        iterations=100000,
+        email=email,
+    )
+    token = uuid.uuid4().hex
+    return UserToken.create(
+        user=new_user,
+        token=token,
+        expiry=datetime.datetime.now() + datetime.timedelta(days=7),
+    )
