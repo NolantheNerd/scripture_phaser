@@ -80,3 +80,8 @@ class EmailAlreadyTaken(Exception):
 class InvalidUserCredentials(Exception):
     def __init__(self) -> None:
         Exception.__init__(self, "Username or password incorrect")
+
+
+class InvalidUserToken(Exception):
+    def __init__(self) -> None:
+        Exception.__init__(self, "Invalid user token")

@@ -39,19 +39,17 @@ from scripture_phaser.backend.enums import Bible_Books
 from typing import Optional, Tuple
 from scripture_phaser.backend.enums import Reverse_Bible_Books
 from scripture_phaser.backend.exceptions import InvalidReference
-from scripture_phaser.backend.models import Reference as Ref
-from scripture_phaser.backend.models import User
 
 
 # def add_new_reference(user: User, new_reference: "Reference") -> None:
 #     user_references = Ref.select(Ref.reference, Ref.start_id, Ref.end_id).where(
 #         Reference.user == user
 #     )
-# 
+#
 #     recursed = False
 #     if new_reference.empty:
 #         return
-# 
+#
 #     for i, old_reference in enumerate(user_references):
 #         # Start ID is Inside Passage
 #         if (
@@ -81,7 +79,7 @@ from scripture_phaser.backend.models import User
 #                 add_new_reference(
 #                     Reference(user.translation, id=start_id, end_id=end_id)
 #                 )
-# 
+#
 #     if not recursed:
 #         Ref.create(
 #             user=user,

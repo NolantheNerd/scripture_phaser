@@ -40,10 +40,21 @@ from scripture_phaser.backend.exceptions import (
     UsernameAlreadyTaken,
     EmailAlreadyTaken,
     InvalidUserCredentials,
+    InvalidUserToken,
 )
 
 N_ITERATIONS = 100000
 HASH_ALGORITHM = "PBKDF2"
+
+
+def validate_token(user_token: str) -> None:
+    token = UserToken.get_or_none(UserToken.token == user_token)
+    if token is None:
+        raise InvalidUserToken()
+
+    if token.expiry < datetime.datetime.now():
+        token.delete_instance()
+        raise InvalidUserToken()
 
 
 def create(username: str, password: str, email: str) -> UserToken:
@@ -91,3 +102,7 @@ def login(username: str, password: str) -> UserToken:
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
     return user_token
+
+
+def logout(user_token: str) -> None:
+    UserToken.get(UserToken.token == user_token).delete_instance()

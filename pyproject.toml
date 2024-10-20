@@ -8,6 +8,7 @@ packages = ["src"]
 [tool.pytype]
 inputs = ["scripture_phaser/backend", "test"]
 jobs = "auto"
+disable = ["import-error"]
 
 [tool.black]
 line-length = 86

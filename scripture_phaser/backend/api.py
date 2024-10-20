@@ -49,11 +49,11 @@ def authenticate(username: str, password: str) -> str:
     return user_token.token
 
 
-# @api.delete("/logout/")
-# def logout(user_token: str) -> None:
-#     UserToken.get(UserToken.token == user_token).delete_instance()
-#
-#
+@api.delete("/logout/")
+def logout(user_token: str) -> None:
+    User.logout(user_token)
+
+
 # # @@@ TODO
 # @api.get("/forgot_password/")
 # def forgot_password(username: str) -> None:
