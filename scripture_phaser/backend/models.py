@@ -44,8 +44,6 @@ class User(ScripturePhaser):
     username = pw.TextField(unique=True)
     password_hash = pw.BlobField()
     salt = pw.BlobField()
-    iterations = pw.IntegerField()
-    hash_algorithm = pw.TextField()
     email = pw.TextField(unique=True)
     translation = pw.TextField(default="NIV")
     one_verse_recitation = pw.BooleanField(default=False)

@@ -39,7 +39,11 @@ from scripture_phaser.backend.models import User, UserToken
 from scripture_phaser.backend.exceptions import (
     UsernameAlreadyTaken,
     EmailAlreadyTaken,
+    InvalidUserCredentials,
 )
+
+N_ITERATIONS = 100000
+HASH_ALGORITHM = "PBKDF2"
 
 
 def create(username: str, password: str, email: str) -> UserToken:
@@ -52,13 +56,13 @@ def create(username: str, password: str, email: str) -> UserToken:
         raise EmailAlreadyTaken()
 
     salt = urandom(16)
-    password_hash = pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100000)
+    password_hash = pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), salt, N_ITERATIONS
+    )
     new_user = User.create(
         username=username,
         password_hash=password_hash,
         salt=salt,
-        hash_algorithm="PBKDF2",
-        iterations=100000,
         email=email,
     )
     token = uuid.uuid4().hex
@@ -67,3 +71,23 @@ def create(username: str, password: str, email: str) -> UserToken:
         token=token,
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
+
+
+def login(username: str, password: str) -> UserToken:
+    user = User.get_or_none(User.username == username)
+    if user is None:
+        raise InvalidUserCredentials()
+
+    hashed_password = pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), user.salt, N_ITERATIONS
+    )
+
+    if hashed_password != user.password:
+        raise InvalidUserCredentials()
+
+    user_token = UserToken.create(
+        user=user,
+        token=uuid.uuid4().hex,
+        expiry=datetime.datetime.now() + datetime.timedelta(days=7),
+    )
+    return user_token

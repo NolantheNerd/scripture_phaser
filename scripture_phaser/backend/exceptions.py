@@ -75,3 +75,8 @@ class UsernameAlreadyTaken(Exception):
 class EmailAlreadyTaken(Exception):
     def __init__(self) -> None:
         Exception.__init__(self, "Email already taken")
+
+
+class InvalidUserCredentials(Exception):
+    def __init__(self) -> None:
+        Exception.__init__(self, "Username or password incorrect")

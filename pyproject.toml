@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 packages = ["src"]
 
 [tool.pytype]
-inputs = ["src", "test"]
+inputs = ["scripture_phaser/backend", "test"]
 jobs = "auto"
 
 [tool.black]

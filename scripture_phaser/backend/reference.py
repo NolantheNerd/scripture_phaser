@@ -43,54 +43,54 @@ from scripture_phaser.backend.models import Reference as Ref
 from scripture_phaser.backend.models import User
 
 
-def add_new_reference(user: User, new_reference: "Reference") -> None:
-    user_references = Ref.select(Ref.reference, Ref.start_id, Ref.end_id).where(
-        Reference.user == user
-    )
-
-    recursed = False
-    if new_reference.empty:
-        return
-
-    for i, old_reference in enumerate(user_references):
-        # Start ID is Inside Passage
-        if (
-            new_reference.start_id >= old_reference.start_id
-            and new_reference.start_id <= old_reference.end_id
-        ):
-            # New Reference Extends Past Existing Passage
-            if new_reference.end_id > old_reference.end_id:
-                recursed = True
-                start_id = old_reference.start_id
-                end_id = new_reference.end_id
-                old_reference.delete_instance()
-                add_new_reference(
-                    Reference(user.translation, id=start_id, end_id=end_id)
-                )
-        # End ID is Inside Passage
-        elif (
-            new_reference.end_id >= old_reference.start_id
-            and new_reference.end_id <= old_reference.end_id
-        ):
-            # New Reference Extends Before Existing Passage
-            if new_reference.start_id < old_reference.start_id:
-                recursed = True
-                start_id = new_reference.start_id
-                end_id = old_reference.end_id
-                old_reference.delete_instance()
-                add_new_reference(
-                    Reference(user.translation, id=start_id, end_id=end_id)
-                )
-
-    if not recursed:
-        Ref.create(
-            user=user,
-            reference=new_reference.ref_str,
-            start_id=new_reference.start_id,
-            end_id=new_reference.end_id,
-            translation=new_reference.translation,
-            include_verse_numbers=user.include_verse_numbers,
-        )
+# def add_new_reference(user: User, new_reference: "Reference") -> None:
+#     user_references = Ref.select(Ref.reference, Ref.start_id, Ref.end_id).where(
+#         Reference.user == user
+#     )
+# 
+#     recursed = False
+#     if new_reference.empty:
+#         return
+# 
+#     for i, old_reference in enumerate(user_references):
+#         # Start ID is Inside Passage
+#         if (
+#             new_reference.start_id >= old_reference.start_id
+#             and new_reference.start_id <= old_reference.end_id
+#         ):
+#             # New Reference Extends Past Existing Passage
+#             if new_reference.end_id > old_reference.end_id:
+#                 recursed = True
+#                 start_id = old_reference.start_id
+#                 end_id = new_reference.end_id
+#                 old_reference.delete_instance()
+#                 add_new_reference(
+#                     Reference(user.translation, id=start_id, end_id=end_id)
+#                 )
+#         # End ID is Inside Passage
+#         elif (
+#             new_reference.end_id >= old_reference.start_id
+#             and new_reference.end_id <= old_reference.end_id
+#         ):
+#             # New Reference Extends Before Existing Passage
+#             if new_reference.start_id < old_reference.start_id:
+#                 recursed = True
+#                 start_id = new_reference.start_id
+#                 end_id = old_reference.end_id
+#                 old_reference.delete_instance()
+#                 add_new_reference(
+#                     Reference(user.translation, id=start_id, end_id=end_id)
+#                 )
+# 
+#     if not recursed:
+#         Ref.create(
+#             user=user,
+#             reference=new_reference.ref_str,
+#             start_id=new_reference.start_id,
+#             end_id=new_reference.end_id,
+#             translation=new_reference.translation,
+#             include_verse_numbers=user.include_verse_numbers,
+#         )
 
 
 class Reference:

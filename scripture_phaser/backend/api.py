@@ -43,37 +43,12 @@ def new_user(username: str, password: str, email: str) -> str:
     return user_token.token
 
 
-# @api.get("/login/")
-# def authenticate(username: str, password: str) -> str:
-#     try:
-#         selected_user = (
-#             User.select(
-#                 User.password_hash, User.salt, User.iterations, User.hash_algorithm
-#             )
-#             .where(User.username == username)
-#             .get()
-#         )
-#     except pw.DoesNotExist:
-#         raise HTTPException(status_code=404, detail="User DNE")
-#
-#     hashed_password = hashlib.pbkdf2_hmac(
-#         selected_user.hash_algorithm,
-#         password,
-#         selected_user.salt,
-#         selected_user.iterations,
-#     )
-#
-#     if hashed_password == selected_user.password_hash:
-#         token = uuid.uuid4().hex
-#         UserToken.create(
-#             user=selected_user,
-#             token=token,
-#             expiry=datetime.datetime.now() + datetime.timedelta(days=7),
-#         )
-#         return token
-#     raise HTTPException(status_code=403, detail="Incorrect password")
-#
-#
+@api.get("/login/")
+def authenticate(username: str, password: str) -> str:
+    user_token = User.login(username=username, password=password)
+    return user_token.token
+
+
 # @api.delete("/logout/")
 # def logout(user_token: str) -> None:
 #     UserToken.get(UserToken.token == user_token).delete_instance()
