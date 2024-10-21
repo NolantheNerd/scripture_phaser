@@ -76,10 +76,9 @@ def create(username: str, password: str, email: str) -> UserToken:
         salt=salt,
         email=email,
     )
-    token = uuid.uuid4().hex
     return UserToken.create(
         user=new_user,
-        token=token,
+        token=uuid.uuid4().hex,
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
 
@@ -93,7 +92,7 @@ def login(username: str, password: str) -> UserToken:
         "sha256", password.encode("utf-8"), user.salt, N_ITERATIONS
     )
 
-    if hashed_password != user.password:
+    if hashed_password != user.password_hash:
         raise InvalidUserCredentials()
 
     user_token = UserToken.create(
@@ -105,4 +104,26 @@ def login(username: str, password: str) -> UserToken:
 
 
 def logout(user_token: str) -> None:
+    validate_token(user_token)
     UserToken.get(UserToken.token == user_token).delete_instance()
+
+
+def change_password(user_token: str, old_password: str, new_password: str) -> None:
+    validate_token(user_token)
+
+    user = (
+        User.select(User.salt, User.password_hash)
+        .join(UserToken)
+        .get(UserToken.token == user_token)
+    )
+    hashed_old_password = pbkdf2_hmac(
+        "sha256", old_password.encode("utf-8"), user.salt, N_ITERATIONS
+    )
+    if hashed_old_password != user.password_hash:
+        raise InvalidUserCredentials()
+
+    hashed_new_password = pbkdf2_hmac(
+        "sha256", new_password.encode("utf-8"), user.salt, N_ITERATIONS
+    )
+    user.password_hash = hashed_new_password
+    user.save()

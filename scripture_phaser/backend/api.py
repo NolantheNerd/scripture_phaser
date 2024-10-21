@@ -43,18 +43,25 @@ def new_user(username: str, password: str, email: str) -> str:
     return user_token.token
 
 
-@api.get("/login/")
-def authenticate(username: str, password: str) -> str:
+@api.get("/login")
+def login(username: str, password: str) -> str:
     user_token = User.login(username=username, password=password)
     return user_token.token
 
 
-@api.delete("/logout/")
+@api.delete("/logout")
 def logout(user_token: str) -> None:
     User.logout(user_token)
 
 
-# # @@@ TODO
+@api.post("/change_password")
+def change_password(user_token: str, old_password: str, new_password: str) -> None:
+    User.change_password(
+        user_token=user_token, old_password=old_password, new_password=new_password
+    )
+
+
+# @@@ TODO
 # @api.get("/forgot_password/")
 # def forgot_password(username: str) -> None:
 #     pass
