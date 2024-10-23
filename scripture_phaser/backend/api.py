@@ -33,6 +33,7 @@
 
 from fastapi import FastAPI
 import scripture_phaser.backend.user as User
+import scripture_phaser.backend.reference as Reference
 
 api = FastAPI()
 
@@ -61,19 +62,12 @@ def change_password(user_token: str, old_password: str, new_password: str) -> No
     )
 
 
-# @@@ TODO
-# @api.get("/forgot_password/")
-# def forgot_password(username: str) -> None:
-#     pass
-#
-#
-# @api.post("/new_reference/")
-# def add_reference(user_token: str, ref: str) -> None:
-#     user = UserToken.get(UserToken.token == user_token).user
-#     ref = Reference(user.translation, ref)
-#     add_new_reference(user, ref)
-#
-#
+@api.post("/new_reference")
+def add_reference(user_token: str, ref: str) -> None:
+    user = User.get(user_token)
+    Reference.add(user, ref)
+
+
 # @api.delete("/remove_reference/")
 # def remove_reference(user_token: str, ref: str) -> None:
 #     user = UserToken.get(UserToken.token == user_token).user

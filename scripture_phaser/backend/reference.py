@@ -32,17 +32,37 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from typing import List
-from scripture_phaser.backend.enums import Bible
-from scripture_phaser.backend.agents import Agents
 from itertools import accumulate
-from scripture_phaser.backend.enums import Bible_Books
 from typing import Optional, Tuple
-from scripture_phaser.backend.enums import Reverse_Bible_Books
+from scripture_phaser.backend.models import User
+from scripture_phaser.backend.models import Reference as Ref
+from scripture_phaser.backend.agents import Agents
 from scripture_phaser.backend.exceptions import InvalidReference
+from scripture_phaser.backend.enums import Bible, Bible_Books, Reverse_Bible_Books
+
+
+def add(user: User, new_reference: str) -> None:
+    new_ref = Reference(translation=user.translation, reference=new_reference)
+    ref_already_exists = (
+        Ref.get_or_none(
+            (Ref.start_id == new_ref.start_id) & (Ref.end_id == new_ref.end_id)
+        )
+        is not None
+    )
+
+    if not ref_already_exists:
+        Ref.create(
+            user=user,
+            reference=new_ref.ref_str,
+            start_id=new_ref.start_id,
+            end_id=new_ref.end_id,
+            translation=new_ref.translation,
+            include_verse_numbers=user.include_verse_numbers,
+        )
 
 
 # def add_new_reference(user: User, new_reference: "Reference") -> None:
-#     user_references = Ref.select(Ref.reference, Ref.start_id, Ref.end_id).where(
+#     user_references = Ref.select(Ref.start_id, Ref.end_id).where(
 #         Reference.user == user
 #     )
 #

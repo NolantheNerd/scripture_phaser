@@ -127,3 +127,8 @@ def change_password(user_token: str, old_password: str, new_password: str) -> No
     )
     user.password_hash = hashed_new_password
     user.save()
+
+
+def get(user_token: str) -> User:
+    validate_token(user_token)
+    return UserToken.select(UserToken.user).get(UserToken.token == user_token)
