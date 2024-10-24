@@ -61,6 +61,11 @@ def add(user: User, new_reference: str) -> None:
         )
 
 
+def delete(user: User, reference: str) -> None:
+    ref = Reference(reference)
+    Ref.get(Ref.user == user & Ref.reference == ref.ref_str).delete_instance()
+
+
 # def add_new_reference(user: User, new_reference: "Reference") -> None:
 #     user_references = Ref.select(Ref.start_id, Ref.end_id).where(
 #         Reference.user == user

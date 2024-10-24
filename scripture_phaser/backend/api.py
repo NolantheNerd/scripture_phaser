@@ -68,13 +68,12 @@ def add_reference(user_token: str, ref: str) -> None:
     Reference.add(user, ref)
 
 
-# @api.delete("/remove_reference/")
-# def remove_reference(user_token: str, ref: str) -> None:
-#     user = UserToken.get(UserToken.token == user_token).user
-#     ref = Reference(ref)
-#     Ref.get(Ref.user == user & Ref.reference == ref.ref_str).delete_instance()
-#
-#
+@api.delete("/remove_reference")
+def remove_reference(user_token: str, ref: str) -> None:
+    user = User.get(user_token)
+    Reference.delete(user, ref)
+
+
 # @api.post("/toggle_one_verse_rectitation/")
 # def toggle_one_verse_recitation(user_token: str) -> None:
 #     user = UserToken.get(UserToken.token == user_token).user
