@@ -32,8 +32,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from fastapi import FastAPI
+from typing import List
 import scripture_phaser.backend.user as User
 import scripture_phaser.backend.reference as Reference
+from scripture_phaser.backend.enum import Translations
 
 api = FastAPI()
 
@@ -74,35 +76,46 @@ def remove_reference(user_token: str, ref: str) -> None:
     Reference.delete(user, ref)
 
 
-# @api.post("/toggle_one_verse_rectitation/")
+@api.get("/view_reference")
+def view_reference(user_token: str, ref: str) -> None:
+    user = User.get(user_token)
+    return Reference.view(user, ref)
+
+
+@api.get("/list_translations")
+def list_translations(user_token: str) -> List[str]:
+    return Translations
+
+
+# @api.post("/toggle_one_verse_rectitation")
 # def toggle_one_verse_recitation(user_token: str) -> None:
 #     user = UserToken.get(UserToken.token == user_token).user
 #     user.one_verse_recitation = not user.one_verse_recitation
 #     user.save()
 #
 #
-# @api.post("/toggle_complete_recitation/")
+# @api.post("/toggle_complete_recitation")
 # def toggle_complete_recitation(user_token: str) -> None:
 #     user = UserToken.get(UserToken.token == user_token).user
 #     user.complete_recitation = not user.complete_recitation
 #     user.save()
 #
 #
-# @api.post("/toggle_fast_recitations/")
+# @api.post("/toggle_fast_recitations")
 # def toggle_fast_recitations(user_token: str) -> None:
 #     user = UserToken.get(UserToken.token == user_token).user
 #     user.fast_recitations = not user.fast_recitations
 #     user.save()
 #
 #
-# @api.post("/toggle_include_verse_numbers/")
+# @api.post("/toggle_include_verse_numbers")
 # def toggle_include_verse_numbers(user_token: str) -> None:
 #     user = UserToken.get(UserToken.token == user_token).user
 #     user.include_verse_numbers = not user.include_verse_numbers
 #     user.save()
 #
 #
-# @api.post("/set_translation/")
+# @api.post("/set_translation")
 # def set_translation(user_token: str, translation: str) -> None:
 #     if translation not in Translations:
 #         raise InvalidTranslation(translation)
@@ -112,14 +125,14 @@ def remove_reference(user_token: str, ref: str) -> None:
 #     user.save()
 #
 #
-# @api.get("/list_references/")
+# @api.get("/list_references")
 # def list_references(user_token: str) -> List[str]:
 #     user = UserToken.get(UserToken.token == user_token).user
 #     user_references = Ref.select(Ref.reference).where(Reference.user == user)
 #     return [ref.reference for ref in user_references]
 #
 #
-# @api.get("/view_reference/")
+# @api.get("/view_reference")
 # def view_reference(
 #    ref: Ref, include_verse_numbers: bool = False, include_ref: bool = True
 # ) -> str:
