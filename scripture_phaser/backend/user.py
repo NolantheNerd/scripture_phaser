@@ -35,12 +35,14 @@ import uuid
 import datetime
 from os import urandom
 from hashlib import pbkdf2_hmac
+from scripture_phaser.backend.enums import Translations
 from scripture_phaser.backend.models import User, UserToken
 from scripture_phaser.backend.exceptions import (
     UsernameAlreadyTaken,
     EmailAlreadyTaken,
     InvalidUserCredentials,
     InvalidUserToken,
+    InvalidTranslation,
 )
 
 N_ITERATIONS = 100000
@@ -132,3 +134,37 @@ def change_password(user_token: str, old_password: str, new_password: str) -> No
 def get(user_token: str) -> User:
     validate_token(user_token)
     return UserToken.select(UserToken.user).get(UserToken.token == user_token)
+
+
+def toggle_one_verse_recitation(user_token: str) -> None:
+    user = get(user_token)
+    user.one_verse_recitation = not user.one_verse_recitation
+    user.save()
+
+
+def toggle_complete_recitation(user_token: str) -> None:
+    user = get(user_token)
+    user.complete_recitation = not user.complete_recitation
+    user.save()
+
+
+def toggle_fast_recitations(user_token: str) -> None:
+    user = get(user_token)
+    user.fast_recitations = not user.fast_recitations
+    user.save()
+
+
+def toggle_include_verse_numbers(user_token: str) -> None:
+    user = get(user_token)
+    user.include_verse_numbers = not user.include_verse_numbers
+    user.save()
+
+
+def set_translation(user_token: str, translation: str) -> None:
+    user = get(user_token)
+
+    if translation not in Translations:
+        raise InvalidTranslation(translation)
+
+    user.translation = translation
+    user.save()

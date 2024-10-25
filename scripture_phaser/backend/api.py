@@ -82,81 +82,42 @@ def view_reference(user_token: str, ref: str) -> None:
     return Reference.view(user, ref)
 
 
+@api.get("/list_references")
+def list_references(user_token: str) -> List[str]:
+    user = User.get(user_token)
+    return Reference.list(user)
+
+
 @api.get("/list_translations")
 def list_translations(user_token: str) -> List[str]:
     return Translations
 
 
-# @api.post("/toggle_one_verse_rectitation")
-# def toggle_one_verse_recitation(user_token: str) -> None:
-#     user = UserToken.get(UserToken.token == user_token).user
-#     user.one_verse_recitation = not user.one_verse_recitation
-#     user.save()
-#
-#
-# @api.post("/toggle_complete_recitation")
-# def toggle_complete_recitation(user_token: str) -> None:
-#     user = UserToken.get(UserToken.token == user_token).user
-#     user.complete_recitation = not user.complete_recitation
-#     user.save()
-#
-#
-# @api.post("/toggle_fast_recitations")
-# def toggle_fast_recitations(user_token: str) -> None:
-#     user = UserToken.get(UserToken.token == user_token).user
-#     user.fast_recitations = not user.fast_recitations
-#     user.save()
-#
-#
-# @api.post("/toggle_include_verse_numbers")
-# def toggle_include_verse_numbers(user_token: str) -> None:
-#     user = UserToken.get(UserToken.token == user_token).user
-#     user.include_verse_numbers = not user.include_verse_numbers
-#     user.save()
-#
-#
-# @api.post("/set_translation")
-# def set_translation(user_token: str, translation: str) -> None:
-#     if translation not in Translations:
-#         raise InvalidTranslation(translation)
-#
-#     user = UserToken.get(UserToken.token == user_token).user
-#     user.translation = translation
-#     user.save()
-#
-#
-# @api.get("/list_references")
-# def list_references(user_token: str) -> List[str]:
-#     user = UserToken.get(UserToken.token == user_token).user
-#     user_references = Ref.select(Ref.reference).where(Reference.user == user)
-#     return [ref.reference for ref in user_references]
-#
-#
-# @api.get("/view_reference")
-# def view_reference(
-#    ref: Ref, include_verse_numbers: bool = False, include_ref: bool = True
-# ) -> str:
-#    return ref.view(
-#        include_verse_numbers=include_verse_numbers, include_ref=include_ref
-#    )
-#
-#
-# def get_reference(self) -> Reference:
-#    if len(self.references) == 0:
-#        raise NoReferences()
-#
-#    chosen_reference = rd.choice(self.references)
-#    if not self.complete_recitation:
-#        if self.one_verse_recitation:
-#            chosen_id = rd.randrange(chosen_reference.start_id, chosen_reference.end_id + 1)
-#            return Reference(self.translation, id=chosen_id)
-#        else:
-#            chosen_start_id = rd.randrange(chosen_reference.start_id, chosen_reference.end_id + 1)
-#            chosen_end_id = rd.randrange(chosen_start_id, chosen_reference.end_id + 1)
-#            return Reference(self.translation, id=chosen_start_id, end_id=chosen_end_id)
-#    else:
-#        return chosen_reference
-#
+@api.post("/toggle_one_verse_rectitation")
+def toggle_one_verse_recitation(user_token: str) -> None:
+    User.toggle_one_verse_recitation(user_token)
+
+
+@api.post("/toggle_complete_recitation")
+def toggle_complete_recitation(user_token: str) -> None:
+    User.toggle_complete_recitation(user_token)
+
+
+@api.post("/toggle_fast_recitations")
+def toggle_fast_recitations(user_token: str) -> None:
+    User.toggle_fast_recitations(user_token)
+
+
+@api.post("/toggle_include_verse_numbers")
+def toggle_include_verse_numbers(user_token: str) -> None:
+    User.toggle_include_verse_numbers(user_token)
+
+
+@api.post("/set_translation")
+def set_translation(user_token: str, translation: str) -> None:
+    User.set_translation(user_token, translation)
+
+
 # def recite(self, reference: Reference, text: str) -> Attempt:
 #    if self.fast_recitations:
 #        ans = reference.view_first_letter(self.include_verse_numbers)
