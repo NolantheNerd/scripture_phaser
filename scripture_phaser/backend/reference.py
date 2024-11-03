@@ -82,6 +82,48 @@ def list(user: User) -> List[str]:
     ]
 
 
+def grade_recitation(user: User, reference: str, recitation: str) -> None:
+    if user.fast_recitations:
+        answer = reference.view_first_letter(self.include_verse_numbers)
+
+        if recitation == answer:
+            score = 1
+        else:
+            n_correct = sum(
+                [1 for i in range(len(answer)) if recitation[i] == answer[i]]
+            )
+            score = n_correct / len(answer)
+    else:
+        answer = reference.view(self.include_verse_numbers, include_ref=False)
+
+        if recitation == answer:
+            score = 1
+        else:
+            n_correct_chars, n_incorrect_chars = 0, 0
+            result = SequenceMatcher(a=recitation, b=answer).get_opcodes()
+            for tag, i1, i2, j1, j2 in result:
+                if tag == "replace":
+                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
+                elif tag == "delete":
+                    n_incorrect_chars += i2 - i1
+                elif tag == "insert":
+                    n_incorrect_chars += j2 - j1
+                elif tag == "equal":
+                    n_correct_chars += i2 - i1
+
+            score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
+
+    Attempt.create(
+        reference=reference.ref_str,
+        score=score,
+        recitation=recitation,
+        datetime=datetime.datetime.now(),
+        translation=user.translation,
+        include_verse_numbers=user.include_verse_numbers,
+        user=user,
+    )
+
+
 class Reference:
     def __init__(
         self,

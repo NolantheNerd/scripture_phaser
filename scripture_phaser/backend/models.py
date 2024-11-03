@@ -73,7 +73,7 @@ class Attempt(ScripturePhaser):
     translation = pw.TextField()
     include_verse_numbers = pw.BooleanField()
     score = pw.FloatField(null=True)
-    attempt = pw.TextField(null=True)
+    recitation = pw.TextField(null=True)
     user = pw.ForeignKeyField(User, on_delete="CASCADE")
 
 

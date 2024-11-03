@@ -118,38 +118,7 @@ def set_translation(user_token: str, translation: str) -> None:
     User.set_translation(user_token, translation)
 
 
-# def recite(self, reference: Reference, text: str) -> Attempt:
-#    if self.fast_recitations:
-#        ans = reference.view_first_letter(self.include_verse_numbers)
-#
-#        if text == ans:
-#            score = 1
-#        else:
-#            n_correct = sum([1 for i in range(len(ans)) if text[i] == ans[i]])
-#            score = n_correct / len(ans)
-#    else:
-#        ans = reference.view(self.include_verse_numbers, include_ref=False)
-#
-#        if text == ans:
-#            score = 1
-#        else:
-#            n_correct_chars, n_incorrect_chars = 0, 0
-#            result = SequenceMatcher(a=text, b=ans).get_opcodes()
-#            for tag, i1, i2, j1, j2 in result:
-#                if tag == "replace":
-#                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
-#                elif tag == "delete":
-#                    n_incorrect_chars += i2 - i1
-#                elif tag == "insert":
-#                    n_incorrect_chars += j2 - j1
-#                elif tag == "equal":
-#                    n_correct_chars += i2 - i1
-#
-#            score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
-#
-#    return Attempt.create(
-#        reference=reference.ref_str,
-#        score=score,
-#        attempt=text,
-#        datetime=datetime.datetime.now()
-#    )
+@api.post("/recite_reference")
+def recite_reference(user_token: str, reference: str, recitation: str) -> None:
+    user = User.get(user_token)
+    grade_recitation(user, reference, recitation)
