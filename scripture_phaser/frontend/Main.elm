@@ -35,22 +35,13 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, select, option, div, text)
+import Html exposing (Html, p, text)
 
 -- Main
 
 main = Browser.sandbox { init = init, update = update, view = view }
 
 -- Model
-
-allTranslations = [ "KJV", "WEB", "ESV", "NIV", "NKJV", "NLT", "NASB", "NRSV" ]
-type alias Model = {
-  translation : String,
-  one_verse_recitation : Bool,
-  complete_recitation : Bool,
-  include_verse_numbers : Bool,
-  fast_recitations : Bool
-  }
 
 init : Model
 init = {
@@ -63,26 +54,12 @@ init = {
 
 -- Update
 
-type Msg = Change String
-
 update : Msg -> Model -> Model
 update msg model = 
-  case msg of
-    Change newTranslation ->
-      { model | translation = newTranslation }
+  model
 
 -- View
 
-removeSelectedFromList : List String -> String -> List String
-removeSelectedFromList list selected =
-  List.filter (\l -> l /= selected) list
-
-listToSelect : List String -> List ( Html msg )
-listToSelect list =
-  List.map (\l -> option [] [ text l ] ) list
-
 view : Model -> Html Msg
 view model =
-  select [] ( option [] [ text model.translation ] ::
-    listToSelect ( removeSelectedFromList allTranslations model.translation )
-    )
+  p [] [text "p"]
