@@ -46,7 +46,7 @@ class ReferenceTests(BaseTest):
         """
         Can reference strings be standardized?
         """
-        translation = "ESV"
+        translation = "KJV"
 
         verse_string1 = "1 John 3:5"
         expected_string1 = "1 John 3:5"
@@ -142,7 +142,7 @@ class ReferenceTests(BaseTest):
         """
         Can verse strings be interpreted?
         """
-        translation = "ESV"
+        translation = "KJV"
 
         verse_string1 = "1 John 3:5"
         eb1, ec1, ev1, eb2, ec2, ev2 = 61, 2, 4, 61, 2, 4
@@ -281,7 +281,7 @@ class ReferenceTests(BaseTest):
             Reference(translation, verse_string16)
 
     def test_interpret_id(self) -> None:
-        translation = "ESV"
+        translation = "KJV"
 
         # Genesis 1:1
         start_id1 = 0
@@ -344,66 +344,77 @@ class ReferenceTests(BaseTest):
         """
         Do passages display their content properly?
         """
-        translation = "ESV"
+        translation = "KJV"
 
         reference = Reference(translation, "1 Peter 1:2 - 1:3")
 
         mock_api_return = [
-            "according to the foreknowledge of God the Father, in the sanctification of "
-            "the Spirit, for obedience to Jesus Christ and for sprinkling with his blood:"
-            "\nMay grace and peace be multiplied to you. \n",
-            "Blessed be the God and Father "
-            "of our Lord Jesus Christ! According to his great mercy, he has caused us to be "
-            "born again to a living hope through the resurrection of Jesus Christ from the dead,",
+            (
+                "Elect according to the foreknowledge of God the Father, "
+                + "through sanctification of the Spirit, unto obedience and "
+                + "sprinkling of the blood of Jesus Christ: Grace unto you, "
+                + "and peace, be multiplied."
+            ),
+            (
+                "Blessed be the God and Father of our Lord Jesus Christ, which "
+                + "according to his abundant mercy hath begotten us again unto "
+                + "a lively hope by the resurrection of Jesus Christ from the dead,"
+            ),
         ]
 
         reference.agent.fetch = MagicMock(return_value=mock_api_return)
 
         expected_clean = (
-            "according to the foreknowledge of God the Father, "
-            + "in the sanctification of the Spirit, for obedience to Jesus Christ and "
-            + "for sprinkling with his blood:\nMay grace and peace be multiplied to "
-            + "you. \nBlessed be the God and Father of our Lord Jesus Christ! "
-            + "According to his great mercy, he has caused us to be born again to a "
-            + "living hope through the resurrection of Jesus Christ from the dead,"
+            "Elect according to the foreknowledge of God the Father, "
+            + "through sanctification of the Spirit, unto obedience and "
+            + "sprinkling of the blood of Jesus Christ: Grace unto you, "
+            + "and peace, be multiplied. "
+            + "Blessed be the God and Father of our Lord Jesus Christ, which "
+            + "according to his abundant mercy hath begotten us again unto "
+            + "a lively hope by the resurrection of Jesus Christ from the dead,"
         )
 
         expected_verse = (
-            "[2] according to the foreknowledge of God the Father, "
-            + "in the sanctification of the Spirit, for obedience to Jesus Christ and "
-            + "for sprinkling with his blood:\nMay grace and peace be multiplied to "
-            + "you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! "
-            + "According to his great mercy, he has caused us to be born again to a "
-            + "living hope through the resurrection of Jesus Christ from the dead,"
+            "[2] Elect according to the foreknowledge of God the Father, "
+            + "through sanctification of the Spirit, unto obedience and "
+            + "sprinkling of the blood of Jesus Christ: Grace unto you, "
+            + "and peace, be multiplied. "
+            + "[3] Blessed be the God and Father of our Lord Jesus Christ, which "
+            + "according to his abundant mercy hath begotten us again unto "
+            + "a lively hope by the resurrection of Jesus Christ from the dead,"
         )
 
         expected_ref = (
-            "according to the foreknowledge of God the Father, "
-            + "in the sanctification of the Spirit, for obedience to Jesus Christ and "
-            + "for sprinkling with his blood:\nMay grace and peace be multiplied to "
-            + "you. \nBlessed be the God and Father of our Lord Jesus Christ! "
-            + "According to his great mercy, he has caused us to be born again to a "
-            + "living hope through the resurrection of Jesus Christ from the dead, "
-            + "- 1 Peter 1:2-3"
+            "Elect according to the foreknowledge of God the Father, "
+            + "through sanctification of the Spirit, unto obedience and "
+            + "sprinkling of the blood of Jesus Christ: Grace unto you, "
+            + "and peace, be multiplied. "
+            + "Blessed be the God and Father of our Lord Jesus Christ, which "
+            + "according to his abundant mercy hath begotten us again unto "
+            + "a lively hope by the resurrection of Jesus Christ from the dead,"
+            + " - 1 Peter 1:2-3"
         )
 
         expected_full = (
-            "[2] according to the foreknowledge of God the Father, "
-            + "in the sanctification of the Spirit, for obedience to Jesus Christ and "
-            + "for sprinkling with his blood:\nMay grace and peace be multiplied to "
-            + "you. \n[3] Blessed be the God and Father of our Lord Jesus Christ! "
-            + "According to his great mercy, he has caused us to be born again to a "
-            + "living hope through the resurrection of Jesus Christ from the dead, "
-            + "- 1 Peter 1:2-3"
+            "[2] Elect according to the foreknowledge of God the Father, "
+            + "through sanctification of the Spirit, unto obedience and "
+            + "sprinkling of the blood of Jesus Christ: Grace unto you, "
+            + "and peace, be multiplied. "
+            + "[3] Blessed be the God and Father of our Lord Jesus Christ, which "
+            + "according to his abundant mercy hath begotten us again unto "
+            + "a lively hope by the resurrection of Jesus Christ from the dead,"
+            + " - 1 Peter 1:2-3"
         )
 
         reference.populate()
 
         self.assertEqual(
-            reference.view(include_verse_numbers=False, include_ref=True), expected_ref
+            reference.view(include_verse_numbers=False, include_ref=True),
+            expected_ref,
         )
         self.assertEqual(
-            reference.view(include_verse_numbers=True, include_ref=True), expected_full
+            reference.view(include_verse_numbers=True, include_ref=True),
+            expected_full,
         )
         self.assertEqual(
             reference.view(include_verse_numbers=False, include_ref=False),
@@ -418,47 +429,50 @@ class ReferenceTests(BaseTest):
         """
         Can the Reference fetch the first letter of each word in a passage?
         """
-        reference = Reference("ESV", "2 Timothy 3:16-17")
+        reference = Reference("KJV", "2 Timothy 3:16-17")
+
         content = (
-            "All Scripture is breathed out by God and profitable "
-            + "for teaching, for reproof, for correction, and for training in "
-            + "righteousness, that the man of God may be complete, equipped "
-            + "for every good work."
+            "All scripture is given by inspiration of God, and is profitable "
+            + "for doctrine, for reproof, for correction, for instruction in "
+            + "righteousness: That the man of God may be perfect, throughly "
+            + "furnished unto all good works."
         )
         reference.agent.fetch = MagicMock(return_value=content)
 
         expected = [
             "A",
-            "S",
+            "s",
             "i",
+            "g",
             "b",
+            "i",
             "o",
-            "b",
             "G",
             "a",
+            "i",
             "p",
             "f",
-            "t",
+            "d",
             "f",
             "r",
             "f",
             "c",
-            "a",
             "f",
-            "t",
+            "i",
             "i",
             "r",
-            "t",
+            "T",
             "t",
             "m",
             "o",
             "G",
             "m",
             "b",
-            "c",
-            "e",
+            "p",
+            "t",
             "f",
-            "e",
+            "u",
+            "a",
             "g",
             "w",
         ]

@@ -33,159 +33,51 @@
 
 from pathlib import Path
 from typing import List, Dict
-from scripture_phaser.backend.enums import Bible
-from scripture_phaser.backend.enums import Bible_Books
-from scripture_phaser.backend.enums import Reverse_Bible_Books
-from meaningless.bible_web_extractor import WebExtractor
 
 
 TRANSLATION_DIR = Path(__file__).parent.parent.absolute()
 
 
-# Remains Distinct from BibleGateway Agent in the Event that Another API Needs
-# to be Used
-class BaseAPIAgent:
-    def __init__(self, translation: str) -> None:
-        self.translation = translation
-
-    def fetch(
-        self,
-        book_start: int,
-        chapter_start: int,
-        verse_start: int,
-        book_end: int,
-        chapter_end: int,
-        verse_end: int,
-    ) -> List[str]:
-        raise NotImplementedError("Child agent must implement fetch()")
-
-
-class OfflineTextAgent:
+class OfflineAgent:
     def __init__(self, translation: str) -> None:
         self.translation = translation
 
     def fetch(self, id_start: int, id_end: int) -> List[str]:
-        text = []
+        texts = []
 
         translation_filepath = TRANSLATION_DIR + self.translation.lower() + ".txt"
         with open(translation_filepath, "r") as translation_file:
-            for _ in range(id_start):
+            for _ in range(id_start - 1):
                 next(translation_file)
-            for _ in range(id_end - id_start):
-                text.append(translation_file.readline())
+            for _ in range(id_end - id_start + 1):
+                texts.append(translation_file.readline())
 
-        return text
-
-
-class BibleGatewayAgent(BaseAPIAgent):
-    def __init__(self, translation: str) -> None:
-        self.translation = translation
-        self.xtcr = WebExtractor(
-            show_passage_numbers=False,
-            translation=self.translation,
-            output_as_list=True,
-            strip_excess_whitespace_from_list=True,
-            use_ascii_punctuation=True,
-        )
-
-    def fetch(
-        self,
-        book_start: int,
-        chapter_start: int,
-        verse_start: int,
-        book_end: int,
-        chapter_end: int,
-        verse_end: int,
-    ) -> List[str]:
-        book_start = Bible_Books[book_start]
-        chapter_start += 1
-        verse_start += 1
-        book_end = Bible_Books[book_end]
-        chapter_end += 1
-        verse_end += 1
-
-        if book_start == book_end:
-            return self.xtcr.get_passage_range(
-                book=book_start,
-                chapter_from=chapter_start,
-                passage_from=verse_start,
-                chapter_to=chapter_end,
-                passage_to=verse_end,
-            )
-        else:
-            verses = []
-            while book_start != book_end:
-                verses.extend(
-                    self.xtcr.get_passage_range(
-                        book=book_start,
-                        chapter_from=chapter_start,
-                        passage_from=verse_start,
-                        chapter_to=len(Bible[Reverse_Bible_Books[book_start]]),
-                        passage_to=Bible[Reverse_Bible_Books[book_start]][-1],
-                    )
-                )
-                book_start = Bible_Books[Reverse_Bible_Books[book_start] + 1]
-                chapter_start, verse_start = 0, 0
-
-            verses.extend(
-                self.xtcr.get_passage_range(
-                    book=book_start,
-                    chapter_from=chapter_start,
-                    passage_from=verse_start,
-                    chapter_to=chapter_end,
-                    passage_to=verse_end,
-                )
-            )
-            return verses
+        return texts
 
 
-class KJVBibleGatewayAgent(BibleGatewayAgent):
+class KJVOfflineAgent(OfflineAgent):
     def __init__(self) -> None:
         super().__init__(translation="KJV")
 
 
-class WEBBibleGatewayAgent(BibleGatewayAgent):
+class WEBOfflineAgent(OfflineAgent):
     def __init__(self) -> None:
         super().__init__(translation="WEB")
 
 
-class ESVBibleGatewayAgent(BibleGatewayAgent):
+class ERVOfflineAgent(OfflineAgent):
     def __init__(self) -> None:
-        super().__init__(translation="ESV")
+        super().__init__(translation="ERV")
 
 
-class NIVBibleGatewayAgent(BibleGatewayAgent):
+class ASVOfflineAgent(OfflineAgent):
     def __init__(self) -> None:
-        super().__init__(translation="NIV")
+        super().__init__(translation="ASV")
 
 
-class NKJVBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self) -> None:
-        super().__init__(translation="NKJV")
-
-
-class NLTBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self) -> None:
-        super().__init__(translation="NLT")
-
-
-class NASBBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self) -> None:
-        super().__init__(translation="NASB")
-
-
-class NRSVBibleGatewayAgent(BibleGatewayAgent):
-    def __init__(self) -> None:
-        super().__init__(translation="NRSV")
-
-
-Agents: Dict[str, BibleGatewayAgent] = {
-    "ESV": ESVBibleGatewayAgent(),
-    "NIV": NIVBibleGatewayAgent(),
-    "NASB": NASBBibleGatewayAgent(),
-    "NLT": NLTBibleGatewayAgent(),
-    "KJV": KJVBibleGatewayAgent(),
-    "NKJV": NKJVBibleGatewayAgent(),
-    "WEB": WEBBibleGatewayAgent(),
-    "NRSV": NRSVBibleGatewayAgent(),
+Agents: Dict[str, OfflineAgent] = {
+    "ERV": ERVOfflineAgent(),
+    "ASV": ASVOfflineAgent(),
+    "KJV": KJVOfflineAgent(),
+    "WEB": WEBOfflineAgent(),
 }

@@ -85,7 +85,7 @@ def view_reference(user_token: str, ref: str) -> None:
 @api.get("/list_references")
 def list_references(user_token: str) -> List[str]:
     user = User.get(user_token)
-    return Reference.list(user)
+    return Reference.list_references(user)
 
 
 @api.get("/list_translations")
