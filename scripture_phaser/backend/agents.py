@@ -31,6 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from pathlib import Path
 from typing import List, Dict
 from scripture_phaser.backend.enums import Bible
 from scripture_phaser.backend.enums import Bible_Books
@@ -38,8 +39,11 @@ from scripture_phaser.backend.enums import Reverse_Bible_Books
 from meaningless.bible_web_extractor import WebExtractor
 
 
-# Remains Distinct from BibleGateway Agent in the Event that Another API is
-# Needs to be Used
+TRANSLATION_DIR = Path(__file__).parent.parent.absolute()
+
+
+# Remains Distinct from BibleGateway Agent in the Event that Another API Needs
+# to be Used
 class BaseAPIAgent:
     def __init__(self, translation: str) -> None:
         self.translation = translation
@@ -54,6 +58,23 @@ class BaseAPIAgent:
         verse_end: int,
     ) -> List[str]:
         raise NotImplementedError("Child agent must implement fetch()")
+
+
+class OfflineTextAgent:
+    def __init__(self, translation: str) -> None:
+        self.translation = translation
+
+    def fetch(self, id_start: int, id_end: int) -> List[str]:
+        text = []
+
+        translation_filepath = TRANSLATION_DIR + self.translation.lower() + ".txt"
+        with open(translation_filepath, "r") as translation_file:
+            for _ in range(id_start):
+                next(translation_file)
+            for _ in range(id_end - id_start):
+                text.append(translation_file.readline())
+
+        return text
 
 
 class BibleGatewayAgent(BaseAPIAgent):
