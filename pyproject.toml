@@ -3,12 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["scripture_phaser"]
 
-[tool.pytype]
-inputs = ["scripture_phaser/backend", "test"]
-jobs = "auto"
-disable = ["import-error"]
+[tool.mypy]
 
 [tool.black]
 line-length = 86
@@ -18,9 +15,8 @@ include = '\.pyi?$'
 name = "scripture_phaser"
 version = "1.2.1"
 dependencies = [
-	"meaningless==1.0.0",
 	"peewee==3.17.0",
-        "readchar==4.0.5"
+	"fastapi==0.115.5",
 ]
 requires-python = ">=3.8"
 authors = [

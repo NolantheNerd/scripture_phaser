@@ -45,7 +45,7 @@ class OfflineAgent:
     def fetch(self, id_start: int, id_end: int) -> List[str]:
         texts = []
 
-        translation_filepath = TRANSLATION_DIR + self.translation.lower() + ".txt"
+        translation_filepath = TRANSLATION_DIR / (self.translation.lower() + ".txt")
         with open(translation_filepath, "r") as translation_file:
             for _ in range(id_start - 1):
                 next(translation_file)

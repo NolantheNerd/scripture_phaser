@@ -33,10 +33,14 @@
 
 import os
 import unittest
+from pathlib import Path
 from scripture_phaser.backend.enums import CONFIG_DIR
 
 
 class BaseTest(unittest.TestCase):
+    config_file: Path
+    temp_config_file: Path
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.config_file = CONFIG_DIR / "config"

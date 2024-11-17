@@ -31,7 +31,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from unittest.mock import MagicMock
+from unittest.mock import patch
 from test.test_base import BaseTest
 from scripture_phaser.backend.reference import Reference
 from scripture_phaser.backend.exceptions import InvalidReference
@@ -340,7 +340,8 @@ class ReferenceTests(BaseTest):
         with self.assertRaises(InvalidReference):
             Reference(translation, "2 Samuel 1:1 - 1 Samuel 1:1")
 
-    def test_view(self) -> None:
+    @patch("scripture_phaser.backend.agents.OfflineAgent.fetch")
+    def test_view(self, mock_fetch) -> None:
         """
         Do passages display their content properly?
         """
@@ -361,8 +362,8 @@ class ReferenceTests(BaseTest):
                 + "a lively hope by the resurrection of Jesus Christ from the dead,"
             ),
         ]
-
-        reference.agent.fetch = MagicMock(return_value=mock_api_return)
+        mock_fetch.return_value = mock_api_return
+        #reference.agent.fetch = MagicMock(return_value=mock_api_return)
 
         expected_clean = (
             "Elect according to the foreknowledge of God the Father, "
@@ -425,7 +426,8 @@ class ReferenceTests(BaseTest):
             expected_verse,
         )
 
-    def test_get_fast_recitation_ans(self) -> None:
+    @patch("scripture_phaser.backend.agents.OfflineAgent.fetch")
+    def test_get_fast_recitation_ans(self, mock_fetch) -> None:
         """
         Can the Reference fetch the first letter of each word in a passage?
         """
@@ -437,7 +439,8 @@ class ReferenceTests(BaseTest):
             + "righteousness: That the man of God may be perfect, throughly "
             + "furnished unto all good works."
         )
-        reference.agent.fetch = MagicMock(return_value=content)
+        mock_fetch.return_value = content
+        #reference.agent.fetch = MagicMock(return_value=content)
 
         expected = [
             "A",

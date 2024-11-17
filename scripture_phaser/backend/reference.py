@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from typing import List
 from itertools import accumulate
 from typing import Optional, Tuple
 from scripture_phaser.backend.models import User
@@ -42,7 +41,7 @@ from scripture_phaser.backend.enums import Bible, Bible_Books, Reverse_Bible_Boo
 
 
 def add(user: User, new_reference: str) -> None:
-    new_ref = Reference(translation=user.translation, reference=new_reference)
+    new_ref = Reference(translation=str(user.translation), reference=new_reference)
     ref_already_exists = (
         Ref.get_or_none(
             (Ref.start_id == new_ref.start_id) & (Ref.end_id == new_ref.end_id)
@@ -69,59 +68,60 @@ def delete(user: User, reference: str) -> None:
 def view(
     user: User,
     reference: str,
-    include_verse_numbers: Optional[bool] = False,
-    include_ref: Optional[bool] = True,
+    include_verse_numbers: bool = False,
+    include_ref: bool = True,
 ) -> str:
     ref = Reference(reference)
     return ref.view(include_verse_numbers, include_ref)
 
 
-def list_references(user: User) -> List[str]:
+def list_references(user: User) -> list[str]:
     return [
         ref.reference for ref in Ref.select(Ref.reference).where(Ref.user == user)
     ]
 
 
 def grade_recitation(user: User, reference: str, recitation: str) -> None:
-    if user.fast_recitations:
-        answer = reference.view_first_letter(self.include_verse_numbers)
-
-        if recitation == answer:
-            score = 1
-        else:
-            n_correct = sum(
-                [1 for i in range(len(answer)) if recitation[i] == answer[i]]
-            )
-            score = n_correct / len(answer)
-    else:
-        answer = reference.view(self.include_verse_numbers, include_ref=False)
-
-        if recitation == answer:
-            score = 1
-        else:
-            n_correct_chars, n_incorrect_chars = 0, 0
-            result = SequenceMatcher(a=recitation, b=answer).get_opcodes()
-            for tag, i1, i2, j1, j2 in result:
-                if tag == "replace":
-                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
-                elif tag == "delete":
-                    n_incorrect_chars += i2 - i1
-                elif tag == "insert":
-                    n_incorrect_chars += j2 - j1
-                elif tag == "equal":
-                    n_correct_chars += i2 - i1
-
-            score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
-
-    Attempt.create(
-        reference=reference.ref_str,
-        score=score,
-        recitation=recitation,
-        datetime=datetime.datetime.now(),
-        translation=user.translation,
-        include_verse_numbers=user.include_verse_numbers,
-        user=user,
-    )
+    pass
+#    if user.fast_recitations:
+#        answer = reference.view_first_letter(self.include_verse_numbers)
+#
+#        if recitation == answer:
+#            score = 1
+#        else:
+#            n_correct = sum(
+#                [1 for i in range(len(answer)) if recitation[i] == answer[i]]
+#            )
+#            score = n_correct / len(answer)
+#    else:
+#        answer = reference.view(self.include_verse_numbers, include_ref=False)
+#
+#        if recitation == answer:
+#            score = 1
+#        else:
+#            n_correct_chars, n_incorrect_chars = 0, 0
+#            result = SequenceMatcher(a=recitation, b=answer).get_opcodes()
+#            for tag, i1, i2, j1, j2 in result:
+#                if tag == "replace":
+#                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
+#                elif tag == "delete":
+#                    n_incorrect_chars += i2 - i1
+#                elif tag == "insert":
+#                    n_incorrect_chars += j2 - j1
+#                elif tag == "equal":
+#                    n_correct_chars += i2 - i1
+#
+#            score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
+#
+#    Attempt.create(
+#        reference=reference.ref_str,
+#        score=score,
+#        recitation=recitation,
+#        datetime=datetime.datetime.now(),
+#        translation=user.translation,
+#        include_verse_numbers=user.include_verse_numbers,
+#        user=user,
+#    )
 
 
 class Reference:
@@ -132,8 +132,9 @@ class Reference:
         id: Optional[int] = None,
         end_id: Optional[int] = None,
     ) -> None:
-        self.agent = Agents[translation]
-        self.texts = []
+        self.translation = translation
+        self.agent = Agents[self.translation]
+        self.texts: list[str] = []
         self.populated = False
 
         if reference is not None:
@@ -207,7 +208,9 @@ class Reference:
         else:
             return f"{text}".replace("\n ", "\n")
 
-    def view_first_letter(self, include_verse_numbers: bool) -> List[str]:
+    def view_first_letter(self, include_verse_numbers: bool) -> list[str]:
+        text: str | list[str]
+
         if not self.populated:
             self.populate()
 

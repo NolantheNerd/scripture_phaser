@@ -35,7 +35,7 @@ from fastapi import FastAPI
 from typing import List
 import scripture_phaser.backend.user as User
 import scripture_phaser.backend.reference as Reference
-from scripture_phaser.backend.enum import Translations
+from scripture_phaser.backend.enums import Translations
 
 api = FastAPI()
 
@@ -43,13 +43,13 @@ api = FastAPI()
 @api.post("/create_account")
 def new_user(username: str, password: str, email: str) -> str:
     user_token = User.create(username=username, password=password, email=email)
-    return user_token.token
+    return str(user_token.token)
 
 
 @api.get("/login")
 def login(username: str, password: str) -> str:
     user_token = User.login(username=username, password=password)
-    return user_token.token
+    return str(user_token.token)
 
 
 @api.delete("/logout")
@@ -77,7 +77,7 @@ def remove_reference(user_token: str, ref: str) -> None:
 
 
 @api.get("/view_reference")
-def view_reference(user_token: str, ref: str) -> None:
+def view_reference(user_token: str, ref: str) -> str:
     user = User.get(user_token)
     return Reference.view(user, ref)
 
@@ -121,4 +121,4 @@ def set_translation(user_token: str, translation: str) -> None:
 @api.post("/recite_reference")
 def recite_reference(user_token: str, reference: str, recitation: str) -> None:
     user = User.get(user_token)
-    grade_recitation(user, reference, recitation)
+    Reference.grade_recitation(user, reference, recitation)
