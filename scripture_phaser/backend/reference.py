@@ -83,6 +83,8 @@ def list_references(user: User) -> list[str]:
 
 def grade_recitation(user: User, reference: str, recitation: str) -> None:
     pass
+
+
 #    if user.fast_recitations:
 #        answer = reference.view_first_letter(self.include_verse_numbers)
 #

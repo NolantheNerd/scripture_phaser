@@ -7,16 +7,15 @@ packages = ["scripture_phaser"]
 
 [tool.mypy]
 
-[tool.black]
+[tool.ruff]
 line-length = 86
-include = '\.pyi?$'
 
 [project]
 name = "scripture_phaser"
 version = "1.2.1"
 dependencies = [
 	"peewee==3.17.0",
-	"fastapi==0.115.5",
+	"fastapi[standard]==0.115.5",
 ]
 requires-python = ">=3.8"
 authors = [

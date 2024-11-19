@@ -363,7 +363,7 @@ class ReferenceTests(BaseTest):
             ),
         ]
         mock_fetch.return_value = mock_api_return
-        #reference.agent.fetch = MagicMock(return_value=mock_api_return)
+        # reference.agent.fetch = MagicMock(return_value=mock_api_return)
 
         expected_clean = (
             "Elect according to the foreknowledge of God the Father, "
@@ -440,7 +440,7 @@ class ReferenceTests(BaseTest):
             + "furnished unto all good works."
         )
         mock_fetch.return_value = content
-        #reference.agent.fetch = MagicMock(return_value=content)
+        # reference.agent.fetch = MagicMock(return_value=content)
 
         expected = [
             "A",
