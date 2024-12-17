@@ -32,7 +32,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from itertools import accumulate
-from typing import Optional, Tuple
 from scripture_phaser.backend.models import User
 from scripture_phaser.backend.models import Reference as Ref
 from scripture_phaser.backend.agents import Agents
@@ -85,9 +84,9 @@ class Reference:
     def __init__(
         self,
         translation: str,
-        reference: Optional[str] = None,
-        id: Optional[int] = None,
-        end_id: Optional[int] = None,
+        reference: str | None = None,
+        id: int | None = None,
+        end_id: int | None = None,
     ) -> None:
         self.translation = translation
         self.agent = Agents[self.translation]
@@ -325,7 +324,7 @@ class Reference:
         return new_ref
 
     @classmethod
-    def interpret_reference(cls, ref: str) -> Tuple[int, int, int, int, int, int]:
+    def interpret_reference(cls, ref: str) -> tuple[int, int, int, int, int, int]:
         ref = cls.clean_reference(ref)
 
         # Handle a Single Whole Book Reference [Genesis]
@@ -558,7 +557,7 @@ class Reference:
             raise InvalidReference(ref)
 
     @staticmethod
-    def reference_to_id(ref: "Reference") -> Tuple[int, int]:
+    def reference_to_id(ref: "Reference") -> tuple[int, int]:
         start_id = sum([sum(book) for book in Bible[: ref.book_start]])
         start_id += sum(Bible[ref.book_start][: ref.chapter_start])
         start_id += ref.verse_start
@@ -577,7 +576,7 @@ class Reference:
         return start_id, end_id
 
     @staticmethod
-    def id_to_reference(verse_id: int) -> Tuple[int, int, int]:
+    def id_to_reference(verse_id: int) -> tuple[int, int, int]:
         verse_sums = list(accumulate([sum(book) for book in Bible]))
         book_id = [verse_id < bound for bound in verse_sums].index(True)
 

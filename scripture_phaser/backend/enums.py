@@ -34,7 +34,6 @@
 import os
 import platform
 from pathlib import Path
-from typing import List, Dict
 
 VERSION = "1.2.1"
 RELEASE_DATE = "2024-04-02"
@@ -108,9 +107,9 @@ class TermColours:
     UNDERLINE = "\033[4m"
 
 
-Translations: List[str] = ["ESV", "NIV", "KJV", "NKJV", "NLT", "NASB", "NRSV", "WEB"]
+Translations: list[str] = ["ESV", "NIV", "KJV", "NKJV", "NLT", "NASB", "NRSV", "WEB"]
 
-Genesis: List[int] = [
+Genesis: list[int] = [
     31,
     25,
     24,
@@ -163,7 +162,7 @@ Genesis: List[int] = [
     26,
 ]
 
-Exodus: List[int] = [
+Exodus: list[int] = [
     22,
     25,
     22,
@@ -206,7 +205,7 @@ Exodus: List[int] = [
     38,
 ]
 
-Leviticus: List[int] = [
+Leviticus: list[int] = [
     17,
     16,
     17,
@@ -236,7 +235,7 @@ Leviticus: List[int] = [
     34,
 ]
 
-Numbers: List[int] = [
+Numbers: list[int] = [
     54,
     34,
     51,
@@ -275,7 +274,7 @@ Numbers: List[int] = [
     13,
 ]
 
-Deuteronomy: List[int] = [
+Deuteronomy: list[int] = [
     46,
     37,
     29,
@@ -312,7 +311,7 @@ Deuteronomy: List[int] = [
     12,
 ]
 
-Joshua: List[int] = [
+Joshua: list[int] = [
     18,
     24,
     17,
@@ -339,7 +338,7 @@ Joshua: List[int] = [
     33,
 ]
 
-Judges: List[int] = [
+Judges: list[int] = [
     36,
     23,
     31,
@@ -363,9 +362,9 @@ Judges: List[int] = [
     25,
 ]
 
-Ruth: List[int] = [22, 23, 18, 22]
+Ruth: list[int] = [22, 23, 18, 22]
 
-One_Samuel: List[int] = [
+One_Samuel: list[int] = [
     28,
     36,
     21,
@@ -399,7 +398,7 @@ One_Samuel: List[int] = [
     13,
 ]
 
-Two_Samuel: List[int] = [
+Two_Samuel: list[int] = [
     27,
     32,
     39,
@@ -426,7 +425,7 @@ Two_Samuel: List[int] = [
     25,
 ]
 
-One_Kings: List[int] = [
+One_Kings: list[int] = [
     53,
     46,
     28,
@@ -451,7 +450,7 @@ One_Kings: List[int] = [
     53,
 ]
 
-Two_Kings: List[int] = [
+Two_Kings: list[int] = [
     18,
     25,
     27,
@@ -479,7 +478,7 @@ Two_Kings: List[int] = [
     30,
 ]
 
-One_Chronicles: List[int] = [
+One_Chronicles: list[int] = [
     54,
     55,
     24,
@@ -511,7 +510,7 @@ One_Chronicles: List[int] = [
     30,
 ]
 
-Two_Chronicles: List[int] = [
+Two_Chronicles: list[int] = [
     17,
     18,
     17,
@@ -550,13 +549,13 @@ Two_Chronicles: List[int] = [
     23,
 ]
 
-Ezra: List[int] = [11, 70, 13, 24, 17, 22, 28, 36, 15, 44]
+Ezra: list[int] = [11, 70, 13, 24, 17, 22, 28, 36, 15, 44]
 
-Nehemiah: List[int] = [11, 20, 32, 23, 19, 19, 73, 18, 38, 39, 36, 47, 31]
+Nehemiah: list[int] = [11, 20, 32, 23, 19, 19, 73, 18, 38, 39, 36, 47, 31]
 
-Esther: List[int] = [22, 23, 15, 17, 14, 14, 10, 17, 32, 3]
+Esther: list[int] = [22, 23, 15, 17, 14, 14, 10, 17, 32, 3]
 
-Job: List[int] = [
+Job: list[int] = [
     22,
     13,
     26,
@@ -601,7 +600,7 @@ Job: List[int] = [
     17,
 ]
 
-Psalms: List[int] = [
+Psalms: list[int] = [
     6,
     12,
     8,
@@ -754,7 +753,7 @@ Psalms: List[int] = [
     6,
 ]
 
-Proverbs: List[int] = [
+Proverbs: list[int] = [
     33,
     22,
     35,
@@ -788,11 +787,11 @@ Proverbs: List[int] = [
     31,
 ]
 
-Ecclesiastes: List[int] = [18, 26, 22, 16, 20, 12, 29, 17, 18, 20, 10, 14]
+Ecclesiastes: list[int] = [18, 26, 22, 16, 20, 12, 29, 17, 18, 20, 10, 14]
 
-Song_of_Songs: List[int] = [17, 17, 11, 16, 16, 13, 13, 14]
+Song_of_Songs: list[int] = [17, 17, 11, 16, 16, 13, 13, 14]
 
-Isaiah: List[int] = [
+Isaiah: list[int] = [
     31,
     22,
     26,
@@ -861,7 +860,7 @@ Isaiah: List[int] = [
     24,
 ]
 
-Jeremiah: List[int] = [
+Jeremiah: list[int] = [
     19,
     37,
     25,
@@ -916,9 +915,9 @@ Jeremiah: List[int] = [
     34,
 ]
 
-Lamentations: List[int] = [22, 22, 66, 22, 22]
+Lamentations: list[int] = [22, 22, 66, 22, 22]
 
-Ezekiel: List[int] = [
+Ezekiel: list[int] = [
     28,
     10,
     27,
@@ -969,33 +968,33 @@ Ezekiel: List[int] = [
     35,
 ]
 
-Daniel: List[int] = [21, 49, 30, 37, 31, 28, 28, 27, 27, 21, 45, 13]
+Daniel: list[int] = [21, 49, 30, 37, 31, 28, 28, 27, 27, 21, 45, 13]
 
-Hosea: List[int] = [11, 23, 5, 19, 15, 11, 16, 14, 17, 15, 12, 14, 16, 9]
+Hosea: list[int] = [11, 23, 5, 19, 15, 11, 16, 14, 17, 15, 12, 14, 16, 9]
 
-Joel: List[int] = [20, 32, 21]
+Joel: list[int] = [20, 32, 21]
 
-Amos: List[int] = [15, 16, 15, 13, 27, 14, 17, 14, 15]
+Amos: list[int] = [15, 16, 15, 13, 27, 14, 17, 14, 15]
 
-Obadiah: List[int] = [21]
+Obadiah: list[int] = [21]
 
-Jonah: List[int] = [17, 10, 10, 11]
+Jonah: list[int] = [17, 10, 10, 11]
 
-Micah: List[int] = [16, 13, 12, 13, 15, 16, 20]
+Micah: list[int] = [16, 13, 12, 13, 15, 16, 20]
 
-Nahum: List[int] = [15, 13, 19]
+Nahum: list[int] = [15, 13, 19]
 
-Habakkuk: List[int] = [17, 20, 19]
+Habakkuk: list[int] = [17, 20, 19]
 
-Zephaniah: List[int] = [18, 15, 20]
+Zephaniah: list[int] = [18, 15, 20]
 
-Haggai: List[int] = [15, 23]
+Haggai: list[int] = [15, 23]
 
-Zechariah: List[int] = [21, 13, 10, 14, 11, 15, 14, 23, 17, 12, 17, 14, 9, 21]
+Zechariah: list[int] = [21, 13, 10, 14, 11, 15, 14, 23, 17, 12, 17, 14, 9, 21]
 
-Malachi: List[int] = [14, 17, 18, 6]
+Malachi: list[int] = [14, 17, 18, 6]
 
-Matthew: List[int] = [
+Matthew: list[int] = [
     25,
     23,
     17,
@@ -1026,9 +1025,9 @@ Matthew: List[int] = [
     20,
 ]
 
-Mark: List[int] = [45, 28, 35, 41, 43, 56, 37, 38, 50, 52, 33, 44, 37, 72, 47, 20]
+Mark: list[int] = [45, 28, 35, 41, 43, 56, 37, 38, 50, 52, 33, 44, 37, 72, 47, 20]
 
-Luke: List[int] = [
+Luke: list[int] = [
     80,
     52,
     38,
@@ -1055,7 +1054,7 @@ Luke: List[int] = [
     53,
 ]
 
-John: List[int] = [
+John: list[int] = [
     51,
     25,
     36,
@@ -1079,7 +1078,7 @@ John: List[int] = [
     25,
 ]
 
-Acts: List[int] = [
+Acts: list[int] = [
     26,
     47,
     26,
@@ -1110,9 +1109,9 @@ Acts: List[int] = [
     31,
 ]
 
-Romans: List[int] = [32, 29, 31, 25, 21, 23, 25, 39, 33, 21, 36, 21, 14, 26, 33, 25]
+Romans: list[int] = [32, 29, 31, 25, 21, 23, 25, 39, 33, 21, 36, 21, 14, 26, 33, 25]
 
-One_Corinthians: List[int] = [
+One_Corinthians: list[int] = [
     31,
     16,
     23,
@@ -1131,45 +1130,45 @@ One_Corinthians: List[int] = [
     24,
 ]
 
-Two_Corinthians: List[int] = [24, 17, 18, 18, 21, 18, 16, 24, 15, 18, 33, 21, 14]
+Two_Corinthians: list[int] = [24, 17, 18, 18, 21, 18, 16, 24, 15, 18, 33, 21, 14]
 
-Galatians: List[int] = [24, 21, 29, 31, 26, 18]
+Galatians: list[int] = [24, 21, 29, 31, 26, 18]
 
-Ephesians: List[int] = [23, 22, 21, 32, 33, 24]
+Ephesians: list[int] = [23, 22, 21, 32, 33, 24]
 
-Philippians: List[int] = [30, 30, 21, 23]
+Philippians: list[int] = [30, 30, 21, 23]
 
-Colossians: List[int] = [29, 23, 25, 18]
+Colossians: list[int] = [29, 23, 25, 18]
 
-One_Thessalonians: List[int] = [10, 20, 13, 18, 28]
+One_Thessalonians: list[int] = [10, 20, 13, 18, 28]
 
-Two_Thessalonians: List[int] = [12, 17, 18]
+Two_Thessalonians: list[int] = [12, 17, 18]
 
-One_Timothy: List[int] = [20, 15, 16, 16, 25, 21]
+One_Timothy: list[int] = [20, 15, 16, 16, 25, 21]
 
-Two_Timothy: List[int] = [18, 26, 17, 22]
+Two_Timothy: list[int] = [18, 26, 17, 22]
 
-Titus: List[int] = [16, 15, 15]
+Titus: list[int] = [16, 15, 15]
 
-Philemon: List[int] = [25]
+Philemon: list[int] = [25]
 
-Hebrews: List[int] = [14, 18, 19, 16, 14, 20, 28, 13, 28, 39, 40, 29, 25]
+Hebrews: list[int] = [14, 18, 19, 16, 14, 20, 28, 13, 28, 39, 40, 29, 25]
 
-James: List[int] = [27, 26, 18, 17, 20]
+James: list[int] = [27, 26, 18, 17, 20]
 
-One_Peter: List[int] = [25, 25, 22, 19, 14]
+One_Peter: list[int] = [25, 25, 22, 19, 14]
 
-Two_Peter: List[int] = [21, 22, 18]
+Two_Peter: list[int] = [21, 22, 18]
 
-One_John: List[int] = [10, 29, 24, 21, 21]
+One_John: list[int] = [10, 29, 24, 21, 21]
 
-Two_John: List[int] = [13]
+Two_John: list[int] = [13]
 
-Three_John: List[int] = [14]
+Three_John: list[int] = [14]
 
-Jude: List[int] = [25]
+Jude: list[int] = [25]
 
-Revelation: List[int] = [
+Revelation: list[int] = [
     20,
     29,
     22,
@@ -1194,7 +1193,7 @@ Revelation: List[int] = [
     21,
 ]
 
-Bible: List[List[int]] = [
+Bible: list[list[int]] = [
     Genesis,
     Exodus,
     Leviticus,
@@ -1263,7 +1262,7 @@ Bible: List[List[int]] = [
     Revelation,
 ]
 
-Bible_Books: Dict[int, str] = {
+Bible_Books: dict[int, str] = {
     0: "Genesis",
     1: "Exodus",
     2: "Leviticus",
@@ -1332,7 +1331,7 @@ Bible_Books: Dict[int, str] = {
     65: "Revelation",
 }
 
-Reverse_Bible_Books: Dict[str, int] = {
+Reverse_Bible_Books: dict[str, int] = {
     "Genesis": 0,
     "Exodus": 1,
     "Leviticus": 2,

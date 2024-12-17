@@ -32,14 +32,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from pathlib import Path
-from typing import List, Dict
 
 
 class OfflineAgent:
     def __init__(self, translation: str) -> None:
         self.translation = translation
 
-    def fetch(self, id_start: int, id_end: int) -> List[str]:
+    def fetch(self, id_start: int, id_end: int) -> list[str]:
         texts = []
 
         translation_dir = Path(__file__).parent.parent.absolute()
@@ -74,7 +73,7 @@ class ASVOfflineAgent(OfflineAgent):
         super().__init__(translation="ASV")
 
 
-Agents: Dict[str, OfflineAgent] = {
+Agents: dict[str, OfflineAgent] = {
     "ERV": ERVOfflineAgent(),
     "ASV": ASVOfflineAgent(),
     "KJV": KJVOfflineAgent(),

@@ -31,15 +31,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from typing import Optional
-
 
 class InvalidReference(Exception):
     def __init__(
         self,
-        ref_string: Optional[str] = None,
-        id: Optional[int] = None,
-        end_id: Optional[int] = None,
+        ref_string: str | None = None,
+        id: int | None = None,
+        end_id: int | None = None,
     ) -> None:
         if ref_string is not None:
             Exception.__init__(self, f"{ref_string} is not a valid Bible reference")

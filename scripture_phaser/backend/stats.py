@@ -33,7 +33,6 @@
 
 import datetime
 from peewee import fn
-from typing import List, Tuple, Dict
 from scripture_phaser.backend.models import Attempt
 from scripture_phaser.backend.reference import Reference
 
@@ -71,7 +70,7 @@ class Stats:
         return Attempt.select().where(Attempt.datetime > one_year_ago).count()
 
     @staticmethod
-    def get_num_attempts_past_year_by_day() -> List[int]:
+    def get_num_attempts_past_year_by_day() -> list[int]:
         today = datetime.date.today()
         days_since_monday = today.weekday()
         start_date = today - datetime.timedelta(days=days_since_monday, weeks=52)
@@ -89,7 +88,7 @@ class Stats:
         return results
 
     @staticmethod
-    def all_verses_ranked() -> Tuple[Dict[Reference, float], Dict[Reference, int]]:
+    def all_verses_ranked() -> tuple[dict[Reference, float], dict[Reference, int]]:
         verse_scores, verse_counts = {}, {}
         all_attempts = Attempt.select(Attempt.reference)
         for reference in all_attempts:

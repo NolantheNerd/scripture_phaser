@@ -32,7 +32,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from fastapi import FastAPI
-from typing import List
 import scripture_phaser.backend.user as User
 import scripture_phaser.backend.reference as Reference
 from scripture_phaser.backend.enums import Translations
@@ -83,13 +82,13 @@ def view_reference(user_token: str, ref: str) -> str:
 
 
 @api.get("/list_references")
-def list_references(user_token: str) -> List[str]:
+def list_references(user_token: str) -> list[str]:
     user = User.get(user_token)
     return Reference.list_references(user)
 
 
 @api.get("/list_translations")
-def list_translations(user_token: str) -> List[str]:
+def list_translations(user_token: str) -> list[str]:
     return Translations
 
 
