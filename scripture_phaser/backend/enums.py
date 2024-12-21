@@ -31,37 +31,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
-import platform
-from pathlib import Path
-
 VERSION = "1.2.1"
 RELEASE_DATE = "2024-04-02"
-
-if platform.system() == "Windows":
-    CONFIG_DIR = Path(os.environ["HOMEPATH"]) / ".config/scripture_phaser"
-    CACHE_DIR = Path(os.environ["HOMEPATH"]) / ".cache/scripture_phaser"
-    DATA_DIR = Path(os.environ["HOMEPATH"]) / ".local/share/scripture_phaser"
-else:
-    try:
-        CONFIG_DIR = Path(os.environ["XDG_CONFIG_HOME"]) / "scripture_phaser"
-    except KeyError:
-        CONFIG_DIR = Path(os.environ["HOME"]) / ".config" / "scripture_phaser"
-    try:
-        CACHE_DIR = Path(os.environ["XDG_CACHE_HOME"]) / "scripture_phaser"
-    except KeyError:
-        CACHE_DIR = Path(os.environ["HOME"]) / ".cache" / "scripture_phaser"
-    try:
-        DATA_DIR = Path(os.environ["XDG_DATA_HOME"]) / "scripture_phaser"
-    except KeyError:
-        DATA_DIR = Path(os.environ["HOME"]) / ".local/share/scripture_phaser"
-
-if not CONFIG_DIR.exists():
-    CONFIG_DIR.mkdir(parents=True)
-if not CACHE_DIR.exists():
-    CACHE_DIR.mkdir(parents=True)
-if not DATA_DIR.exists():
-    DATA_DIR.mkdir(parents=True)
 
 license_text = """scripture_phaser helps you to memorize the Bible.
 Copyright (C) 2023-2024 Nolan McMahon
