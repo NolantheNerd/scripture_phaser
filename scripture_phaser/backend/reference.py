@@ -142,143 +142,200 @@ class Reference:
 
         self.start_id, self.end_id = self.reference_to_id(self)
 
-    def populate(self) -> None:
-        self.texts = self.agent.fetch(self.start_id, self.end_id)
-        self.populated = True
-
-    def view(self, include_verse_numbers: bool, include_ref: bool) -> str:
-        if not self.populated:
-            self.populate()
-
-        if not include_verse_numbers:
-            text = f"{' '.join(self.texts)}".replace("\n ", "\n")
-        else:
-            text = ""
-            for i, content in enumerate(self.texts):
-                _, _, verse_num = Reference.id_to_reference(self.start_id + i)
-                text += f" [{verse_num + 1}] {content}"
-            text = text.strip()
-
-        if include_ref:
-            return f"{text} - {self.ref_str}"
-        else:
-            return f"{text}".replace("\n ", "\n")
-
-    def view_first_letter(self, include_verse_numbers: bool) -> list[str]:
-        text: str | list[str]
-
-        if not self.populated:
-            self.populate()
-
-        if not include_verse_numbers:
-            text = self.texts
-        else:
-            text = ""
-            for i, content in enumerate(self.texts):
-                _, _, verse_num = Reference.id_to_reference(self.start_id + i)
-                text += f"[{verse_num + 1}] {content}"
-
-        text = "".join([char for char in text if char.isalnum() or char.isspace()])
-        return [word[0] for word in text.split()]
-
     @staticmethod
     def reference_replacements(ref: str) -> str:
-        # Replace "Psalm" -> "Psalms" will also turn "Psalms" -> "Psalmss"
-        ref = (
-            ref.replace(".", "")
-            .replace("Psalm", "Psalms")
-            .replace("Psalmss", "Psalms")
-            .replace("First", "One")
-            .replace("Second", "Two")
-            .replace("Third", "Three")
-            .replace("1 Samuel", "One Samuel")
-            .replace("1 Kings", "One Kings")
-            .replace("1 Chronicles", "One Chronicles")
-            .replace("1 Corinthians", "One Corinthians")
-            .replace("1 Thessalonians", "One Thessalonians")
-            .replace("1 Timothy", "One Timothy")
-            .replace("1 Peter", "One Peter")
-            .replace("1 John", "One John")
-            .replace("2 Samuel", "Two Samuel")
-            .replace("2 Kings", "Two Kings")
-            .replace("2 Chronicles", "Two Chronicles")
-            .replace("2 Corinthians", "Two Corinthians")
-            .replace("2 Thessalonians", "Two Thessalonians")
-            .replace("2 Timothy", "Two Timothy")
-            .replace("2 Peter", "Two Peter")
-            .replace("2 John", "Two John")
-            .replace("3 John", "Three John")
-            .replace("Gen ", "Genesis ")
-            .replace("Ex ", "Exodus ")
-            .replace("Lev ", "Leviticus ")
-            .replace("Num ", "Numbers ")
-            .replace("Deut ", "Deuteronomy ")
-            .replace("Josh ", "Joshua ")
-            .replace("Judg ", "Judges ")
-            .replace("1Sam ", "One Samuel ")
-            .replace("1sam ", "One Samuel ")
-            .replace("1 Sam ", "One Samuel ")
-            .replace("2Sam ", "Two Samuel ")
-            .replace("2sam ", "Two Samuel ")
-            .replace("2 Sam ", "Two Samuel ")
-            .replace("1Chron ", "One Chronicles ")
-            .replace("1chron ", "One Chronicles ")
-            .replace("1 Chron ", "One Chronicles ")
-            .replace("Neh ", "Nehemiah ")
-            .replace("Est ", "Esther ")
-            .replace("Ps ", "Psalms ")
-            .replace("Prov ", "Proverbs ")
-            .replace("Eccles ", "Ecclesiastes ")
-            .replace("Song ", "Song of Songs ")
-            .replace("Isa ", "Isaiah ")
-            .replace("Jer ", "Jeremiah ")
-            .replace("Lam ", "Lamentations ")
-            .replace("Ezek ", "Ezekiel ")
-            .replace("Dan ", "Daniel ")
-            .replace("Hos ", "Hosea ")
-            .replace("Obad ", "Obadiah ")
-            .replace("Mic ", "Micah ")
-            .replace("Nah ", "Nahum ")
-            .replace("Hab ", "Habakkuk ")
-            .replace("Zeph ", "Zephaniah ")
-            .replace("Hag ", "Haggai ")
-            .replace("Zech ", "Zechariah ")
-            .replace("Mal ", "Malachi ")
-            .replace("Matt ", "Matthew ")
-            .replace("Rom ", "Romans ")
-            .replace("1Cor ", "One Corinthians ")
-            .replace("1cor ", "One Corinthians ")
-            .replace("1 Cor ", "One Corinthians ")
-            .replace("2Cor ", "Two Corinthians ")
-            .replace("2cor ", "Two Corinthians ")
-            .replace("2 Cor ", "Two Corinthians ")
-            .replace("Gal ", "Galatians ")
-            .replace("Eph ", "Ephesians ")
-            .replace("Phil ", "Philippians ")
-            .replace("Col ", "Colossians ")
-            .replace("1Thess ", "One Thessalonians ")
-            .replace("1thess ", "One Thessalonians ")
-            .replace("1 Thess ", "One Thessalonians ")
-            .replace("2Thess ", "Two Thessalonians ")
-            .replace("2thess ", "Two Thessalonians ")
-            .replace("2 Thess ", "Two Thessalonians ")
-            .replace("1Tim ", "One Timothy ")
-            .replace("1tim ", "One Timothy ")
-            .replace("1 Tim ", "One Timothy ")
-            .replace("2Tim ", "Two Timothy ")
-            .replace("2tim ", "Two Timothy ")
-            .replace("2 Tim ", "Two Timothy ")
-            .replace("Philem ", "Philemon ")
-            .replace("Heb ", "Hebrews ")
-            .replace("1Pet ", "One Peter ")
-            .replace("1pet ", "One Peter ")
-            .replace("1 Pet ", "One Peter ")
-            .replace("2Pet ", "Two Peter ")
-            .replace("2pet ", "Two Peter ")
-            .replace("2 Pet ", "Two Peter ")
-            .replace("Rev ", "Revelation ")
-        )
+        source = [
+            ".",
+            "Psalm",
+            "Psalmss",
+            "First",
+            "Second",
+            "Third",
+            "1 Samuel",
+            "1 Kings",
+            "1 Chronicles",
+            "1 Corinthians",
+            "1 Thessalonians",
+            "1 Timothy",
+            "1 Peter",
+            "1 John",
+            "2 Samuel",
+            "2 Kings",
+            "2 Chronicles",
+            "2 Corinthians",
+            "2 Thessalonians",
+            "2 Timothy",
+            "2 Peter",
+            "2 John",
+            "3 John",
+            "Gen ",
+            "Ex ",
+            "Lev ",
+            "Num ",
+            "Deut ",
+            "Josh ",
+            "Judg ",
+            "1Sam ",
+            "1sam ",
+            "1 Sam ",
+            "2Sam ",
+            "2sam ",
+            "2 Sam ",
+            "1Chron ",
+            "1chron ",
+            "1 Chron ",
+            "Neh ",
+            "Est ",
+            "Ps ",
+            "Prov ",
+            "Eccles ",
+            "Song ",
+            "Isa ",
+            "Jer ",
+            "Lam ",
+            "Ezek ",
+            "Dan ",
+            "Hos ",
+            "Obad ",
+            "Mic ",
+            "Nah ",
+            "Hab ",
+            "Zeph ",
+            "Hag ",
+            "Zech ",
+            "Mal ",
+            "Matt ",
+            "Rom ",
+            "1Cor ",
+            "1cor ",
+            "1 Cor ",
+            "2Cor ",
+            "2cor ",
+            "2 Cor ",
+            "Gal ",
+            "Eph ",
+            "Phil ",
+            "Col ",
+            "1Thess ",
+            "1thess ",
+            "1 Thess ",
+            "2Thess ",
+            "2thess ",
+            "2 Thess ",
+            "1Tim ",
+            "1tim ",
+            "1 Tim ",
+            "2Tim ",
+            "2tim ",
+            "2 Tim ",
+            "Philem ",
+            "Heb ",
+            "1Pet ",
+            "1pet ",
+            "1 Pet ",
+            "2Pet ",
+            "2pet ",
+            "2 Pet ",
+            "Rev ",
+        ]
 
+        replacement = [
+            "",
+            "Psalms",
+            "Psalms",
+            "One",
+            "Two",
+            "Three",
+            "One Samuel",
+            "One Kings",
+            "One Chronicles",
+            "One Corinthians",
+            "One Thessalonians",
+            "One Timothy",
+            "One Peter",
+            "One John",
+            "Two Samuel",
+            "Two Kings",
+            "Two Chronicles",
+            "Two Corinthians",
+            "Two Thessalonians",
+            "Two Timothy",
+            "Two Peter",
+            "Two John",
+            "Three John",
+            "Genesis ",
+            "Exodus ",
+            "Leviticus ",
+            "Numbers ",
+            "Deuteronomy ",
+            "Joshua ",
+            "Judges ",
+            "One Samuel ",
+            "One Samuel ",
+            "One Samuel ",
+            "Two Samuel ",
+            "Two Samuel ",
+            "Two Samuel ",
+            "One Chronicles ",
+            "One Chronicles ",
+            "One Chronicles ",
+            "Nehemiah ",
+            "Esther ",
+            "Psalms ",
+            "Proverbs ",
+            "Ecclesiastes ",
+            "Song of Songs ",
+            "Isaiah ",
+            "Jeremiah ",
+            "Lamentations ",
+            "Ezekiel ",
+            "Daniel ",
+            "Hosea ",
+            "Obadiah ",
+            "Micah ",
+            "Nahum ",
+            "Habakkuk ",
+            "Zephaniah ",
+            "Haggai ",
+            "Zechariah ",
+            "Malachi ",
+            "Matthew ",
+            "Romans ",
+            "One Corinthians ",
+            "One Corinthians ",
+            "One Corinthians ",
+            "Two Corinthians ",
+            "Two Corinthians ",
+            "Two Corinthians ",
+            "Galatians ",
+            "Ephesians ",
+            "Philippians ",
+            "Colossians ",
+            "One Thessalonians ",
+            "One Thessalonians ",
+            "One Thessalonians ",
+            "Two Thessalonians ",
+            "Two Thessalonians ",
+            "Two Thessalonians ",
+            "One Timothy ",
+            "One Timothy ",
+            "One Timothy ",
+            "Two Timothy ",
+            "Two Timothy ",
+            "Two Timothy ",
+            "Philemon ",
+            "Hebrews ",
+            "One Peter ",
+            "One Peter ",
+            "One Peter ",
+            "Two Peter ",
+            "Two Peter ",
+            "Two Peter ",
+            "Revelation ",
+        ]
+
+        for i in range(len(source)):
+            ref = ref.replace(source[i], replacement[i])
         return ref
 
     @classmethod

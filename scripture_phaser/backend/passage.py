@@ -31,43 +31,53 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from difflib import SequenceMatcher
+from scripture_phaser.backend.reference import Reference
 
 
-class FullTextRecitation:
-    def grade(self, reference: str, recitation: str) -> float:
-        answer = reference.view(self.include_verse_numbers, include_ref=False)
+class Passage:
+    def __init__(self, reference: Reference) -> None:
+        self.reference = reference
+        self.populated = False
 
-        if recitation == answer:
-            score = 1
+    def populate(self) -> None:
+        self.texts = self.agent.fetch(self.refernence.start_id, self.reference.end_id)
+        self.populated = True
+
+    def view(self, include_verse_numbers: bool, include_ref: bool) -> str:
+        if not self.populated:
+            self.populate()
+
+        if not include_verse_numbers:
+            text = f"{' '.join(self.texts)}".replace("\n ", "\n")
         else:
-            n_correct_chars, n_incorrect_chars = 0, 0
-            result = SequenceMatcher(a=recitation, b=answer).get_opcodes()
-            for tag, i1, i2, j1, j2 in result:
-                if tag == "replace":
-                    n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
-                elif tag == "delete":
-                    n_incorrect_chars += i2 - i1
-                elif tag == "insert":
-                    n_incorrect_chars += j2 - j1
-                elif tag == "equal":
-                    n_correct_chars += i2 - i1
+            text = ""
+            for i, content in enumerate(self.texts):
+                _, _, verse_num = Reference.id_to_reference(
+                    self.reference.start_id + i
+                )
+                text += f" [{verse_num + 1}] {content}"
+            text = text.strip()
 
-            score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
-
-        return score  # Temporary
-
-
-class FastTextRecitation:
-    def grade(self, reference: str, recitation: str) -> float:
-        answer = reference.view_first_letter(self.include_verse_numbers)
-
-        if recitation == answer:
-            score = 1
+        if include_ref:
+            return f"{text} - {self.reference.ref_str}"
         else:
-            n_correct = sum(
-                [1 for i in range(len(answer)) if recitation[i] == answer[i]]
-            )
-            score = n_correct / len(answer)
+            return f"{text}".replace("\n ", "\n")
 
-        return score  # Temporary
+    def view_first_letter(self, include_verse_numbers: bool) -> list[str]:
+        text: str | list[str]
+
+        if not self.populated:
+            self.populate()
+
+        if not include_verse_numbers:
+            text = self.texts
+        else:
+            text = ""
+            for i, content in enumerate(self.texts):
+                _, _, verse_num = Reference.id_to_reference(
+                    self.reference.start_id + i
+                )
+                text += f"[{verse_num + 1}] {content}"
+
+        text = "".join([char for char in text if char.isalnum() or char.isspace()])
+        return [word[0] for word in text.split()]
