@@ -31,7 +31,25 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from dataclasses import dataclass
 from scripture_phaser.backend.reference import Reference
+from scripture_phaser.backend.agents import Agents
+
+
+@dataclass
+class Passage:
+    reference: str
+    text: str
+    texts: list[str]
+    verse_numbers: list[int]
+    first_letters: list[str]
+
+
+def passage_from_reference(reference: Reference) -> Passage:
+    texts = Agents[reference.translation].fetch(reference.start_id, reference.end_id)
+    text = view(texts)
+    first_letters = view_first_letter(texts)
+    return Passage(reference, text, texts, verse_numbers, first_letters)
 
 
 class Passage:

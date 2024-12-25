@@ -121,3 +121,44 @@ def set_translation(user_token: str, translation: str) -> None:
 def recite_reference(user_token: str, reference: str, recitation: str) -> None:
     user = User.get(user_token)
     Reference.grade_recitation(user, reference, recitation)
+
+# From Reference
+def add(user: User, new_reference: str) -> None:
+    new_ref = Reference(translation=str(user.translation), reference=new_reference)
+    ref_already_exists = (
+        Ref.get_or_none(
+            (Ref.start_id == new_ref.start_id) & (Ref.end_id == new_ref.end_id)
+        )
+        is not None
+    )
+
+    if not ref_already_exists:
+        Ref.create(
+            user=user,
+            reference=new_ref.ref_str,
+            start_id=new_ref.start_id,
+            end_id=new_ref.end_id,
+            translation=new_ref.translation,
+            include_verse_numbers=user.include_verse_numbers,
+        )
+
+
+def delete(user: User, reference: str) -> None:
+    ref = Reference(reference)
+    Ref.get(Ref.user == user & Ref.reference == ref.ref_str).delete_instance()
+
+
+def view(
+    user: User,
+    reference: str,
+    include_verse_numbers: bool = False,
+    include_ref: bool = True,
+) -> str:
+    ref = Reference(reference)
+    return ref.view(include_verse_numbers, include_ref)
+
+
+def list_references(user: User) -> list[str]:
+    return [
+        ref.reference for ref in Ref.select(Ref.reference).where(Ref.user == user)
+    ]
