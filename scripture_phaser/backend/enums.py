@@ -1,5 +1,5 @@
 # scripture_phaser helps you to memorize the Bible.
-# Copyright (C) 2023-2024 Nolan McMahon
+# Copyright (C) 2023-2025 Nolan McMahon
 #
 # This file is part of scripture_phaser.
 #
@@ -35,7 +35,7 @@ VERSION = "1.2.1"
 RELEASE_DATE = "2024-04-02"
 
 license_text = """scripture_phaser helps you to memorize the Bible.
-Copyright (C) 2023-2024 Nolan McMahon
+Copyright (C) 2023-2025 Nolan McMahon
 
 scripture_phaser is licensed under the terms of the BSD 3-Clause License
 
