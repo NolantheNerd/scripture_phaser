@@ -32,6 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from pathlib import Path
+from typing import TypeAlias
 
 
 class OfflineAgent:
@@ -53,29 +54,23 @@ class OfflineAgent:
         return texts
 
 
-class KJVOfflineAgent(OfflineAgent):
+class KJV(OfflineAgent):
     def __init__(self) -> None:
         super().__init__(translation="KJV")
 
 
-class WEBOfflineAgent(OfflineAgent):
+class WEB(OfflineAgent):
     def __init__(self) -> None:
         super().__init__(translation="WEB")
 
 
-class ERVOfflineAgent(OfflineAgent):
+class ERV(OfflineAgent):
     def __init__(self) -> None:
         super().__init__(translation="ERV")
 
 
-class ASVOfflineAgent(OfflineAgent):
+class ASV(OfflineAgent):
     def __init__(self) -> None:
         super().__init__(translation="ASV")
 
-
-Agents: dict[str, OfflineAgent] = {
-    "ERV": ERVOfflineAgent(),
-    "ASV": ASVOfflineAgent(),
-    "KJV": KJVOfflineAgent(),
-    "WEB": WEBOfflineAgent(),
-}
+Translation: TypeAlias = (KJV, WEB, ERV, ASV)

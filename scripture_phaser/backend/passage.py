@@ -33,69 +33,83 @@
 
 from dataclasses import dataclass
 from scripture_phaser.backend.reference import Reference
-from scripture_phaser.backend.agents import Agents
+from scripture_phaser.backend.translations import Translation
+import scripture_phaser.backend.translations as Translations
+
+
+@dataclass
+class Verse:
+    raw: str
+    number: str
+    reference: str
+    full: str
+    initialism: list[str]
+    numbered_initialism: list[str]
 
 
 @dataclass
 class Passage:
     reference: str
-    text: str
-    texts: list[str]
-    verse_numbers: list[int]
-    first_letters: list[str]
+    translation: Translation
+    verse: Verse
 
 
-def passage_from_reference(reference: Reference) -> Passage:
-    texts = Agents[reference.translation].fetch(reference.start_id, reference.end_id)
-    text = view(texts)
-    first_letters = view_first_letter(texts)
-    return Passage(reference, text, texts, verse_numbers, first_letters)
+def passage_from_reference(translation: str, reference: Reference) -> Passage:
+    translation = getattr(Translations, translation)
+    texts = Translations[translation].fetch(reference.start_id, reference.end_id)
+    raw = _format_passage(
+        reference, texts, include_verse_numbers=False, include_ref=False
+    )
+    number = _format_passage(
+        reference, texts, include_verse_numbers=True, include_ref=False
+    )
+    reference = _format_passage(
+        reference, texts, include_verse_numbers=False, include_ref=True
+    )
+    full = _format_passage(
+        reference, texts, include_verse_numbers=True, include_ref=True
+    )
+    initialism = _format_passage_initialism(
+        reference, texts, include_verse_numbers=False
+    )
+    numbered_initialism = _format_passage_initialism(
+        reference, texts, include_verse_numbers=True
+    )
+    verse = Verse(raw, number, reference, full, initialism, numbered_initialism)
+    return Passage(reference, translation, verse)
 
 
-class Passage:
-    def __init__(self, reference: Reference) -> None:
-        self.reference = reference
-        self.populated = False
+def _format_passage(
+    reference: Reference,
+    texts: list[str],
+    include_verse_numbers: bool,
+    include_ref: bool,
+) -> str:
+    if not include_verse_numbers:
+        text = f"{' '.join(texts)}".replace("\n ", "\n")
+    else:
+        text = ""
+        for i, content in enumerate(texts):
+            _, _, verse_num = Reference.id_to_reference(reference.start_id + i)
+            text += f" [{verse_num + 1}] {content}"
+        text = text.strip()
 
-    def populate(self) -> None:
-        self.texts = self.agent.fetch(self.refernence.start_id, self.reference.end_id)
-        self.populated = True
+    if include_ref:
+        return f"{text} - {reference.ref_str}"
+    else:
+        return f"{text}".replace("\n ", "\n")
 
-    def view(self, include_verse_numbers: bool, include_ref: bool) -> str:
-        if not self.populated:
-            self.populate()
 
-        if not include_verse_numbers:
-            text = f"{' '.join(self.texts)}".replace("\n ", "\n")
-        else:
-            text = ""
-            for i, content in enumerate(self.texts):
-                _, _, verse_num = Reference.id_to_reference(
-                    self.reference.start_id + i
-                )
-                text += f" [{verse_num + 1}] {content}"
-            text = text.strip()
+def _format_passage_initialism(
+    reference: Reference, texts: list[str], include_verse_numbers: bool
+) -> list[str]:
+    if not include_verse_numbers:
+        text = texts
+    else:
+        text = ""
+        for i, content in enumerate(texts):
+            _, _, verse_num = Reference.id_to_reference(reference.start_id + i)
+            text += f"[{verse_num + 1}] {content}"
 
-        if include_ref:
-            return f"{text} - {self.reference.ref_str}"
-        else:
-            return f"{text}".replace("\n ", "\n")
-
-    def view_first_letter(self, include_verse_numbers: bool) -> list[str]:
-        text: str | list[str]
-
-        if not self.populated:
-            self.populate()
-
-        if not include_verse_numbers:
-            text = self.texts
-        else:
-            text = ""
-            for i, content in enumerate(self.texts):
-                _, _, verse_num = Reference.id_to_reference(
-                    self.reference.start_id + i
-                )
-                text += f"[{verse_num + 1}] {content}"
-
-        text = "".join([char for char in text if char.isalnum() or char.isspace()])
-        return [word[0] for word in text.split()]
+    text = "".join([char for char in text if char.isalnum() or char.isspace()])
+    return [word[0] for word in text.split()]
