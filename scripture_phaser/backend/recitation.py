@@ -31,11 +31,28 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import datetime
+from enum import Enum
+from dataclasses import dataclass
 from difflib import SequenceMatcher
+from scripture_phaser.backend.reference import Reference
+
+class RecitationType(Enum):
+    FULL_TEXT = 1
+    FAST_TEXT = 2
 
 
-class FullTextRecitation:
-    def grade(self, reference: str, recitation: str) -> float:
+@dataclass
+class Recitation:
+    reference: Reference
+    datetime: datetime.datetime
+    type: RecitationType
+    attempt: str
+    score: float
+
+
+def grade_attempt(attempt: str, solution: str, recitation_type: RecitationType) -> float:
+    if recitation_type is RecitationType.FULL_TEXT:
         answer = reference.view(self.include_verse_numbers, include_ref=False)
 
         if recitation == answer:
@@ -55,11 +72,7 @@ class FullTextRecitation:
 
             score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
 
-        return score  # Temporary
-
-
-class FastTextRecitation:
-    def grade(self, reference: str, recitation: str) -> float:
+    elif recitation_type is RecitationType.FAST_TEXT:
         answer = reference.view_first_letter(self.include_verse_numbers)
 
         if recitation == answer:
@@ -70,4 +83,4 @@ class FastTextRecitation:
             )
             score = n_correct / len(answer)
 
-        return score  # Temporary
+    return score
