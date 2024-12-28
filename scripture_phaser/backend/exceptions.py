@@ -33,18 +33,8 @@
 
 
 class InvalidReference(Exception):
-    def __init__(
-        self,
-        ref_string: str | None = None,
-        id: int | None = None,
-        end_id: int | None = None,
-    ) -> None:
-        if ref_string is not None:
-            Exception.__init__(self, f"{ref_string} is not a valid Bible reference")
-        elif id is not None and end_id is not None:
-            Exception.__init__(
-                self, f"End Verse id ({end_id}) is greater than start verse id ({id})"
-            )
+    def __init__(self) -> None:
+        Exception.__init__(self, "Invalid reference")
 
 
 class InvalidTranslation(Exception):

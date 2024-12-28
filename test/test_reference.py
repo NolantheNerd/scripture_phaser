@@ -31,15 +31,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import pdb
+from unittest import TestCase, skip
 from unittest.mock import patch
-from test.test_base import BaseTest
-from scripture_phaser.backend.reference import Reference
+from scripture_phaser.backend.reference import Reference, reference_from_id, reference_from_string
 from scripture_phaser.backend.exceptions import InvalidReference
 
 
-class ReferenceTests(BaseTest):
+class ReferenceTests(TestCase):
     """
-    Test the Reference Object
+    Test the Reference Implementation
     """
 
     def test_standardize_reference(self) -> None:
@@ -138,209 +139,128 @@ class ReferenceTests(BaseTest):
         ref18 = Reference(translation, verse_string18)
         self.assertEqual(ref18.ref_str, expected_string18)
 
-    def test_interpret_reference(self) -> None:
+    def test_reference_from_string(self) -> None:
         """
         Can verse strings be interpreted?
         """
-        translation = "KJV"
-
         verse_string1 = "1 John 3:5"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 61, 2, 4, 61, 2, 4
-        ref1 = Reference(translation, verse_string1)
-        self.assertEqual(eb1, ref1.book_start)
-        self.assertEqual(ec1, ref1.chapter_start)
-        self.assertEqual(ev1, ref1.verse_start)
-        self.assertEqual(eb2, ref1.book_end)
-        self.assertEqual(ec2, ref1.chapter_end)
-        self.assertEqual(ev2, ref1.verse_end)
+        expected_ref1 = Reference(verse_string1, 30585, 30585, 61, 61, 2, 2, 4, 4)
+        actual_ref1 = reference_from_string(verse_string1)
+        self.assertEqual(actual_ref1, expected_ref1)
 
         verse_string2 = "Genesis 49:2 - 49:8"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 48, 1, 0, 48, 7
-        ref2 = Reference(translation, verse_string2)
-        self.assertEqual(eb1, ref2.book_start)
-        self.assertEqual(ec1, ref2.chapter_start)
-        self.assertEqual(ev1, ref2.verse_start)
-        self.assertEqual(eb2, ref2.book_end)
-        self.assertEqual(ec2, ref2.chapter_end)
-        self.assertEqual(ev2, ref2.verse_end)
+        expected_ref2 = Reference("Genesis 49:2-8", 1475, 1481, 0, 0, 48, 48, 1, 7)
+        actual_ref2 = reference_from_string(verse_string2)
+        self.assertEqual(actual_ref2, expected_ref2)
 
         verse_string3 = "Esther 3:7 - 10"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 16, 2, 6, 16, 2, 9
-        ref3 = Reference(translation, verse_string3)
-        self.assertEqual(eb1, ref3.book_start)
-        self.assertEqual(ec1, ref3.chapter_start)
-        self.assertEqual(ev1, ref3.verse_start)
-        self.assertEqual(eb2, ref3.book_end)
-        self.assertEqual(ec2, ref3.chapter_end)
-        self.assertEqual(ev2, ref3.verse_end)
+        expected_ref3 = Reference("Esther 3:7-10", 12754, 12757, 16, 16, 2, 2, 6, 9)
+        actual_ref3 = reference_from_string(verse_string3)
+        self.assertEqual(actual_ref3, expected_ref3)
 
+        # @@@ TODO: Remove verses for complete chapters
         verse_string4 = "1 Kings 4"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 10, 3, 0, 10, 3, 33
-        ref4 = Reference(translation, verse_string4)
-        self.assertEqual(eb1, ref4.book_start)
-        self.assertEqual(ec1, ref4.chapter_start)
-        self.assertEqual(ev1, ref4.verse_start)
-        self.assertEqual(eb2, ref4.book_end)
-        self.assertEqual(ec2, ref4.chapter_end)
-        self.assertEqual(ev2, ref4.verse_end)
+        expected_ref4 = Reference("1 Kings 4:1-34", 8845, 8878, 10, 10, 3, 3, 0, 33)
+        actual_ref4 = reference_from_string(verse_string4)
+        self.assertEqual(actual_ref4, expected_ref4)
 
         verse_string5 = "Exodus 3 - 4:3"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 1, 2, 0, 1, 3, 2
-        ref5 = Reference(translation, verse_string5)
-        self.assertEqual(eb1, ref5.book_start)
-        self.assertEqual(ec1, ref5.chapter_start)
-        self.assertEqual(ev1, ref5.verse_start)
-        self.assertEqual(eb2, ref5.book_end)
-        self.assertEqual(ec2, ref5.chapter_end)
-        self.assertEqual(ev2, ref5.verse_end)
+        expected_ref5 = Reference("Exodus 3:1-4:3", 1580, 1604, 1, 1, 2, 3, 0, 2)
+        actual_ref5 = reference_from_string(verse_string5)
+        self.assertEqual(actual_ref5, expected_ref5)
 
         verse_string6 = "Jude 10"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 9, 64, 0, 9
-        ref6 = Reference(translation, verse_string6)
-        self.assertEqual(eb1, ref6.book_start)
-        self.assertEqual(ec1, ref6.chapter_start)
-        self.assertEqual(ev1, ref6.verse_start)
-        self.assertEqual(eb2, ref6.book_end)
-        self.assertEqual(ec2, ref6.chapter_end)
-        self.assertEqual(ev2, ref6.verse_end)
+        expected_ref6 = Reference(verse_string6, 30683, 30683, 64, 64, 0, 0, 9, 9)
+        actual_ref6 = reference_from_string(verse_string6)
+        self.assertEqual(actual_ref6, expected_ref6)
 
+        # @@@ TODO: Remove chapter and verses for whole chapters
         verse_string7 = "Genesis"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 0, 49, 25
-        ref7 = Reference(translation, verse_string7)
-        self.assertEqual(eb1, ref7.book_start)
-        self.assertEqual(ec1, ref7.chapter_start)
-        self.assertEqual(ev1, ref7.verse_start)
-        self.assertEqual(eb2, ref7.book_end)
-        self.assertEqual(ec2, ref7.chapter_end)
-        self.assertEqual(ev2, ref7.verse_end)
+        expected_ref7 = Reference("Genesis 1:1-50:26", 0, 1532, 0, 0, 0, 49, 0, 25)
+        pdb.set_trace()
+        actual_ref7 = reference_from_string(verse_string7)
+        self.assertEqual(actual_ref7, expected_ref7)
 
         verse_string8 = "Genesis - Leviticus"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 2, 26, 33
-        ref8 = Reference(translation, verse_string8)
-        self.assertEqual(eb1, ref8.book_start)
-        self.assertEqual(ec1, ref8.chapter_start)
-        self.assertEqual(ev1, ref8.verse_start)
-        self.assertEqual(eb2, ref8.book_end)
-        self.assertEqual(ec2, ref8.chapter_end)
-        self.assertEqual(ev2, ref8.verse_end)
+        expected_ref8 = Reference("Genesis 1:1 - Leviticus 27:34", 0, 3604, 0, 2, 0, 26, 0, 33)
+        actual_ref8 = reference_from_string(verse_string8)
+        self.assertEqual(actual_ref8, expected_ref8)
 
         verse_string9 = "Exodus 3 - 4"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 1, 2, 0, 1, 3, 30
-        ref9 = Reference(translation, verse_string9)
-        self.assertEqual(eb1, ref9.book_start)
-        self.assertEqual(ec1, ref9.chapter_start)
-        self.assertEqual(ev1, ref9.verse_start)
-        self.assertEqual(eb2, ref9.book_end)
-        self.assertEqual(ec2, ref9.chapter_end)
-        self.assertEqual(ev2, ref9.verse_end)
+        expected_ref9 = Reference("Exodus 3:1-4:31", 1580, 1632, 1, 1, 2, 3, 0, 30)
+        actual_ref9 = reference_from_string(verse_string9)
+        self.assertEqual(actual_ref9, expected_ref9)
 
         verse_string10 = "Jude 10 - 11"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 9, 64, 0, 10
-        ref10 = Reference(translation, verse_string10)
-        self.assertEqual(eb1, ref10.book_start)
-        self.assertEqual(ec1, ref10.chapter_start)
-        self.assertEqual(ev1, ref10.verse_start)
-        self.assertEqual(eb2, ref10.book_end)
-        self.assertEqual(ec2, ref10.chapter_end)
-        self.assertEqual(ev2, ref10.verse_end)
+        expected_ref10 = Reference("Jude 10-11", 30683, 30684, 64, 64, 0, 0, 9, 10)
+        actual_ref10 = reference_from_string(verse_string10)
+        self.assertEqual(actual_ref10, expected_ref10)
 
         verse_string11 = "Genesis 50 - Exodus 1"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 49, 0, 1, 0, 21
-        ref11 = Reference(translation, verse_string11)
-        self.assertEqual(eb1, ref11.book_start)
-        self.assertEqual(ec1, ref11.chapter_start)
-        self.assertEqual(ev1, ref11.verse_start)
-        self.assertEqual(eb2, ref11.book_end)
-        self.assertEqual(ec2, ref11.chapter_end)
-        self.assertEqual(ev2, ref11.verse_end)
+        expected_ref11 = Reference("Genesis 50:1 - Exodus 1:22", 1507, 1554, 0, 1, 49, 0, 0, 21)
+        actual_ref11 = reference_from_string(verse_string11)
+        self.assertEqual(actual_ref11, expected_ref11)
 
         verse_string12 = "Jude - Revelation 1"
-        eb1, ec1, ev1, eb2, ec2, ev2 = 64, 0, 0, 65, 0, 19
-        ref12 = Reference(translation, verse_string12)
-        self.assertEqual(eb1, ref12.book_start)
-        self.assertEqual(ec1, ref12.chapter_start)
-        self.assertEqual(ev1, ref12.verse_start)
-        self.assertEqual(eb2, ref12.book_end)
-        self.assertEqual(ec2, ref12.chapter_end)
-        self.assertEqual(ev2, ref12.verse_end)
+        expected_ref12 = Reference("Jude 1 - Revelation 1:20", 30674, 30718, 64, 65, 0, 0, 0, 19)
+        actual_ref12 = reference_from_string(verse_string12)
+        self.assertEqual(actual_ref12, expected_ref12)
 
         verse_string13 = "Billy"
         with self.assertRaises(InvalidReference):
-            Reference(translation, verse_string13)
+            reference_from_string(verse_string13)
 
         verse_string14 = "Genesis 1:1 - Billy"
         with self.assertRaises(InvalidReference):
-            Reference(translation, verse_string14)
+            reference_from_string(verse_string14)
 
         verse_string15 = "Zedekiah 14:7 - Leviticus 1:5"
         with self.assertRaises(InvalidReference):
-            Reference(translation, verse_string15)
+            reference_from_string(verse_string15)
 
         verse_string16 = "Zedekiah 14:7 - JimBob 11:109"
         with self.assertRaises(InvalidReference):
-            Reference(translation, verse_string16)
+            reference_from_string(verse_string16)
 
-    def test_interpret_id(self) -> None:
-        translation = "KJV"
+        with self.assertRaises(InvalidReference):
+            reference_from_string("1 Samuel 1:200")
 
+        with self.assertRaises(InvalidReference):
+            reference_from_string("Psalm 151:1")
+
+        with self.assertRaises(InvalidReference):
+            reference_from_string("2 Samuel 1:1 - 1 Samuel 1:1")
+
+    def test_reference_from_id(self) -> None:
         # Genesis 1:1
         start_id1 = 0
-        eb1, ec1, ev1, eb2, ec2, ev2 = 0, 0, 0, 0, 0, 0
-        ref1 = Reference(translation, id=start_id1)
-        self.assertEqual(eb1, ref1.book_start)
-        self.assertEqual(ec1, ref1.chapter_start)
-        self.assertEqual(ev1, ref1.verse_start)
-        self.assertEqual(eb2, ref1.book_end)
-        self.assertEqual(ec2, ref1.chapter_end)
-        self.assertEqual(ev2, ref1.verse_end)
+        expected_ref1 = Reference("Genesis 1:1", start_id1, start_id1, 0, 0, 0, 0, 0, 0)
+        actual_ref1 = reference_from_id(start_id=start_id1)
+        self.assertEqual(actual_ref1, expected_ref1)
 
         # Exodus 1:1
         start_id2 = 1533
-        eb1, ec1, ev1, eb2, ec2, ev2 = 1, 0, 0, 1, 0, 0
-        ref2 = Reference(translation, id=start_id2)
-        self.assertEqual(eb1, ref2.book_start)
-        self.assertEqual(ec1, ref2.chapter_start)
-        self.assertEqual(ev1, ref2.verse_start)
-        self.assertEqual(eb2, ref2.book_end)
-        self.assertEqual(ec2, ref2.chapter_end)
-        self.assertEqual(ev2, ref2.verse_end)
+        expected_ref2 = Reference("Exodus 1:1", start_id2, start_id2, 1, 1, 0, 0, 0, 0)
+        actual_ref2 = reference_from_id(start_id=start_id2)
+        self.assertEqual(actual_ref2, expected_ref2)
 
         # Exodus 1:1 - Leviticus 1:1
         start_id3 = 1533
         end_id3 = 2746
-        eb1, ec1, ev1, eb2, ec2, ev2 = 1, 0, 0, 2, 0, 0
-        ref3 = Reference(translation, id=start_id3, end_id=end_id3)
-        self.assertEqual(eb1, ref3.book_start)
-        self.assertEqual(ec1, ref3.chapter_start)
-        self.assertEqual(ev1, ref3.verse_start)
-        self.assertEqual(eb2, ref3.book_end)
-        self.assertEqual(ec2, ref3.chapter_end)
-        self.assertEqual(ev2, ref3.verse_end)
+        expected_ref3 = Reference("Exodus 1:1 - Leviticus 1:1", start_id3, end_id3, 1, 2, 0, 0, 0, 0)
+        actual_ref3 = reference_from_id(start_id=start_id3, end_id=end_id3)
+        self.assertEqual(actual_ref3, expected_ref3)
 
         # Revelation 22:21
         start_id4 = 31102
-        eb1, ec1, ev1, eb2, ec2, ev2 = 65, 21, 20, 65, 21, 20
-        ref4 = Reference(translation, id=start_id4)
-        self.assertEqual(eb1, ref4.book_start)
-        self.assertEqual(ec1, ref4.chapter_start)
-        self.assertEqual(ev1, ref4.verse_start)
-        self.assertEqual(eb2, ref4.book_end)
-        self.assertEqual(ec2, ref4.chapter_end)
-        self.assertEqual(ev2, ref4.verse_end)
+        expected_ref4 = Reference("Revelation 22:21", start_id4, start_id4, 65, 65, 21, 21, 20, 20)
+        actual_ref4 = reference_from_id(start_id=start_id4)
+        self.assertEqual(actual_ref4, expected_ref4)
 
         with self.assertRaises(InvalidReference):
-            Reference(translation, id=100, end_id=99)
+            reference_from_id(start_id=100, end_id=99)
 
-        with self.assertRaises(InvalidReference):
-            Reference(translation, "1 Samuel 1:200")
-
-        with self.assertRaises(InvalidReference):
-            Reference(translation, "Psalm 151:1")
-
-        with self.assertRaises(InvalidReference):
-            Reference(translation, "2 Samuel 1:1 - 1 Samuel 1:1")
-
-    @patch("scripture_phaser.backend.agents.OfflineAgent.fetch")
+    @patch("scripture_phaser.backend.translations.OfflineAgent.fetch")
     def test_view(self, mock_fetch) -> None:
         """
         Do passages display their content properly?
@@ -426,7 +346,8 @@ class ReferenceTests(BaseTest):
             expected_verse,
         )
 
-    @patch("scripture_phaser.backend.agents.OfflineAgent.fetch")
+    @skip("Passage")
+    @patch("scripture_phaser.backend.translations.OfflineAgent.fetch")
     def test_get_fast_recitation_ans(self, mock_fetch) -> None:
         """
         Can the Reference fetch the first letter of each word in a passage?

@@ -38,7 +38,6 @@ from scripture_phaser.backend.enums import Bible, Bible_Books, Reverse_Bible_Boo
 
 @dataclass
 class Reference:
-    translation: str
     ref: str
     start_id: int
     end_id: int
@@ -52,10 +51,12 @@ class Reference:
 def reference_from_string(ref: str) -> Reference:
     book_start, chapter_start, verse_start, book_end, chapter_end, verse_end = _interpret_reference(ref)
     ref_str = _standardize_reference(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
-    start_id, end_id = _reference_to_id()
-    return Reference(ref_str, start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+    start_id, end_id = _reference_to_id(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+    reference = Reference(ref_str, start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+    _validate_reference(reference)
+    return reference
 
-def reference_from_id(start_id: int, end_id: int | None) -> Reference:
+def reference_from_id(start_id: int, end_id: int | None = None) -> Reference:
     book_start, chapter_start, verse_start = _id_to_reference(start_id)
     if end_id is not None:
         book_end, chapter_end, verse_end = _id_to_reference(end_id)
@@ -64,8 +65,9 @@ def reference_from_id(start_id: int, end_id: int | None) -> Reference:
         book_end, chapter_end, verse_end = book_start, chapter_start, verse_start
 
     ref_str = _standardize_reference(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
-
-    return Reference(ref_str, start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+    reference = Reference(ref_str, start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+    _validate_reference(reference)
+    return reference
 
 def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
     ref = _clean_reference(ref)
@@ -96,7 +98,7 @@ def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
 
             # Book Name is not in the Bible (Billy)
             if book_start == -1:
-                raise InvalidReference(ref)
+                raise InvalidReference()
 
             # Get Chapter:Verse Split
             loc_components = split_components[-1].split(":")
@@ -132,7 +134,7 @@ def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
 
             # Book Name is not in the Bible (Billy)
             if book_start == -1:
-                raise InvalidReference(ref)
+                raise InvalidReference()
 
             # Get Chapter:Verse Split (if part of reference isn't book name)
             if not split_components[-1].isalpha():
@@ -174,7 +176,7 @@ def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
 
             # Book Name is not in the Bible (Billy)
             if book_end == -1:
-                raise InvalidReference(ref)
+                raise InvalidReference()
 
             # Get Chapter:Verse Split (if part of reference isn't book name)
             if not split_components[-1].isalpha():
@@ -206,7 +208,7 @@ def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
 
         # More than One Split is No Good (two+ "-")
         else:
-            raise InvalidReference(ref)
+            raise InvalidReference()
 
     return (
         book_start,
@@ -218,6 +220,34 @@ def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
     )
 
 def _standardize_reference(book_start: int, book_end: int, chapter_start: int, chapter_end: int, verse_start: int, verse_end: int) -> str:
+    one_book = book_start == book_end
+    one_chapter = one_book and chapter_start == chapter_end
+    one_verse = one_chapter and verse_start == verse_end
+    entire_book = one_book and chapter_start == 0 and chapter_end == len(Bible[book_start]) - 1 and verse_start == 0 and verse_end == Bible[book_end][chapter_end] - 1
+    entire_chapter = one_book and one_chapter and verse_start == 0 and verse_end == Bible[book_start][chapter_start] - 1
+    book_start_is_single_chapter = len(Bible[book_start]) == 1
+    book_end_is_single_chapter = len(Bible[book_end]) == 1
+
+    if entire_book:
+        return f"{Bible_Books[book_start]}"
+    if entire_chapter:
+        return f"{Bible_Books[book_start]} {chapter_start + 1}"
+    if one_verse and book_start_is_single_chapter:
+        return (
+            f"{Bible_Books[book_start]} " f"{verse_start + 1}"
+        )
+    if one_verse and not book_start_is_single_chapter:
+        return (
+            f"{Bible_Books[book_start]} "
+            f"{chapter_start + 1}:{verse_start + 1}"
+        )
+    if one_chapter and book_start_is_single_chapter:
+        # @@@ START HERE
+
+
+
+
+
     # Single Book Reference? - Only Print Book Name Once
     if book_start == book_end:
         # Single Chapter Book? - No ":"s
@@ -287,19 +317,19 @@ def _standardize_reference(book_start: int, book_end: int, chapter_start: int, c
                 f"{chapter_end + 1}:{verse_end + 1}"
             )
 
-def _reference_to_id(ref: "Reference") -> tuple[int, int]:
-    start_id = sum([sum(book) for book in Bible[: ref.book_start]])
-    start_id += sum(Bible[ref.book_start][: ref.chapter_start])
-    start_id += ref.verse_start
+def _reference_to_id(book_start: int, book_end: int, chapter_start: int, chapter_end: int, verse_start: int, verse_end: int) -> tuple[int, int]:
+    start_id = sum([sum(book) for book in Bible[:book_start]])
+    start_id += sum(Bible[book_start][:chapter_start])
+    start_id += verse_start
 
     if (
-        not ref.book_start == ref.book_end
-        or not ref.chapter_start == ref.chapter_end
-        or not ref.verse_start == ref.verse_end
+        not book_start == book_end
+        or not chapter_start == chapter_end
+        or not verse_start == verse_end
     ):
-        end_id = sum([sum(book) for book in Bible[: ref.book_end]])
-        end_id += sum(Bible[ref.book_end][: ref.chapter_end])
-        end_id += ref.verse_end
+        end_id = sum([sum(book) for book in Bible[:book_end]])
+        end_id += sum(Bible[book_end][:chapter_end])
+        end_id += verse_end
     else:
         end_id = start_id
 
@@ -556,14 +586,22 @@ def _reference_replacements(ref: str) -> str:
         ref = ref.replace(source[i], replacement[i])
     return ref
 
-def _validate_reference(book_start: int, book_end: int, chapter_start: int, chapter_end: int, verse_start: int, verse_end: int, ref: str) -> None:
-    if book_start > book_end:
-        raise InvalidReference(ref)
-    if chapter_start >= len(Bible[book_start]):
-        raise InvalidReference(ref)
-    if chapter_end >= len(Bible[book_end]):
-        raise InvalidReference(ref)
-    if verse_start >= Bible[book_start][chapter_start]:
-        raise InvalidReference(ref)
-    if verse_end >= Bible[book_end][chapter_end]:
-        raise InvalidReference(ref)
+def _validate_reference(ref: Reference) -> None:
+    ref_out_of_order = ref.start_id > ref.end_id
+    if ref_out_of_order:
+        raise InvalidReference()
+    books_out_of_order = ref.book_start > ref.book_end
+    if books_out_of_order:
+        raise InvalidReference()
+    start_chapter_in_book = ref.chapter_start < len(Bible[ref.book_start])
+    if not start_chapter_in_book:
+        raise InvalidReference()
+    end_chapter_in_book = ref.chapter_end < len(Bible[ref.book_end])
+    if not end_chapter_in_book:
+        raise InvalidReference()
+    start_verse_in_chapter = ref.verse_start < Bible[ref.book_start][ref.chapter_start]
+    if not start_verse_in_chapter:
+        raise InvalidReference()
+    end_verse_in_chapter = ref.verse_end < Bible[ref.book_end][ref.chapter_end]
+    if not end_verse_in_chapter:
+        raise InvalidReference()
