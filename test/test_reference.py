@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import pdb
 from unittest import TestCase, skip
 from unittest.mock import patch
 from scripture_phaser.backend.reference import Reference, reference_from_id, reference_from_string
@@ -158,9 +157,8 @@ class ReferenceTests(TestCase):
         actual_ref3 = reference_from_string(verse_string3)
         self.assertEqual(actual_ref3, expected_ref3)
 
-        # @@@ TODO: Remove verses for complete chapters
         verse_string4 = "1 Kings 4"
-        expected_ref4 = Reference("1 Kings 4:1-34", 8845, 8878, 10, 10, 3, 3, 0, 33)
+        expected_ref4 = Reference(verse_string4, 8845, 8878, 10, 10, 3, 3, 0, 33)
         actual_ref4 = reference_from_string(verse_string4)
         self.assertEqual(actual_ref4, expected_ref4)
 
@@ -174,10 +172,8 @@ class ReferenceTests(TestCase):
         actual_ref6 = reference_from_string(verse_string6)
         self.assertEqual(actual_ref6, expected_ref6)
 
-        # @@@ TODO: Remove chapter and verses for whole chapters
         verse_string7 = "Genesis"
-        expected_ref7 = Reference("Genesis 1:1-50:26", 0, 1532, 0, 0, 0, 49, 0, 25)
-        pdb.set_trace()
+        expected_ref7 = Reference(verse_string7, 0, 1532, 0, 0, 0, 49, 0, 25)
         actual_ref7 = reference_from_string(verse_string7)
         self.assertEqual(actual_ref7, expected_ref7)
 

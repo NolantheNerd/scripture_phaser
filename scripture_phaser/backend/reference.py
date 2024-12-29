@@ -229,93 +229,69 @@ def _standardize_reference(book_start: int, book_end: int, chapter_start: int, c
     book_end_is_single_chapter = len(Bible[book_end]) == 1
 
     if entire_book:
+        # Genesis
         return f"{Bible_Books[book_start]}"
     if entire_chapter:
+        # Genesis 1
         return f"{Bible_Books[book_start]} {chapter_start + 1}"
     if one_verse and book_start_is_single_chapter:
+        # Jude 1
         return (
             f"{Bible_Books[book_start]} " f"{verse_start + 1}"
         )
     if one_verse and not book_start_is_single_chapter:
+        # Genesis 1:1
         return (
             f"{Bible_Books[book_start]} "
             f"{chapter_start + 1}:{verse_start + 1}"
         )
     if one_chapter and book_start_is_single_chapter:
-        # @@@ START HERE
-
-
-
-
-
-    # Single Book Reference? - Only Print Book Name Once
-    if book_start == book_end:
-        # Single Chapter Book? - No ":"s
-        if len(Bible[book_start]) == 1:
-            # Single Verse? - No "-"
-            if verse_start == verse_end:
-                return (
-                    f"{Bible_Books[book_start]} " f"{verse_start + 1}"
-                )
-            # Multiple Verses - Yes "-"
-            else:
-                return (
-                    f"{Bible_Books[book_start]} "
-                    f"{verse_start + 1}-{verse_end + 1}"
-                )
-        # Multi Chapter Book - Yes ":"s
-        else:
-            # Reference Contained in 1 Chapter? - Only 1 ":"
-            if chapter_start == chapter_end:
-                # Reference is a Single Verse? - No "-"
-                if verse_start == verse_end:
-                    return (
-                        f"{Bible_Books[book_start]} "
-                        f"{chapter_start + 1}:{verse_start + 1}"
-                    )
-                # Reference is Multiple Verses - Yes "-"
-                else:
-                    return (
-                        f"{Bible_Books[book_start]} "
-                        f"{chapter_start + 1}:"
-                        f"{verse_start + 1}-{verse_end + 1}"
-                    )
-            # Reference Spread Over Multiple Chapters - 2 ":"s
-            else:
-                return (
-                    f"{Bible_Books[book_start]} "
-                    f"{chapter_start + 1}:{verse_start + 1}-"
-                    f"{chapter_end + 1}:{verse_end + 1}"
-                )
-    # Multiple Book Reference - Print Both Book Names
-    else:
-        # Both Books are Single Chapter Books? - No ":"s
-        if len(Bible[book_start]) == 1 and len(Bible[book_end]) == 1:
-            return (
-                f"{Bible_Books[book_start]} {verse_start + 1} "
-                f"- {Bible_Books[book_end]} {verse_end + 1}"
-            )
-        # Only First Book is a Single Chapter Book? - No ":" at Start
-        elif len(Bible[book_start]) == 1:
-            return (
-                f"{Bible_Books[book_start]} {verse_start + 1} "
-                f"- {Bible_Books[book_end]} {chapter_end + 1}:"
-                f"{verse_end + 1}"
-            )
-        # Only Last Book is a Single Chapter Book? - No ":" at End
-        elif len(Bible[book_end]) == 1:
-            return (
-                f"{Bible_Books[book_start]} {chapter_start + 1}:"
-                f"{verse_start + 1} - {Bible_Books[book_end]} "
-                f"{verse_end + 1}"
-            )
-        # Neither Book is a Single Chapter Book - Two ":"s
-        else:
-            return (
-                f"{Bible_Books[book_start]} {chapter_start + 1}:"
-                f"{verse_start + 1} - {Bible_Books[book_end]} "
-                f"{chapter_end + 1}:{verse_end + 1}"
-            )
+        # Jude 2-4
+        return (
+            f"{Bible_Books[book_start]} "
+            f"{verse_start + 1}-{verse_end + 1}"
+        )
+    if one_chapter and not book_start_is_single_chapter:
+        # Genesis 1:2-4
+        return (
+            f"{Bible_Books[book_start]} "
+            f"{chapter_start + 1}:"
+            f"{verse_start + 1}-{verse_end + 1}"
+        )
+    if one_book: # Implicitly the book is not a single chapter
+        # Genesis 1:2-2:3
+        return (
+            f"{Bible_Books[book_start]} "
+            f"{chapter_start + 1}:{verse_start + 1}-"
+            f"{chapter_end + 1}:{verse_end + 1}"
+        )
+    if not one_book and book_start_is_single_chapter and book_end_is_single_chapter:
+        # Obadiah 1 - Jude 2
+        return (
+            f"{Bible_Books[book_start]} {verse_start + 1} "
+            f"- {Bible_Books[book_end]} {verse_end + 1}"
+        )
+    if not one_book and not book_start_is_single_chapter and book_end_is_single_chapter:
+        # James 1:1 - Jude 2
+        return (
+            f"{Bible_Books[book_start]} {chapter_start + 1}:"
+            f"{verse_start + 1} - {Bible_Books[book_end]} "
+            f"{verse_end + 1}"
+        )
+    if not one_book and book_start_is_single_chapter and not book_end_is_single_chapter:
+        # Jude 2 - Revelation 1:1
+        return (
+            f"{Bible_Books[book_start]} {verse_start + 1} "
+            f"- {Bible_Books[book_end]} {chapter_end + 1}:"
+            f"{verse_end + 1}"
+        )
+    if not one_book and not book_start_is_single_chapter and not book_end_is_single_chapter:
+        # Genesis 1:1 - Exodus 2:2
+        return (
+            f"{Bible_Books[book_start]} {chapter_start + 1}:"
+            f"{verse_start + 1} - {Bible_Books[book_end]} "
+            f"{chapter_end + 1}:{verse_end + 1}"
+        )
 
 def _reference_to_id(book_start: int, book_end: int, chapter_start: int, chapter_end: int, verse_start: int, verse_end: int) -> tuple[int, int]:
     start_id = sum([sum(book) for book in Bible[:book_start]])
