@@ -50,10 +50,12 @@ class Reference:
 
 def reference_from_string(ref: str) -> Reference:
     book_start, chapter_start, verse_start, book_end, chapter_end, verse_end = _interpret_reference(ref)
-    ref_str = _standardize_reference(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
     start_id, end_id = _reference_to_id(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
-    reference = Reference(ref_str, start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+
+    # Reference.ref errors if reference details are invalid, and validation doesn't require a Reference.ref
+    reference = Reference("", start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
     _validate_reference(reference)
+    reference.ref = _standardize_reference(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
     return reference
 
 def reference_from_id(start_id: int, end_id: int | None = None) -> Reference:
@@ -64,9 +66,10 @@ def reference_from_id(start_id: int, end_id: int | None = None) -> Reference:
         end_id = start_id
         book_end, chapter_end, verse_end = book_start, chapter_start, verse_start
 
-    ref_str = _standardize_reference(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
-    reference = Reference(ref_str, start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+    # Reference.ref errors if reference details are invalid, and validation doesn't require a Reference.ref
+    reference = Reference("", start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
     _validate_reference(reference)
+    reference.ref = _standardize_reference(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
     return reference
 
 def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
@@ -224,16 +227,37 @@ def _standardize_reference(book_start: int, book_end: int, chapter_start: int, c
     one_chapter = one_book and chapter_start == chapter_end
     one_verse = one_chapter and verse_start == verse_end
     entire_book = one_book and chapter_start == 0 and chapter_end == len(Bible[book_start]) - 1 and verse_start == 0 and verse_end == Bible[book_end][chapter_end] - 1
+    many_entire_books = chapter_start == 0 and chapter_end == len(Bible[book_end]) - 1 and verse_start == 0 and verse_end == Bible[book_end][chapter_end] - 1
     entire_chapter = one_book and one_chapter and verse_start == 0 and verse_end == Bible[book_start][chapter_start] - 1
+    one_book_entire_chapters = one_book and verse_start == 0 and verse_end == Bible[book_end][chapter_end] - 1
+    many_books_entire_chapters = not one_book and verse_start == 0 and verse_end == Bible[book_end][chapter_end] - 1
     book_start_is_single_chapter = len(Bible[book_start]) == 1
     book_end_is_single_chapter = len(Bible[book_end]) == 1
 
     if entire_book:
         # Genesis
         return f"{Bible_Books[book_start]}"
+    if many_entire_books:
+        # Genesis - Leviticus
+        return f"{Bible_Books[book_start]} - {Bible_Books[book_end]}"
     if entire_chapter:
         # Genesis 1
         return f"{Bible_Books[book_start]} {chapter_start + 1}"
+    if one_book_entire_chapters:
+        # Genesis 1-3
+        return f"{Bible_Books[book_start]} {chapter_start + 1}-{chapter_end + 1}"
+    if many_books_entire_chapters and not book_start_is_single_chapter and not book_end_is_single_chapter:
+        # Genesis 50 - Exodus 1
+        return (
+            f"{Bible_Books[book_start]} {chapter_start + 1} - "
+            f"{Bible_Books[book_end]} {chapter_end + 1}"
+        )
+    if many_books_entire_chapters and book_start_is_single_chapter and not book_end_is_single_chapter:
+        # Jude - Revelation 1
+        return f"{Bible_Books[book_start]} - {Bible_Books[book_end]} {chapter_end + 1}"
+    if many_books_entire_chapters and not book_start_is_single_chapter and book_end_is_single_chapter:
+        # James 1 - Jude
+        return f"{Bible_Books[book_start]} {chapter_start + 1} - {Bible_Books[book_end]}"
     if one_verse and book_start_is_single_chapter:
         # Jude 1
         return (
