@@ -55,7 +55,7 @@ def reference_from_string(ref: str) -> Reference:
     # Reference.ref errors if reference details are invalid, and validation doesn't require a Reference.ref
     reference = Reference("", start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
     _validate_reference(reference)
-    reference.ref = _standardize_reference(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+    reference.ref = _standardize_reference(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
     return reference
 
 def reference_from_id(start_id: int, end_id: int | None = None) -> Reference:
@@ -69,7 +69,7 @@ def reference_from_id(start_id: int, end_id: int | None = None) -> Reference:
     # Reference.ref errors if reference details are invalid, and validation doesn't require a Reference.ref
     reference = Reference("", start_id, end_id, book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
     _validate_reference(reference)
-    reference.ref = _standardize_reference(book_start, book_end, chapter_start, chapter_end, verse_start, verse_end)
+    reference.ref = _standardize_reference(book_start, chapter_start, verse_start, book_end, chapter_end, verse_end)
     return reference
 
 def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
@@ -222,7 +222,7 @@ def _interpret_reference(ref: str) -> tuple[int, int, int, int, int, int]:
         verse_end,
     )
 
-def _standardize_reference(book_start: int, book_end: int, chapter_start: int, chapter_end: int, verse_start: int, verse_end: int) -> str:
+def _standardize_reference(book_start: int, chapter_start: int, verse_start: int, book_end: int, chapter_end: int, verse_end: int) -> str:
     one_book = book_start == book_end
     one_chapter = one_book and chapter_start == chapter_end
     one_verse = one_chapter and verse_start == verse_end
