@@ -33,7 +33,6 @@
 
 from dataclasses import dataclass
 from scripture_phaser.backend.reference import Reference, reference_from_id
-from scripture_phaser.backend.translations import Translation
 import scripture_phaser.backend.translations as Translations
 
 
@@ -41,11 +40,11 @@ import scripture_phaser.backend.translations as Translations
 class Passage:
     reference: str
     translation: str
-    raw: str
-    number: str
-    ref: str
-    full: str
-    initialism: list[str]
+    raw_text: str
+    numbered_text: str
+    reference_text: str
+    full_text: str
+    raw_initialism: list[str]
     numbered_initialism: list[str]
 
 
@@ -95,4 +94,4 @@ def _format_passage(
     if include_ref:
         return f"{text} - {reference.ref}"
     else:
-        return f"{text}".replace("\n ", "\n")
+        return text

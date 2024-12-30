@@ -33,33 +33,53 @@
 
 import datetime
 from enum import Enum
-from dataclasses import dataclass
 from difflib import SequenceMatcher
-from scripture_phaser.backend.reference import Reference
+from scripture_phaser.backend.passage import Passage
 
-class RecitationType(Enum):
-    FULL_TEXT = 1
-    FAST_TEXT = 2
+class Recitation(Enum):
+    RAW_TEXT = 1
+    NUMBERED_TEXT = 2
+    REFERENCE_TEXT = 3
+    FULL_TEXT = 4
+    RAW_INITIALISM = 5
+    NUMBERED_INITIALISM = 6
 
+def record_recitation(passage: Passage, type: RecitationType, attempt: str) -> None:
+    timestamp = datetime.datetime.now()
+    score = grade_attempt()
 
-@dataclass
-class Recitation:
-    reference: Reference
-    datetime: datetime.datetime
-    type: RecitationType
-    attempt: str
-    score: float
+def grade_attempt(passage: Passage, recitation: Recitation, attempt: str) -> float:
+    if recitation is Recitation.RAW_TEXT:
+        solution = passage.raw_text
+        grade_str = True
+        grade_list = False
+    elif recitation is Recitation.NUMBERED_TEXT:
+        solution = passage.numbered_text
+        grade_str = True
+        grade_list = False
+    elif recitation is Recitation.REFERENCE_TEXT:
+        soluiton = passage.reference_text
+        grade_str = True
+        grade_list = False
+    elif recitation is Recitation.FULL_TEXT:
+        solution = passage.full_text
+        grade_str = True
+        grade_list = False
+    elif recitation is Recitation.RAW_INITIALISM:
+        solution = passage.raw_initialism
+        grade_str = False
+        grade_list = True
+    elif recitation is Recitation.NUMBERED_INITIALISM:
+        solution = passage.numbered_initialism
+        grade_str = False
+        grade_list = True
 
-
-def grade_attempt(attempt: str, solution: str, recitation_type: RecitationType) -> float:
-    if recitation_type is RecitationType.FULL_TEXT:
-        answer = reference.view(self.include_verse_numbers, include_ref=False)
-
-        if recitation == answer:
+    if grade_str:
+        if attempt == solution:
             score = 1
         else:
             n_correct_chars, n_incorrect_chars = 0, 0
-            result = SequenceMatcher(a=recitation, b=answer).get_opcodes()
+            result = SequenceMatcher(a=attempt, b=solution).get_opcodes()
             for tag, i1, i2, j1, j2 in result:
                 if tag == "replace":
                     n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
@@ -72,15 +92,13 @@ def grade_attempt(attempt: str, solution: str, recitation_type: RecitationType) 
 
             score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
 
-    elif recitation_type is RecitationType.FAST_TEXT:
-        answer = reference.view_first_letter(self.include_verse_numbers)
-
-        if recitation == answer:
+    elif grade_list:
+        if attempt == solution:
             score = 1
         else:
             n_correct = sum(
-                [1 for i in range(len(answer)) if recitation[i] == answer[i]]
+                [1 for i in range(len(solution)) if attempt[i] == solution[i]]
             )
-            score = n_correct / len(answer)
+            score = n_correct / len(solution)
 
     return score
