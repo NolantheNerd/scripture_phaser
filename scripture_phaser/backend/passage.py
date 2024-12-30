@@ -32,38 +32,33 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from dataclasses import dataclass
-from scripture_phaser.backend.reference import Reference
+from scripture_phaser.backend.reference import Reference, reference_from_id
 from scripture_phaser.backend.translations import Translation
 import scripture_phaser.backend.translations as Translations
 
 
 @dataclass
-class Verse:
+class Passage:
+    reference: str
+    translation: str
     raw: str
     number: str
-    reference: str
+    ref: str
     full: str
     initialism: list[str]
     numbered_initialism: list[str]
 
 
-@dataclass
-class Passage:
-    reference: str
-    translation: Translation
-    verse: Verse
-
-
 def passage_from_reference(translation: str, reference: Reference) -> Passage:
-    translation = getattr(Translations, translation)
-    texts = Translations[translation].fetch(reference.start_id, reference.end_id)
+    trans = getattr(Translations, translation)
+    texts = trans.fetch(reference.passage.start, reference.passage.end)
     raw = _format_passage(
         reference, texts, include_verse_numbers=False, include_ref=False
     )
     number = _format_passage(
         reference, texts, include_verse_numbers=True, include_ref=False
     )
-    reference = _format_passage(
+    ref = _format_passage(
         reference, texts, include_verse_numbers=False, include_ref=True
     )
     full = _format_passage(
@@ -75,8 +70,7 @@ def passage_from_reference(translation: str, reference: Reference) -> Passage:
     numbered_initialism = _format_passage_initialism(
         reference, texts, include_verse_numbers=True
     )
-    verse = Verse(raw, number, reference, full, initialism, numbered_initialism)
-    return Passage(reference, translation, verse)
+    return Passage(reference, translation, raw, number, ref, full, initialism, numbered_initialism)
 
 
 def _format_passage(
@@ -90,12 +84,12 @@ def _format_passage(
     else:
         text = ""
         for i, content in enumerate(texts):
-            _, _, verse_num = Reference.id_to_reference(reference.start_id + i)
-            text += f" [{verse_num + 1}] {content}"
+            new_reference = reference_from_id(reference.passage.start + i)
+            text += f" [{new_reference.first.verse + 1}] {content}"
         text = text.strip()
 
     if include_ref:
-        return f"{text} - {reference.ref_str}"
+        return f"{text} - {reference.ref}"
     else:
         return f"{text}".replace("\n ", "\n")
 
@@ -104,12 +98,12 @@ def _format_passage_initialism(
     reference: Reference, texts: list[str], include_verse_numbers: bool
 ) -> list[str]:
     if not include_verse_numbers:
-        text = texts
+        text = f"{' '.join(texts)}".replace("\n ", "\n")
     else:
         text = ""
         for i, content in enumerate(texts):
-            _, _, verse_num = Reference.id_to_reference(reference.start_id + i)
-            text += f"[{verse_num + 1}] {content}"
+            new_reference = reference_from_id(reference.passage.start + i)
+            text += f"[{new_reference.first.verse + 1}] {content} "
 
     text = "".join([char for char in text if char.isalnum() or char.isspace()])
     return [word[0] for word in text.split()]
