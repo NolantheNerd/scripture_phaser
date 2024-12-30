@@ -53,22 +53,22 @@ def passage_from_reference(translation: str, reference: Reference) -> Passage:
     trans = getattr(Translations, translation)
     texts = trans.fetch(reference.passage.start, reference.passage.end)
     raw = _format_passage(
-        reference, texts, include_verse_numbers=False, include_ref=False
+        reference, texts, initialism=False, include_verse_numbers=False, include_ref=False
     )
     number = _format_passage(
-        reference, texts, include_verse_numbers=True, include_ref=False
+        reference, texts, initialism=False, include_verse_numbers=True, include_ref=False
     )
     ref = _format_passage(
-        reference, texts, include_verse_numbers=False, include_ref=True
+        reference, texts, initialism=False, include_verse_numbers=False, include_ref=True
     )
     full = _format_passage(
-        reference, texts, include_verse_numbers=True, include_ref=True
+        reference, texts, initialism=False, include_verse_numbers=True, include_ref=True
     )
-    initialism = _format_passage_initialism(
-        reference, texts, include_verse_numbers=False
+    initialism = _format_passage(
+        reference, texts, initialism=True, include_verse_numbers=False
     )
-    numbered_initialism = _format_passage_initialism(
-        reference, texts, include_verse_numbers=True
+    numbered_initialism = _format_passage(
+        reference, texts, initialism=True, include_verse_numbers=True
     )
     return Passage(reference, translation, raw, number, ref, full, initialism, numbered_initialism)
 
@@ -76,8 +76,9 @@ def passage_from_reference(translation: str, reference: Reference) -> Passage:
 def _format_passage(
     reference: Reference,
     texts: list[str],
-    include_verse_numbers: bool,
-    include_ref: bool,
+    initialism: bool,
+    include_verse_numbers: bool = False,
+    include_ref: bool = False,
 ) -> str:
     if not include_verse_numbers:
         text = f"{' '.join(texts)}".replace("\n ", "\n")
@@ -88,22 +89,10 @@ def _format_passage(
             text += f" [{new_reference.first.verse + 1}] {content}"
         text = text.strip()
 
+    if initialism:
+        text = "".join([char for char in text if char.isalnum() or char.isspace()])
+        return [word[0] for word in text.split()]
     if include_ref:
         return f"{text} - {reference.ref}"
     else:
         return f"{text}".replace("\n ", "\n")
-
-
-def _format_passage_initialism(
-    reference: Reference, texts: list[str], include_verse_numbers: bool
-) -> list[str]:
-    if not include_verse_numbers:
-        text = f"{' '.join(texts)}".replace("\n ", "\n")
-    else:
-        text = ""
-        for i, content in enumerate(texts):
-            new_reference = reference_from_id(reference.passage.start + i)
-            text += f"[{new_reference.first.verse + 1}] {content} "
-
-    text = "".join([char for char in text if char.isalnum() or char.isspace()])
-    return [word[0] for word in text.split()]
