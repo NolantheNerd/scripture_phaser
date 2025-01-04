@@ -36,8 +36,8 @@ from scripture_phaser.backend.reference import (
     Reference,
     PassageID,
     VerseTriplet,
-    reference_from_id,
-    reference_from_string,
+    id_to_reference,
+    string_to_reference,
     _interpret_reference,
     _standardize_reference,
 )
@@ -312,7 +312,7 @@ class ReferenceTests(TestCase):
             _standardize_reference(first_verse17, last_verse17), expected_string17
         )
 
-    def test_reference_from_string(self) -> None:
+    def test_string_to_reference(self) -> None:
         """
         Can verse strings be interpreted?
         """
@@ -323,7 +323,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(61, 2, 4),
             VerseTriplet(61, 2, 4),
         )
-        actual_ref1 = reference_from_string(verse_string1)
+        actual_ref1 = string_to_reference(verse_string1)
         self.assertEqual(actual_ref1, expected_ref1)
 
         verse_string2 = "Genesis 49:2-8"
@@ -333,7 +333,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(0, 48, 1),
             VerseTriplet(0, 48, 7),
         )
-        actual_ref2 = reference_from_string(verse_string2)
+        actual_ref2 = string_to_reference(verse_string2)
         self.assertEqual(actual_ref2, expected_ref2)
 
         verse_string3 = "Esther 3:7-10"
@@ -343,7 +343,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(16, 2, 6),
             VerseTriplet(16, 2, 9),
         )
-        actual_ref3 = reference_from_string(verse_string3)
+        actual_ref3 = string_to_reference(verse_string3)
         self.assertEqual(actual_ref3, expected_ref3)
 
         verse_string4 = "1 Kings 4"
@@ -353,7 +353,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(10, 3, 0),
             VerseTriplet(10, 3, 33),
         )
-        actual_ref4 = reference_from_string(verse_string4)
+        actual_ref4 = string_to_reference(verse_string4)
         self.assertEqual(actual_ref4, expected_ref4)
 
         verse_string5 = "Exodus 3:1-4:3"
@@ -363,7 +363,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(1, 2, 0),
             VerseTriplet(1, 3, 2),
         )
-        actual_ref5 = reference_from_string(verse_string5)
+        actual_ref5 = string_to_reference(verse_string5)
         self.assertEqual(actual_ref5, expected_ref5)
 
         verse_string6 = "Jude 10"
@@ -373,7 +373,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(64, 0, 9),
             VerseTriplet(64, 0, 9),
         )
-        actual_ref6 = reference_from_string(verse_string6)
+        actual_ref6 = string_to_reference(verse_string6)
         self.assertEqual(actual_ref6, expected_ref6)
 
         verse_string7 = "Genesis"
@@ -383,7 +383,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(0, 0, 0),
             VerseTriplet(0, 49, 25),
         )
-        actual_ref7 = reference_from_string(verse_string7)
+        actual_ref7 = string_to_reference(verse_string7)
         self.assertEqual(actual_ref7, expected_ref7)
 
         verse_string8 = "Genesis - Leviticus"
@@ -393,7 +393,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(0, 0, 0),
             VerseTriplet(2, 26, 33),
         )
-        actual_ref8 = reference_from_string(verse_string8)
+        actual_ref8 = string_to_reference(verse_string8)
         self.assertEqual(actual_ref8, expected_ref8)
 
         verse_string9 = "Exodus 3-4"
@@ -403,7 +403,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(1, 2, 0),
             VerseTriplet(1, 3, 30),
         )
-        actual_ref9 = reference_from_string(verse_string9)
+        actual_ref9 = string_to_reference(verse_string9)
         self.assertEqual(actual_ref9, expected_ref9)
 
         verse_string10 = "Jude 10-11"
@@ -413,7 +413,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(64, 0, 9),
             VerseTriplet(64, 0, 10),
         )
-        actual_ref10 = reference_from_string(verse_string10)
+        actual_ref10 = string_to_reference(verse_string10)
         self.assertEqual(actual_ref10, expected_ref10)
 
         verse_string11 = "Genesis 50 - Exodus 1"
@@ -423,7 +423,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(0, 49, 0),
             VerseTriplet(1, 0, 21),
         )
-        actual_ref11 = reference_from_string(verse_string11)
+        actual_ref11 = string_to_reference(verse_string11)
         self.assertEqual(actual_ref11, expected_ref11)
 
         verse_string12 = "Jude - Revelation 1"
@@ -433,35 +433,35 @@ class ReferenceTests(TestCase):
             VerseTriplet(64, 0, 0),
             VerseTriplet(65, 0, 19),
         )
-        actual_ref12 = reference_from_string(verse_string12)
+        actual_ref12 = string_to_reference(verse_string12)
         self.assertEqual(actual_ref12, expected_ref12)
 
         verse_string13 = "Billy"
         with self.assertRaises(InvalidReference):
-            reference_from_string(verse_string13)
+            string_to_reference(verse_string13)
 
         verse_string14 = "Genesis 1:1 - Billy"
         with self.assertRaises(InvalidReference):
-            reference_from_string(verse_string14)
+            string_to_reference(verse_string14)
 
         verse_string15 = "Zedekiah 14:7 - Leviticus 1:5"
         with self.assertRaises(InvalidReference):
-            reference_from_string(verse_string15)
+            string_to_reference(verse_string15)
 
         verse_string16 = "Zedekiah 14:7 - JimBob 11:109"
         with self.assertRaises(InvalidReference):
-            reference_from_string(verse_string16)
+            string_to_reference(verse_string16)
 
         with self.assertRaises(InvalidReference):
-            reference_from_string("1 Samuel 1:200")
+            string_to_reference("1 Samuel 1:200")
 
         with self.assertRaises(InvalidReference):
-            reference_from_string("Psalm 151:1")
+            string_to_reference("Psalm 151:1")
 
         with self.assertRaises(InvalidReference):
-            reference_from_string("2 Samuel 1:1 - 1 Samuel 1:1")
+            string_to_reference("2 Samuel 1:1 - 1 Samuel 1:1")
 
-    def test_reference_from_id(self) -> None:
+    def test_id_to_reference(self) -> None:
         """
         Can a reference be created from an id?
         """
@@ -473,7 +473,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(0, 0, 0),
             VerseTriplet(0, 0, 0),
         )
-        actual_ref1 = reference_from_id(start_id=start_id1)
+        actual_ref1 = id_to_reference(start_id=start_id1)
         self.assertEqual(actual_ref1, expected_ref1)
 
         # Exodus 1:1
@@ -484,7 +484,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(1, 0, 0),
             VerseTriplet(1, 0, 0),
         )
-        actual_ref2 = reference_from_id(start_id=start_id2)
+        actual_ref2 = id_to_reference(start_id=start_id2)
         self.assertEqual(actual_ref2, expected_ref2)
 
         # Exodus 1:1 - Leviticus 1:1
@@ -496,7 +496,7 @@ class ReferenceTests(TestCase):
             VerseTriplet(1, 0, 0),
             VerseTriplet(2, 0, 0),
         )
-        actual_ref3 = reference_from_id(start_id=start_id3, end_id=end_id3)
+        actual_ref3 = id_to_reference(start_id=start_id3, end_id=end_id3)
         self.assertEqual(actual_ref3, expected_ref3)
 
         # Revelation 22:21
@@ -507,8 +507,8 @@ class ReferenceTests(TestCase):
             VerseTriplet(65, 21, 20),
             VerseTriplet(65, 21, 20),
         )
-        actual_ref4 = reference_from_id(start_id=start_id4)
+        actual_ref4 = id_to_reference(start_id=start_id4)
         self.assertEqual(actual_ref4, expected_ref4)
 
         with self.assertRaises(InvalidReference):
-            reference_from_id(start_id=100, end_id=99)
+            id_to_reference(start_id=100, end_id=99)

@@ -58,7 +58,7 @@ class Reference:
     last: VerseTriplet
 
 
-def reference_from_string(ref: str) -> Reference:
+def string_to_reference(ref: str) -> Reference:
     first_verse, last_verse = _interpret_reference(ref)
     passage = _reference_to_id(first_verse, last_verse)
 
@@ -69,7 +69,7 @@ def reference_from_string(ref: str) -> Reference:
     return reference
 
 
-def reference_from_id(start_id: int, end_id: int | None = None) -> Reference:
+def id_to_reference(start_id: int, end_id: int | None = None) -> Reference:
     first_verse = _id_to_reference(start_id)
     if end_id is not None:
         last_verse = _id_to_reference(end_id)

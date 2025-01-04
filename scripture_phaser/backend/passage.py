@@ -32,7 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from dataclasses import dataclass
-from scripture_phaser.backend.reference import Reference, reference_from_id
+from scripture_phaser.backend.reference import Reference, id_to_reference
 import scripture_phaser.backend.translations as Translations
 
 
@@ -48,7 +48,7 @@ class Passage:
     numbered_initialism: str
 
 
-def passage_from_reference(translation: str, reference: Reference) -> Passage:
+def reference_to_passage(translation: str, reference: Reference) -> Passage:
     trans = getattr(Translations, translation)
     texts = trans.fetch(reference.passage.start, reference.passage.end)
     raw = _format_passage(
@@ -109,7 +109,7 @@ def _format_passage(
     else:
         text = ""
         for i, content in enumerate(texts):
-            new_reference = reference_from_id(reference.passage.start + i)
+            new_reference = id_to_reference(reference.passage.start + i)
             text += f" [{new_reference.first.verse + 1}] {content}"
         text = text.strip()
 

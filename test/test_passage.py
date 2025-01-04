@@ -33,7 +33,7 @@
 
 from unittest import TestCase
 from unittest.mock import patch
-from scripture_phaser.backend.passage import passage_from_reference, Passage
+from scripture_phaser.backend.passage import reference_to_passage, Passage
 from scripture_phaser.backend.reference import Reference, PassageID, VerseTriplet
 
 
@@ -43,7 +43,12 @@ class PassageTests(TestCase):
         """
         Do passages populate properly?
         """
-        reference = Reference("1 Peter 1:2-3", PassageID(30377, 30378), VerseTriplet(59, 0, 1), VerseTriplet(59, 0, 2))
+        reference = Reference(
+            "1 Peter 1:2-3",
+            PassageID(30377, 30378),
+            VerseTriplet(59, 0, 1),
+            VerseTriplet(59, 0, 2),
+        )
 
         mock_api_return = [
             (
@@ -59,7 +64,7 @@ class PassageTests(TestCase):
             ),
         ]
         mock_fetch.return_value = mock_api_return
-        passage = passage_from_reference("KJV", reference)
+        passage = reference_to_passage("KJV", reference)
 
         raw = (
             "Elect according to the foreknowledge of God the Father, "
