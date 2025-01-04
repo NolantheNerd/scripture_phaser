@@ -33,8 +33,8 @@
 
 from unittest import TestCase
 from unittest.mock import patch
-from scripture_phaser.backend.reference import reference_from_string
 from scripture_phaser.backend.passage import passage_from_reference, Passage
+from scripture_phaser.backend.reference import Reference, PassageID, VerseTriplet
 
 
 class PassageTests(TestCase):
@@ -43,7 +43,7 @@ class PassageTests(TestCase):
         """
         Do passages populate properly?
         """
-        reference = reference_from_string("1 Peter 1:2 - 1:3")
+        reference = Reference("1 Peter 1:2-3", PassageID(30377, 30378), VerseTriplet(59, 0, 1), VerseTriplet(59, 0, 2))
 
         mock_api_return = [
             (
@@ -112,7 +112,7 @@ class PassageTests(TestCase):
         )
 
         expected_passage = Passage(
-            reference.ref,
+            "1 Peter 1:2-3",
             "KJV",
             raw,
             number,
