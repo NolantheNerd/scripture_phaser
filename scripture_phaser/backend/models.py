@@ -32,12 +32,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import peewee as pw
-from scripture_phaser.backend.enums import DATA_DIR
 
 
 class ScripturePhaser(pw.Model):
     class Meta:
-        database = pw.SqliteDatabase(DATA_DIR / "scripture_phaser.sqlite")
+        database = pw.SqliteDatabase(":memory:")
 
 
 class User(ScripturePhaser):

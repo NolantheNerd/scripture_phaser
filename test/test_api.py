@@ -32,15 +32,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # import random
+# from unittest import TestCase
 # from unittest.mock import patch
 # from unittest.mock import MagicMock
-# from test.test_base import BaseTest
 # from scripture_phaser.backend.api import API
 # from scripture_phaser.backend.reference import Reference
 # from scripture_phaser.backend.exceptions import InvalidTranslation
 #
 #
-# class APITests(BaseTest):
+# class APITests(TestCase):
 #     """
 #     Test Backend API
 #     """
