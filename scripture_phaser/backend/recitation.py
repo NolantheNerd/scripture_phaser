@@ -35,6 +35,8 @@ import datetime
 from enum import Enum
 from difflib import SequenceMatcher
 from scripture_phaser.backend.passage import Passage
+from scripture_phaser.backend.models import Attempt
+
 
 class Recitation(Enum):
     RAW_TEXT = 1
@@ -44,39 +46,51 @@ class Recitation(Enum):
     RAW_INITIALISM = 5
     NUMBERED_INITIALISM = 6
 
-def record_recitation(passage: Passage, type: RecitationType, attempt: str) -> None:
-    timestamp = datetime.datetime.now()
-    score = grade_attempt()
 
-def grade_attempt(passage: Passage, recitation: Recitation, attempt: str) -> float:
-    if recitation is Recitation.RAW_TEXT:
+def record_recitation(passage: Passage, type: int, attempt: str) -> None:
+    timestamp = datetime.datetime.now()
+    score = grade_attempt(passage, type, attempt)
+    Attempt.create(
+        datetime=timestamp,
+        reference=passage.reference,
+        translation=passage.translation,
+        recitation_type=type,
+        score=score,
+        recitation=attempt,
+    )
+
+
+def grade_attempt(passage: Passage, recitation: int, attempt: str) -> float:
+    solution: str | list[str]
+
+    if recitation == Recitation.RAW_TEXT.value:
         solution = passage.raw_text
         grade_str = True
         grade_list = False
-    elif recitation is Recitation.NUMBERED_TEXT:
+    elif recitation == Recitation.NUMBERED_TEXT.value:
         solution = passage.numbered_text
         grade_str = True
         grade_list = False
-    elif recitation is Recitation.REFERENCE_TEXT:
-        soluiton = passage.reference_text
+    elif recitation == Recitation.REFERENCE_TEXT.value:
+        solution = passage.reference_text
         grade_str = True
         grade_list = False
-    elif recitation is Recitation.FULL_TEXT:
+    elif recitation == Recitation.FULL_TEXT.value:
         solution = passage.full_text
         grade_str = True
         grade_list = False
-    elif recitation is Recitation.RAW_INITIALISM:
+    elif recitation == Recitation.RAW_INITIALISM.value:
         solution = passage.raw_initialism
         grade_str = False
         grade_list = True
-    elif recitation is Recitation.NUMBERED_INITIALISM:
+    elif recitation == Recitation.NUMBERED_INITIALISM.value:
         solution = passage.numbered_initialism
         grade_str = False
         grade_list = True
 
     if grade_str:
         if attempt == solution:
-            score = 1
+            score = 1.0
         else:
             n_correct_chars, n_incorrect_chars = 0, 0
             result = SequenceMatcher(a=attempt, b=solution).get_opcodes()
@@ -94,7 +108,7 @@ def grade_attempt(passage: Passage, recitation: Recitation, attempt: str) -> flo
 
     elif grade_list:
         if attempt == solution:
-            score = 1
+            score = 1.0
         else:
             n_correct = sum(
                 [1 for i in range(len(solution)) if attempt[i] == solution[i]]

@@ -36,10 +36,12 @@ from itertools import accumulate
 from scripture_phaser.backend.exceptions import InvalidReference
 from scripture_phaser.backend.enums import Bible, Bible_Books, Reverse_Bible_Books
 
+
 @dataclass
 class PassageID:
     start: int
     end: int
+
 
 @dataclass
 class VerseTriplet:
@@ -47,12 +49,14 @@ class VerseTriplet:
     chapter: int
     verse: int
 
+
 @dataclass
 class Reference:
     ref: str
     passage: PassageID
     first: VerseTriplet
     last: VerseTriplet
+
 
 def reference_from_string(ref: str) -> Reference:
     first_verse, last_verse = _interpret_reference(ref)
@@ -63,6 +67,7 @@ def reference_from_string(ref: str) -> Reference:
     _validate_reference(reference)
     reference.ref = _standardize_reference(first_verse, last_verse)
     return reference
+
 
 def reference_from_id(start_id: int, end_id: int | None = None) -> Reference:
     first_verse = _id_to_reference(start_id)
@@ -78,6 +83,7 @@ def reference_from_id(start_id: int, end_id: int | None = None) -> Reference:
     _validate_reference(reference)
     reference.ref = _standardize_reference(first_verse, last_verse)
     return reference
+
 
 def _interpret_reference(ref: str) -> tuple[VerseTriplet, VerseTriplet]:
     ref = _clean_reference(ref)
@@ -138,9 +144,7 @@ def _interpret_reference(ref: str) -> tuple[VerseTriplet, VerseTriplet]:
             i = 0
             while i < len(split_components) and split_components[i].isalpha():
                 i += 1
-            book_start = Reverse_Bible_Books.get(
-                " ".join(split_components[:i]), -1
-            )
+            book_start = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
 
             # Book Name is not in the Bible (Billy)
             if book_start == -1:
@@ -177,9 +181,7 @@ def _interpret_reference(ref: str) -> tuple[VerseTriplet, VerseTriplet]:
                 i = 0
                 while i < len(split_components) and split_components[i].isalpha():
                     i += 1
-                book_end = Reverse_Bible_Books.get(
-                    " ".join(split_components[:i]), -1
-                )
+                book_end = Reverse_Bible_Books.get(" ".join(split_components[:i]), -1)
             # Second Book is Not Specified [John 1:1 - 1:2]
             else:
                 book_end = book_start
@@ -224,17 +226,42 @@ def _interpret_reference(ref: str) -> tuple[VerseTriplet, VerseTriplet]:
     end_verse = VerseTriplet(book_end, chapter_end, verse_end)
     return start_verse, end_verse
 
+
 def _standardize_reference(first: VerseTriplet, last: VerseTriplet) -> str:
     one_book = first.book == last.book
     one_chapter = one_book and first.chapter == last.chapter
     one_verse = one_chapter and first.verse == last.verse
-    entire_book = one_book and first.chapter == 0 and last.chapter == len(Bible[first.book]) - 1 and first.verse == 0 and last.verse == Bible[last.book][last.chapter] - 1
-    many_entire_books = first.chapter == 0 and last.chapter == len(Bible[last.book]) - 1 and first.verse == 0 and last.verse == Bible[last.book][last.chapter] - 1
-    entire_chapter = one_book and one_chapter and first.verse == 0 and last.verse == Bible[first.book][first.chapter] - 1
-    one_book_entire_chapters = one_book and first.verse == 0 and last.verse == Bible[last.book][last.chapter] - 1
-    many_books_entire_chapters = not one_book and first.verse == 0 and last.verse == Bible[last.book][last.chapter] - 1
-    first.book_is_single_chapter = len(Bible[first.book]) == 1
-    last.book_is_single_chapter = len(Bible[last.book]) == 1
+    entire_book = (
+        one_book
+        and first.chapter == 0
+        and last.chapter == len(Bible[first.book]) - 1
+        and first.verse == 0
+        and last.verse == Bible[last.book][last.chapter] - 1
+    )
+    many_entire_books = (
+        first.chapter == 0
+        and last.chapter == len(Bible[last.book]) - 1
+        and first.verse == 0
+        and last.verse == Bible[last.book][last.chapter] - 1
+    )
+    entire_chapter = (
+        one_book
+        and one_chapter
+        and first.verse == 0
+        and last.verse == Bible[first.book][first.chapter] - 1
+    )
+    one_book_entire_chapters = (
+        one_book
+        and first.verse == 0
+        and last.verse == Bible[last.book][last.chapter] - 1
+    )
+    many_books_entire_chapters = (
+        not one_book
+        and first.verse == 0
+        and last.verse == Bible[last.book][last.chapter] - 1
+    )
+    first_book_is_single_chapter = len(Bible[first.book]) == 1
+    last_book_is_single_chapter = len(Bible[last.book]) == 1
 
     if entire_book:
         # Genesis
@@ -248,70 +275,88 @@ def _standardize_reference(first: VerseTriplet, last: VerseTriplet) -> str:
     if one_book_entire_chapters:
         # Genesis 1-3
         return f"{Bible_Books[first.book]} {first.chapter + 1}-{last.chapter + 1}"
-    if many_books_entire_chapters and not first.book_is_single_chapter and not last.book_is_single_chapter:
+    if (
+        many_books_entire_chapters
+        and not first_book_is_single_chapter
+        and not last_book_is_single_chapter
+    ):
         # Genesis 50 - Exodus 1
         return (
             f"{Bible_Books[first.book]} {first.chapter + 1} - "
             f"{Bible_Books[last.book]} {last.chapter + 1}"
         )
-    if many_books_entire_chapters and first.book_is_single_chapter and not last.book_is_single_chapter:
+    if (
+        many_books_entire_chapters
+        and first_book_is_single_chapter
+        and not last_book_is_single_chapter
+    ):
         # Jude - Revelation 1
-        return f"{Bible_Books[first.book]} - {Bible_Books[last.book]} {last.chapter + 1}"
-    if many_books_entire_chapters and not first.book_is_single_chapter and last.book_is_single_chapter:
+        return (
+            f"{Bible_Books[first.book]} - {Bible_Books[last.book]} {last.chapter + 1}"
+        )
+    if (
+        many_books_entire_chapters
+        and not first_book_is_single_chapter
+        and last_book_is_single_chapter
+    ):
         # James 1 - Jude
         return f"{Bible_Books[first.book]} {first.chapter + 1} - {Bible_Books[last.book]}"
-    if one_verse and first.book_is_single_chapter:
+    if one_verse and first_book_is_single_chapter:
         # Jude 1
-        return (
-            f"{Bible_Books[first.book]} " f"{first.verse + 1}"
-        )
-    if one_verse and not first.book_is_single_chapter:
+        return f"{Bible_Books[first.book]} " f"{first.verse + 1}"
+    if one_verse and not first_book_is_single_chapter:
         # Genesis 1:1
-        return (
-            f"{Bible_Books[first.book]} "
-            f"{first.chapter + 1}:{first.verse + 1}"
-        )
-    if one_chapter and first.book_is_single_chapter:
+        return f"{Bible_Books[first.book]} " f"{first.chapter + 1}:{first.verse + 1}"
+    if one_chapter and first_book_is_single_chapter:
         # Jude 2-4
-        return (
-            f"{Bible_Books[first.book]} "
-            f"{first.verse + 1}-{last.verse + 1}"
-        )
-    if one_chapter and not first.book_is_single_chapter:
+        return f"{Bible_Books[first.book]} " f"{first.verse + 1}-{last.verse + 1}"
+    if one_chapter and not first_book_is_single_chapter:
         # Genesis 1:2-4
         return (
             f"{Bible_Books[first.book]} "
             f"{first.chapter + 1}:"
             f"{first.verse + 1}-{last.verse + 1}"
         )
-    if one_book: # Implicitly the book is not a single chapter
+    if one_book:  # Implicitly the book is not a single chapter
         # Genesis 1:2-2:3
         return (
             f"{Bible_Books[first.book]} "
             f"{first.chapter + 1}:{first.verse + 1}-"
             f"{last.chapter + 1}:{last.verse + 1}"
         )
-    if not one_book and first.book_is_single_chapter and last.book_is_single_chapter:
+    if not one_book and first_book_is_single_chapter and last_book_is_single_chapter:
         # Obadiah 1 - Jude 2
         return (
             f"{Bible_Books[first.book]} {first.verse + 1} "
             f"- {Bible_Books[last.book]} {last.verse + 1}"
         )
-    if not one_book and not first.book_is_single_chapter and last.book_is_single_chapter:
+    if (
+        not one_book
+        and not first_book_is_single_chapter
+        and last_book_is_single_chapter
+    ):
         # James 1:1 - Jude 2
         return (
             f"{Bible_Books[first.book]} {first.chapter + 1}:"
             f"{first.verse + 1} - {Bible_Books[last.book]} "
             f"{last.verse + 1}"
         )
-    if not one_book and first.book_is_single_chapter and not last.book_is_single_chapter:
+    if (
+        not one_book
+        and first_book_is_single_chapter
+        and not last_book_is_single_chapter
+    ):
         # Jude 2 - Revelation 1:1
         return (
             f"{Bible_Books[first.book]} {first.verse + 1} "
             f"- {Bible_Books[last.book]} {last.chapter + 1}:"
             f"{last.verse + 1}"
         )
-    if not one_book and not first.book_is_single_chapter and not last.book_is_single_chapter:
+    if (
+        not one_book
+        and not first_book_is_single_chapter
+        and not last_book_is_single_chapter
+    ):
         # Genesis 1:1 - Exodus 2:2
         return (
             f"{Bible_Books[first.book]} {first.chapter + 1}:"
@@ -319,19 +364,23 @@ def _standardize_reference(first: VerseTriplet, last: VerseTriplet) -> str:
             f"{last.chapter + 1}:{last.verse + 1}"
         )
 
+    return ""
+
+
 def _reference_to_id(start: VerseTriplet, end: VerseTriplet) -> PassageID:
-    start_id = sum([sum(book) for book in Bible[:start.book]])
-    start_id += sum(Bible[start.book][:start.chapter])
+    start_id = sum([sum(book) for book in Bible[: start.book]])
+    start_id += sum(Bible[start.book][: start.chapter])
     start_id += start.verse
 
     if start != end:
-        end_id = sum([sum(book) for book in Bible[:end.book]])
-        end_id += sum(Bible[end.book][:end.chapter])
+        end_id = sum([sum(book) for book in Bible[: end.book]])
+        end_id += sum(Bible[end.book][: end.chapter])
         end_id += end.verse
     else:
         end_id = start_id
 
     return PassageID(start_id, end_id)
+
 
 def _id_to_reference(verse_id: int) -> VerseTriplet:
     verse_sums = list(accumulate([sum(book) for book in Bible]))
@@ -347,6 +396,7 @@ def _id_to_reference(verse_id: int) -> VerseTriplet:
         verse_id -= book_sums[chapter_id - 1]
 
     return VerseTriplet(book_id, chapter_id, verse_id)
+
 
 def _clean_reference(ref: str) -> str:
     ref = " ".join(ref.split())  # Multiple Whitespaces -> One Whitespace
@@ -388,6 +438,7 @@ def _clean_reference(ref: str) -> str:
     new_ref = _reference_replacements(new_ref)
 
     return new_ref
+
 
 def _reference_replacements(ref: str) -> str:
     source = [
@@ -584,6 +635,7 @@ def _reference_replacements(ref: str) -> str:
         ref = ref.replace(source[i], replacement[i])
     return ref
 
+
 def _validate_reference(ref: Reference) -> None:
     ref_out_of_order = ref.passage.start > ref.passage.end
     if ref_out_of_order:
@@ -597,7 +649,9 @@ def _validate_reference(ref: Reference) -> None:
     end_chapter_in_book = ref.last.chapter < len(Bible[ref.last.book])
     if not end_chapter_in_book:
         raise InvalidReference()
-    start_verse_in_chapter = ref.first.verse < Bible[ref.first.book][ref.first.chapter]
+    start_verse_in_chapter = (
+        ref.first.verse < Bible[ref.first.book][ref.first.chapter]
+    )
     if not start_verse_in_chapter:
         raise InvalidReference()
     end_verse_in_chapter = ref.last.verse < Bible[ref.last.book][ref.last.chapter]

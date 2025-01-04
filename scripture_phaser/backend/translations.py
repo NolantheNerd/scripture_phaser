@@ -73,4 +73,5 @@ class ASV(OfflineAgent):
     def __init__(self) -> None:
         super().__init__(translation="ASV")
 
-Translation: TypeAlias = (KJV, WEB, ERV, ASV)
+
+Translation: TypeAlias = KJV | WEB | ERV | ASV

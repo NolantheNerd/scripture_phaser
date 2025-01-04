@@ -70,10 +70,10 @@ class Attempt(ScripturePhaser):
     datetime = pw.DateTimeField(null=True)
     reference = pw.TextField()
     translation = pw.TextField()
-    include_verse_numbers = pw.BooleanField()
+    recitation_type = pw.TextField()
     score = pw.FloatField(null=True)
     recitation = pw.TextField(null=True)
-    user = pw.ForeignKeyField(User, on_delete="CASCADE")
+    user = pw.ForeignKeyField(User, null=True, on_delete="CASCADE")
 
 
 if __name__ == "__main__":

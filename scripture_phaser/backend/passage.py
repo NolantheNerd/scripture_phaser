@@ -44,24 +44,40 @@ class Passage:
     numbered_text: str
     reference_text: str
     full_text: str
-    raw_initialism: list[str]
-    numbered_initialism: list[str]
+    raw_initialism: str
+    numbered_initialism: str
 
 
 def passage_from_reference(translation: str, reference: Reference) -> Passage:
     trans = getattr(Translations, translation)
     texts = trans.fetch(reference.passage.start, reference.passage.end)
     raw = _format_passage(
-        reference, texts, initialism=False, include_verse_numbers=False, include_ref=False
+        reference,
+        texts,
+        initialism=False,
+        include_verse_numbers=False,
+        include_ref=False,
     )
     number = _format_passage(
-        reference, texts, initialism=False, include_verse_numbers=True, include_ref=False
+        reference,
+        texts,
+        initialism=False,
+        include_verse_numbers=True,
+        include_ref=False,
     )
     ref = _format_passage(
-        reference, texts, initialism=False, include_verse_numbers=False, include_ref=True
+        reference,
+        texts,
+        initialism=False,
+        include_verse_numbers=False,
+        include_ref=True,
     )
     full = _format_passage(
-        reference, texts, initialism=False, include_verse_numbers=True, include_ref=True
+        reference,
+        texts,
+        initialism=False,
+        include_verse_numbers=True,
+        include_ref=True,
     )
     initialism = _format_passage(
         reference, texts, initialism=True, include_verse_numbers=False
@@ -69,7 +85,16 @@ def passage_from_reference(translation: str, reference: Reference) -> Passage:
     numbered_initialism = _format_passage(
         reference, texts, initialism=True, include_verse_numbers=True
     )
-    return Passage(reference, translation, raw, number, ref, full, initialism, numbered_initialism)
+    return Passage(
+        reference.ref,
+        translation,
+        raw,
+        number,
+        ref,
+        full,
+        initialism,
+        numbered_initialism,
+    )
 
 
 def _format_passage(
@@ -90,7 +115,7 @@ def _format_passage(
 
     if initialism:
         text = "".join([char for char in text if char.isalnum() or char.isspace()])
-        return [word[0] for word in text.split()]
+        return "".join([word[0] for word in text.split()])
     if include_ref:
         return f"{text} - {reference.ref}"
     else:
