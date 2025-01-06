@@ -78,8 +78,6 @@ class TermColours:
     UNDERLINE = "\033[4m"
 
 
-Translations: list[str] = ["ESV", "NIV", "KJV", "NKJV", "NLT", "NASB", "NRSV", "WEB"]
-
 Genesis: list[int] = [
     31,
     25,

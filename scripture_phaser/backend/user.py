@@ -35,7 +35,7 @@ import uuid
 import datetime
 from os import urandom
 from hashlib import pbkdf2_hmac
-from scripture_phaser.backend.enums import Translations
+from scripture_phaser.backend.translations import Translations
 from scripture_phaser.backend.models import User, UserToken
 from scripture_phaser.backend.exceptions import (
     UsernameAlreadyTaken,

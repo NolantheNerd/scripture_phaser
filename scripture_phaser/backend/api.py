@@ -34,7 +34,7 @@
 # from fastapi import FastAPI
 # import scripture_phaser.backend.user as User
 # import scripture_phaser.backend.reference as Reference
-# from scripture_phaser.backend.enums import Translations
+# from scripture_phaser.backend.translations import Translations
 #
 # api = FastAPI()
 #

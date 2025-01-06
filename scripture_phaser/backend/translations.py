@@ -75,3 +75,4 @@ class ASV(OfflineAgent):
 
 
 Translation: TypeAlias = KJV | WEB | ERV | ASV
+Translations: list[str] = ["KJV", "WEB", "ERV", "ASV"]
