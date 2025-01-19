@@ -31,53 +31,56 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import peewee as pw
+from unittest import TestCase
+from scripture_phaser.backend.user import User, create_user, login, logout, change_password
+from scripture_phaser.backend.models import User as UserTable, UserToken
+from scripture_phaser.backend.exceptions import InvalidUserCredentials, InvalidUserToken
 
 
-class ScripturePhaser(pw.Model):
-    class Meta:
-        database = pw.SqliteDatabase(":memory:")
+class UserTests(TestCase):
+    @classmethod
+    def setUp(cls):
+        UserTable.create_table()
+        UserToken.create_table()
 
+    @classmethod
+    def tearDown(cls):
+        UserTable.drop_table()
+        UserToken.drop_table()
 
-class User(ScripturePhaser):
-    name = pw.TextField()
-    username = pw.TextField(unique=True)
-    password_hash = pw.BlobField()
-    salt = pw.BlobField()
-    email = pw.TextField(unique=True)
+    def test_login(self):
+        name = "Bob Johnson"
+        username = "bJohnson"
+        password = "password"
+        email = "bob@example.com"
 
+        user = create_user(name, username, password, email)
+        logged_in_user = login(username, password)
 
-class UserToken(ScripturePhaser):
-    user = pw.ForeignKeyField(User, on_delete="CASCADE")
-    token = pw.TextField()
-    expiry = pw.DateTimeField()
+        with self.assertRaises(InvalidUserCredentials):
+            login(username, "password1")
 
+    def test_logout(self):
+        name = "Sam Smith"
+        username = "sSmith"
+        password = "password"
+        email = "sam@example.com"
 
-class Reference(ScripturePhaser):
-    user = pw.ForeignKeyField(User, on_delete="CASCADE")
-    reference = pw.TextField(null=True)
-    start_id = pw.IntegerField(null=True)
-    end_id = pw.IntegerField(null=True)
-    translation = pw.TextField()
-    include_verse_numbers = pw.BooleanField()
+        user = create_user(name, username, password, email)
+        logout(user)
 
+        with self.assertRaises(InvalidUserToken):
+            logout(user)
 
-class Attempt(ScripturePhaser):
-    datetime = pw.DateTimeField(null=True)
-    reference = pw.TextField()
-    translation = pw.TextField()
-    recitation_type = pw.TextField()
-    score = pw.FloatField(null=True)
-    recitation = pw.TextField(null=True)
-    user = pw.ForeignKeyField(User, null=True, on_delete="CASCADE")
+    def test_change_password(self):
+        name = "Indiana Jones"
+        username = "iJones"
+        password = "abadpassword"
+        email = "indy@example.com"
 
+        user = create_user(name, username, password, email)
+        new_password = "abetterpassword"
+        change_password(user, password, new_password)
 
-if __name__ == "__main__":
-    User.drop_table()
-    UserToken.drop_table()
-    Reference.drop_table()
-    Attempt.drop_table()
-    User.create_table()
-    UserToken.create_table()
-    Reference.create_table()
-    Attempt.create_table()
+        with self.assertRaises(InvalidUserCredentials):
+            login(username, password)

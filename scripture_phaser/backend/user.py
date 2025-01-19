@@ -35,8 +35,9 @@ import uuid
 import datetime
 from os import urandom
 from hashlib import pbkdf2_hmac
+from dataclasses import dataclass
 from scripture_phaser.backend.translations import Translations
-from scripture_phaser.backend.models import User, UserToken
+from scripture_phaser.backend.models import User as UserTable, UserToken
 from scripture_phaser.backend.exceptions import (
     UsernameAlreadyTaken,
     EmailAlreadyTaken,
@@ -46,7 +47,13 @@ from scripture_phaser.backend.exceptions import (
 )
 
 N_ITERATIONS = 100000
-HASH_ALGORITHM = "PBKDF2"
+
+@dataclass
+class User:
+    name: str
+    username: str
+    email: str
+    token: str
 
 
 def validate_token(user_token: str) -> None:
@@ -59,12 +66,12 @@ def validate_token(user_token: str) -> None:
         raise InvalidUserToken()
 
 
-def create(username: str, password: str, email: str) -> UserToken:
-    username_already_taken = User.get_or_none(User.username == username) is not None
+def create_user(name: str, username: str, password: str, email: str) -> User:
+    username_already_taken = UserTable.get_or_none(UserTable.username == username) is not None
     if username_already_taken:
         raise UsernameAlreadyTaken()
 
-    email_already_taken = User.get_or_none(User.email == email) is not None
+    email_already_taken = UserTable.get_or_none(UserTable.email == email) is not None
     if email_already_taken:
         raise EmailAlreadyTaken()
 
@@ -72,21 +79,28 @@ def create(username: str, password: str, email: str) -> UserToken:
     password_hash = pbkdf2_hmac(
         "sha256", password.encode("utf-8"), salt, N_ITERATIONS
     )
-    new_user = User.create(
+
+    new_user = UserTable.create(
+        name=name,
         username=username,
         password_hash=password_hash,
         salt=salt,
         email=email,
     )
-    return UserToken.create(
+
+    # @@@ TODO: Make sure that token is unique in UserToken
+    token = uuid.uuid4().hex
+    UserToken.create(
         user=new_user,
-        token=uuid.uuid4().hex,
+        token=token,
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
 
+    return User(name=name, username=username, email=email, token=token)
 
-def login(username: str, password: str) -> UserToken:
-    user = User.get_or_none(User.username == username)
+
+def login(username: str, password: str) -> User:
+    user = UserTable.get_or_none(UserTable.username == username)
     if user is None:
         raise InvalidUserCredentials()
 
@@ -97,74 +111,37 @@ def login(username: str, password: str) -> UserToken:
     if hashed_password != user.password_hash:
         raise InvalidUserCredentials()
 
+    token = uuid.uuid4().hex
     user_token = UserToken.create(
         user=user,
-        token=uuid.uuid4().hex,
+        token=token,
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
-    return user_token
+    return User(name=user.name, username=user.username, email=user.email, token=token)
 
 
-def logout(user_token: str) -> None:
-    validate_token(user_token)
-    UserToken.get(UserToken.token == user_token).delete_instance()
+def logout(user: User) -> None:
+    validate_token(user.token)
+    UserToken.get(UserToken.token == user.token).delete_instance()
 
 
-def change_password(user_token: str, old_password: str, new_password: str) -> None:
-    validate_token(user_token)
+def change_password(user: User, old_password: str, new_password: str) -> None:
+    validate_token(user.token)
 
-    user = (
-        User.select(User.salt, User.password_hash)
+    user_record = (
+        UserTable.select()
         .join(UserToken)
-        .get(UserToken.token == user_token)
+        .where(UserToken.token == user.token)
+        .get()
     )
     hashed_old_password = pbkdf2_hmac(
-        "sha256", old_password.encode("utf-8"), user.salt, N_ITERATIONS
+        "sha256", old_password.encode("utf-8"), user_record.salt, N_ITERATIONS
     )
-    if hashed_old_password != user.password_hash:
+    if hashed_old_password != user_record.password_hash:
         raise InvalidUserCredentials()
 
     hashed_new_password = pbkdf2_hmac(
-        "sha256", new_password.encode("utf-8"), user.salt, N_ITERATIONS
+        "sha256", new_password.encode("utf-8"), user_record.salt, N_ITERATIONS
     )
-    user.password_hash = hashed_new_password
-    user.save()
-
-
-def get(user_token: str) -> User:
-    validate_token(user_token)
-    return UserToken.select(UserToken.user).get(UserToken.token == user_token)
-
-
-def toggle_one_verse_recitation(user_token: str) -> None:
-    user = get(user_token)
-    user.one_verse_recitation.db_value(not user.one_verse_recitation)
-    user.save()
-
-
-def toggle_complete_recitation(user_token: str) -> None:
-    user = get(user_token)
-    user.complete_recitation.db_value(not user.complete_recitation)
-    user.save()
-
-
-def toggle_fast_recitations(user_token: str) -> None:
-    user = get(user_token)
-    user.fast_recitations.db_value(not user.fast_recitations)
-    user.save()
-
-
-def toggle_include_verse_numbers(user_token: str) -> None:
-    user = get(user_token)
-    user.include_verse_numbers.db_value(not user.include_verse_numbers)
-    user.save()
-
-
-def set_translation(user_token: str, translation: str) -> None:
-    user = get(user_token)
-
-    if translation not in Translations:
-        raise InvalidTranslation(translation)
-
-    user.translation.db_value(translation)
-    user.save()
+    user_record.password_hash = hashed_new_password
+    user_record.save()
