@@ -32,14 +32,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from scripture_phaser.backend.passage import reference_to_passage, Passage
 from scripture_phaser.backend.reference import Reference, PassageID, VerseTriplet
 
 
 class PassageTests(TestCase):
     @patch("scripture_phaser.backend.translations.KJV.fetch")
-    def test_passage(self, mock_fetch) -> None:
+    def test_passage(self, mock_fetch: Mock) -> None:
         """
         Do passages populate properly?
         """

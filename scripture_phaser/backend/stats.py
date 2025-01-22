@@ -67,7 +67,7 @@ class Stats:
     @staticmethod
     def get_num_attempts_past_year() -> int:
         one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
-        return Attempt.select().where(Attempt.datetime > one_year_ago).count()
+        return int(Attempt.select().where(Attempt.datetime > one_year_ago).count())
 
     @staticmethod
     def get_num_attempts_past_year_by_day() -> list[int]:

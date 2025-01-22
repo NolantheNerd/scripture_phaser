@@ -39,16 +39,16 @@ from scripture_phaser.backend.exceptions import InvalidUserCredentials, InvalidU
 
 class UserTests(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUp(cls) -> None:
         UserTable.create_table()
         UserToken.create_table()
 
     @classmethod
-    def tearDown(cls):
+    def tearDown(cls) -> None:
         UserTable.drop_table()
         UserToken.drop_table()
 
-    def test_login(self):
+    def test_login(self) -> None:
         name = "Bob Johnson"
         username = "bJohnson"
         password = "password"
@@ -60,7 +60,7 @@ class UserTests(TestCase):
         with self.assertRaises(InvalidUserCredentials):
             login(username, "password1")
 
-    def test_logout(self):
+    def test_logout(self) -> None:
         name = "Sam Smith"
         username = "sSmith"
         password = "password"
@@ -72,7 +72,7 @@ class UserTests(TestCase):
         with self.assertRaises(InvalidUserToken):
             logout(user)
 
-    def test_change_password(self):
+    def test_change_password(self) -> None:
         name = "Indiana Jones"
         username = "iJones"
         password = "abadpassword"
