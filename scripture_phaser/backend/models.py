@@ -36,7 +36,7 @@ import peewee as pw
 
 class ScripturePhaser(pw.Model):
     class Meta:
-        database = pw.SqliteDatabase(":memory:")
+        database = pw.SqliteDatabase("scripture_phaser.sqlite")
 
 
 class User(ScripturePhaser):

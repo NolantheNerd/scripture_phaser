@@ -32,37 +32,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 # from fastapi import FastAPI
-# import scripture_phaser.backend.user as User
+# from scripture_phaser.backend.user import User, create_user
 # import scripture_phaser.backend.reference as Reference
 # from scripture_phaser.backend.translations import Translations
-#
+
 # api = FastAPI()
-#
-#
-# @api.post("/create_account")
-# def new_user(username: str, password: str, email: str) -> str:
-#     user_token = User.create(username=username, password=password, email=email)
-#     return str(user_token.token)
-#
-#
-# @api.get("/login")
-# def login(username: str, password: str) -> str:
-#     user_token = User.login(username=username, password=password)
-#     return str(user_token.token)
-#
-#
-# @api.delete("/logout")
-# def logout(user_token: str) -> None:
-#     User.logout(user_token)
-#
-#
-# @api.post("/change_password")
-# def change_password(user_token: str, old_password: str, new_password: str) -> None:
-#     User.change_password(
-#         user_token=user_token, old_password=old_password, new_password=new_password
-#     )
-#
-#
+
 # @api.post("/new_reference")
 # def add_reference(user_token: str, ref: str) -> None:
 #     user = User.get(user_token)

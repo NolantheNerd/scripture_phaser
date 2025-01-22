@@ -36,6 +36,7 @@ import datetime
 from os import urandom
 from hashlib import pbkdf2_hmac
 from dataclasses import dataclass
+from scripture_phaser.backend.enums import api
 from scripture_phaser.backend.translations import Translations
 from scripture_phaser.backend.models import User as UserTable, UserToken
 from scripture_phaser.backend.exceptions import (
@@ -56,6 +57,11 @@ class User:
     token: str
 
 
+@dataclass
+class GuestUser:
+    name: str = "Guest"
+
+
 def validate_token(user_token: str) -> None:
     token = UserToken.get_or_none(UserToken.token == user_token)
     if token is None:
@@ -66,6 +72,7 @@ def validate_token(user_token: str) -> None:
         raise InvalidUserToken()
 
 
+@api.post("/signup")
 def create_user(name: str, username: str, password: str, email: str) -> User:
     username_already_taken = UserTable.get_or_none(UserTable.username == username) is not None
     if username_already_taken:
@@ -99,6 +106,7 @@ def create_user(name: str, username: str, password: str, email: str) -> User:
     return User(name=name, username=username, email=email, token=token)
 
 
+@api.get("/login")
 def login(username: str, password: str) -> User:
     user = UserTable.get_or_none(UserTable.username == username)
     if user is None:
@@ -120,11 +128,13 @@ def login(username: str, password: str) -> User:
     return User(name=user.name, username=user.username, email=user.email, token=token)
 
 
+@api.delete("/logout")
 def logout(user: User) -> None:
     validate_token(user.token)
     UserToken.get(UserToken.token == user.token).delete_instance()
 
 
+@api.post("/change_password")
 def change_password(user: User, old_password: str, new_password: str) -> None:
     validate_token(user.token)
 
