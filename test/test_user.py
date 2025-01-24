@@ -33,16 +33,22 @@
 
 from unittest import TestCase
 from peewee import SqliteDatabase
-from scripture_phaser.backend.user import User, create_user, login, logout, change_password
+from scripture_phaser.backend.user import create_user, login, logout, change_password
 from scripture_phaser.backend.models import User as UserTable, UserToken
-from scripture_phaser.backend.exceptions import InvalidUserCredentials, InvalidUserToken
+from scripture_phaser.backend.exceptions import (
+    InvalidUserCredentials,
+    InvalidUserToken,
+)
 
 in_memory_db = SqliteDatabase(":memory:")
+
 
 class UserTests(TestCase):
     @classmethod
     def setUp(cls) -> None:
-        in_memory_db.bind([UserTable, UserToken], bind_refs=False, bind_backrefs=False)
+        in_memory_db.bind(
+            [UserTable, UserToken], bind_refs=False, bind_backrefs=False
+        )
         in_memory_db.connect()
         in_memory_db.create_tables([UserTable, UserToken])
 
@@ -57,8 +63,8 @@ class UserTests(TestCase):
         password = "password"
         email = "bob@example.com"
 
-        user = create_user(name, username, password, email)
-        logged_in_user = login(username, password)
+        create_user(name, username, password, email)
+        login(username, password)
 
         with self.assertRaises(InvalidUserCredentials):
             login(username, "password1")

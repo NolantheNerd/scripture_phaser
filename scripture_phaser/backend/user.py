@@ -37,17 +37,16 @@ from os import urandom
 from hashlib import pbkdf2_hmac
 from dataclasses import dataclass
 from scripture_phaser.backend.enums import api
-from scripture_phaser.backend.translations import Translations
 from scripture_phaser.backend.models import User as UserTable, UserToken
 from scripture_phaser.backend.exceptions import (
     UsernameAlreadyTaken,
     EmailAlreadyTaken,
     InvalidUserCredentials,
     InvalidUserToken,
-    InvalidTranslation,
 )
 
 N_ITERATIONS = 100000
+
 
 @dataclass
 class User:
@@ -74,7 +73,9 @@ def validate_token(user_token: str) -> None:
 
 @api.post("/signup")
 def create_user(name: str, username: str, password: str, email: str) -> User:
-    username_already_taken = UserTable.get_or_none(UserTable.username == username) is not None
+    username_already_taken = (
+        UserTable.get_or_none(UserTable.username == username) is not None
+    )
     if username_already_taken:
         raise UsernameAlreadyTaken()
 
@@ -120,7 +121,7 @@ def login(username: str, password: str) -> User:
         raise InvalidUserCredentials()
 
     token = uuid.uuid4().hex
-    user_token = UserToken.create(
+    UserToken.create(
         user=user,
         token=token,
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
@@ -139,10 +140,7 @@ def change_password(user: User, old_password: str, new_password: str) -> None:
     validate_token(user.token)
 
     user_record = (
-        UserTable.select()
-        .join(UserToken)
-        .where(UserToken.token == user.token)
-        .get()
+        UserTable.select().join(UserToken).where(UserToken.token == user.token).get()
     )
     hashed_old_password = pbkdf2_hmac(
         "sha256", old_password.encode("utf-8"), user_record.salt, N_ITERATIONS

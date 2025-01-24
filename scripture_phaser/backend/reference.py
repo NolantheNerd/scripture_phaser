@@ -631,7 +631,9 @@ def _reference_replacements(ref: str) -> str:
     return ref
 
 
-def _validate_reference(passage: PassageID, first_verse: VerseTriplet, last_verse: VerseTriplet) -> None:
+def _validate_reference(
+    passage: PassageID, first_verse: VerseTriplet, last_verse: VerseTriplet
+) -> None:
     ref_out_of_order = passage.start > passage.end
     if ref_out_of_order:
         raise InvalidReference()
@@ -649,6 +651,8 @@ def _validate_reference(passage: PassageID, first_verse: VerseTriplet, last_vers
     )
     if not start_verse_in_chapter:
         raise InvalidReference()
-    end_verse_in_chapter = last_verse.verse < Bible[last_verse.book][last_verse.chapter]
+    end_verse_in_chapter = (
+        last_verse.verse < Bible[last_verse.book][last_verse.chapter]
+    )
     if not end_verse_in_chapter:
         raise InvalidReference()
