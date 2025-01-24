@@ -61,12 +61,9 @@ class Reference:
 def string_to_reference(ref: str) -> Reference:
     first_verse, last_verse = _interpret_reference(ref)
     passage = _reference_to_id(first_verse, last_verse)
-
-    # Reference.ref errors if reference details are invalid, and validation doesn't require a Reference.ref
-    reference = Reference("", passage, first_verse, last_verse)
-    _validate_reference(reference)
-    reference.ref = _standardize_reference(first_verse, last_verse)
-    return reference
+    _validate_reference(passage, first_verse, last_verse)
+    ref = _standardize_reference(first_verse, last_verse)
+    return Reference(ref, passage, first_verse, last_verse)
 
 
 def id_to_reference(start_id: int, end_id: int | None = None) -> Reference:
@@ -77,12 +74,10 @@ def id_to_reference(start_id: int, end_id: int | None = None) -> Reference:
         end_id = start_id
         last_verse = first_verse
 
-    # Reference.ref errors if reference details are invalid, and validation doesn't require a Reference.ref
     passage = PassageID(start_id, end_id)
-    reference = Reference("", passage, first_verse, last_verse)
-    _validate_reference(reference)
-    reference.ref = _standardize_reference(first_verse, last_verse)
-    return reference
+    _validate_reference(passage, first_verse, last_verse)
+    ref = _standardize_reference(first_verse, last_verse)
+    return Reference(ref, passage, first_verse, last_verse)
 
 
 def _interpret_reference(ref: str) -> tuple[VerseTriplet, VerseTriplet]:
@@ -636,24 +631,24 @@ def _reference_replacements(ref: str) -> str:
     return ref
 
 
-def _validate_reference(ref: Reference) -> None:
-    ref_out_of_order = ref.passage.start > ref.passage.end
+def _validate_reference(passage: PassageID, first_verse: VerseTriplet, last_verse: VerseTriplet) -> None:
+    ref_out_of_order = passage.start > passage.end
     if ref_out_of_order:
         raise InvalidReference()
-    books_out_of_order = ref.first.book > ref.last.book
+    books_out_of_order = first_verse.book > last_verse.book
     if books_out_of_order:
         raise InvalidReference()
-    start_chapter_in_book = ref.first.chapter < len(Bible[ref.first.book])
+    start_chapter_in_book = first_verse.chapter < len(Bible[first_verse.book])
     if not start_chapter_in_book:
         raise InvalidReference()
-    end_chapter_in_book = ref.last.chapter < len(Bible[ref.last.book])
+    end_chapter_in_book = last_verse.chapter < len(Bible[last_verse.book])
     if not end_chapter_in_book:
         raise InvalidReference()
     start_verse_in_chapter = (
-        ref.first.verse < Bible[ref.first.book][ref.first.chapter]
+        first_verse.verse < Bible[first_verse.book][first_verse.chapter]
     )
     if not start_verse_in_chapter:
         raise InvalidReference()
-    end_verse_in_chapter = ref.last.verse < Bible[ref.last.book][ref.last.chapter]
+    end_verse_in_chapter = last_verse.verse < Bible[last_verse.book][last_verse.chapter]
     if not end_verse_in_chapter:
         raise InvalidReference()
