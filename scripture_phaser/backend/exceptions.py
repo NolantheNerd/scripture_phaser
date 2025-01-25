@@ -37,24 +37,6 @@ class InvalidReference(Exception):
         Exception.__init__(self, "Invalid reference")
 
 
-class InvalidTranslation(Exception):
-    def __init__(self, translation: str) -> None:
-        Exception.__init__(self, f"{translation} is not a valid translation")
-
-
-class EditorNotFound(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(
-            self,
-            "Text editor not found; set the 'EDITOR' environmental variable and try again",
-        )
-
-
-class NoReferences(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(self, "No available references")
-
-
 class UsernameAlreadyTaken(Exception):
     def __init__(self) -> None:
         Exception.__init__(self, "Username already taken")
