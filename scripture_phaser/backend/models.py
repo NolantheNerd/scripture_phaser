@@ -55,29 +55,25 @@ class UserToken(ScripturePhaser):
 
 class Reference(ScripturePhaser):
     user = pw.ForeignKeyField(User, on_delete="CASCADE")
-    reference = pw.TextField(null=True)
-    start_id = pw.IntegerField(null=True)
-    end_id = pw.IntegerField(null=True)
+    ref = pw.TextField()
     translation = pw.TextField()
-    include_verse_numbers = pw.BooleanField()
 
 
-class Attempt(ScripturePhaser):
-    datetime = pw.DateTimeField(null=True)
-    reference = pw.TextField()
-    translation = pw.TextField()
+class Recitation(ScripturePhaser):
+    datetime = pw.DateTimeField()
     recitation_type = pw.TextField()
-    score = pw.FloatField(null=True)
-    recitation = pw.TextField(null=True)
+    score = pw.FloatField()
+    recitation = pw.TextField()
     user = pw.ForeignKeyField(User, null=True, on_delete="CASCADE")
+    reference = pw.ForeignKeyField(Reference)
 
 
 if __name__ == "__main__":
     User.drop_table()
     UserToken.drop_table()
     Reference.drop_table()
-    Attempt.drop_table()
+    Recitation.drop_table()
     User.create_table()
     UserToken.create_table()
     Reference.create_table()
-    Attempt.create_table()
+    Recitation.create_table()

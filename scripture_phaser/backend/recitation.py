@@ -35,7 +35,7 @@ import datetime
 from enum import Enum
 from difflib import SequenceMatcher
 from scripture_phaser.backend.passage import Passage
-from scripture_phaser.backend.models import Attempt
+from scripture_phaser.backend.models import Recitation as RecitationTable
 
 
 class Recitation(Enum):
@@ -50,7 +50,7 @@ class Recitation(Enum):
 def record_recitation(passage: Passage, type: int, attempt: str) -> None:
     timestamp = datetime.datetime.now()
     score = grade_attempt(passage, type, attempt)
-    Attempt.create(
+    RecitationTable.create(
         datetime=timestamp,
         reference=passage.reference,
         translation=passage.translation,

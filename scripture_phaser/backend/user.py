@@ -57,11 +57,6 @@ class User:
     token: str
 
 
-@dataclass
-class GuestUser:
-    name: str = "Guest"
-
-
 def validate_token(user_token: str) -> None:
     token = UserToken.get_or_none(UserToken.token == user_token)
     if token is None:

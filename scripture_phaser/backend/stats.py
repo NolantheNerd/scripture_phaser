@@ -33,24 +33,26 @@
 
 import datetime
 from peewee import fn
-from scripture_phaser.backend.models import Attempt
+from scripture_phaser.backend.models import Recitation
 from scripture_phaser.backend.reference import Reference
 
 
 class Stats:
     def __init__(self) -> None:
-        if not Attempt.table_exists():
-            Attempt.create_table()
+        if not Recitation.table_exists():
+            Recitation.create_table()
 
     @staticmethod
     def reset_db() -> None:
-        if Attempt.table_exists():
-            Attempt.drop_table()
-        Attempt.create_table()
+        if Recitation.table_exists():
+            Recitation.drop_table()
+        Recitation.create_table()
 
     @staticmethod
     def get_streak() -> int:
-        datetimes = Attempt.select(Attempt.datetime).order_by(Attempt.datetime.desc())
+        datetimes = Recitation.select(Recitation.datetime).order_by(
+            Recitation.datetime.desc()
+        )
         dates = {dt.datetime.date() for dt in datetimes}
 
         streak = 0
@@ -67,7 +69,9 @@ class Stats:
     @staticmethod
     def get_num_attempts_past_year() -> int:
         one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
-        return int(Attempt.select().where(Attempt.datetime > one_year_ago).count())
+        return int(
+            Recitation.select().where(Recitation.datetime > one_year_ago).count()
+        )
 
     @staticmethod
     def get_num_attempts_past_year_by_day() -> list[int]:
@@ -76,10 +80,10 @@ class Stats:
         start_date = today - datetime.timedelta(days=days_since_monday, weeks=52)
         results = [0] * ((today - start_date).days + 1)
         day_counts = (
-            Attempt.select(Attempt.datetime, fn.COUNT(Attempt).alias("num"))
-            .where(Attempt.datetime > start_date)
-            .group_by(fn.date_trunc("day", Attempt.datetime))
-            .order_by(Attempt.datetime)
+            Recitation.select(Recitation.datetime, fn.COUNT(Recitation).alias("num"))
+            .where(Recitation.datetime > start_date)
+            .group_by(fn.date_trunc("day", Recitation.datetime))
+            .order_by(Recitation.datetime)
         )
 
         for day in day_counts:
@@ -90,10 +94,12 @@ class Stats:
     @staticmethod
     def all_verses_ranked() -> tuple[dict[Reference, float], dict[Reference, int]]:
         verse_scores, verse_counts = {}, {}
-        all_attempts = Attempt.select(Attempt.reference)
+        all_attempts = Recitation.select(Recitation.reference)
         for reference in all_attempts:
             ref = reference.reference
-            attempts = Attempt.select(Attempt.score).where(Attempt.reference == ref)
+            attempts = Recitation.select(Recitation.score).where(
+                Recitation.reference == ref
+            )
             scores = [attempt.score for attempt in attempts]
             verse_scores[ref] = sum(scores) / len(scores)
             verse_counts[ref] = len(scores)
