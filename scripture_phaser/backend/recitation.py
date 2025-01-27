@@ -34,6 +34,7 @@
 import datetime
 from enum import Enum
 from difflib import SequenceMatcher
+from scripture_phaser.backend.user import User
 from scripture_phaser.backend.passage import Passage
 from scripture_phaser.backend.models import Recitation as RecitationTable
 
@@ -47,53 +48,56 @@ class Recitation(Enum):
     NUMBERED_INITIALISM = 6
 
 
-def record_recitation(passage: Passage, type: int, attempt: str) -> None:
+def record_recitation(
+    passage: Passage, kind: Recitation, recitation: str, user: User | None
+) -> None:
     timestamp = datetime.datetime.now()
-    score = grade_attempt(passage, type, attempt)
+    score = grade_attempt(passage, kind, recitation)
     RecitationTable.create(
         datetime=timestamp,
         reference=passage.reference,
         translation=passage.translation,
-        recitation_type=type,
+        recitation_type=kind.value,
         score=score,
-        recitation=attempt,
+        recitation=recitation,
+        user=user,
     )
 
 
-def grade_attempt(passage: Passage, recitation: int, attempt: str) -> float:
+def grade_attempt(passage: Passage, kind: Recitation, recitation: str) -> float:
     solution: str | list[str]
 
-    if recitation == Recitation.RAW_TEXT.value:
+    if kind is Recitation.RAW_TEXT:
         solution = passage.raw_text
         grade_str = True
         grade_list = False
-    elif recitation == Recitation.NUMBERED_TEXT.value:
+    elif kind is Recitation.NUMBERED_TEXT:
         solution = passage.numbered_text
         grade_str = True
         grade_list = False
-    elif recitation == Recitation.REFERENCE_TEXT.value:
+    elif kind is Recitation.REFERENCE_TEXT:
         solution = passage.reference_text
         grade_str = True
         grade_list = False
-    elif recitation == Recitation.FULL_TEXT.value:
+    elif kind is Recitation.FULL_TEXT:
         solution = passage.full_text
         grade_str = True
         grade_list = False
-    elif recitation == Recitation.RAW_INITIALISM.value:
+    elif kind is Recitation.RAW_INITIALISM:
         solution = passage.raw_initialism
         grade_str = False
         grade_list = True
-    elif recitation == Recitation.NUMBERED_INITIALISM.value:
+    elif kind is Recitation.NUMBERED_INITIALISM:
         solution = passage.numbered_initialism
         grade_str = False
         grade_list = True
 
     if grade_str:
-        if attempt == solution:
+        if recitation == solution:
             score = 1.0
         else:
             n_correct_chars, n_incorrect_chars = 0, 0
-            result = SequenceMatcher(a=attempt, b=solution).get_opcodes()
+            result = SequenceMatcher(a=recitation, b=solution).get_opcodes()
             for tag, i1, i2, j1, j2 in result:
                 if tag == "replace":
                     n_incorrect_chars += max([(j2 - j1), (i2 - i1)])
@@ -107,11 +111,11 @@ def grade_attempt(passage: Passage, recitation: int, attempt: str) -> float:
             score = n_correct_chars / (n_correct_chars + n_incorrect_chars)
 
     elif grade_list:
-        if attempt == solution:
+        if recitation == solution:
             score = 1.0
         else:
             n_correct = sum(
-                [1 for i in range(len(solution)) if attempt[i] == solution[i]]
+                [1 for i in range(len(solution)) if recitation[i] == solution[i]]
             )
             score = n_correct / len(solution)
 
