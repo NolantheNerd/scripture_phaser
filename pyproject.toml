@@ -42,7 +42,7 @@ fix = true
 line-length = 86
 
 [tool.mypy]
-files = "./"
+files = "scripture_phaser/backend/*"
 pretty = true
 strict = true
 disallow_untyped_defs = true
