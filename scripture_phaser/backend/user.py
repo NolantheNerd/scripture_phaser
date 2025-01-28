@@ -34,7 +34,7 @@
 import uuid
 import datetime
 from os import urandom
-from fastapi import FastAPI
+from fastapi import APIRouter
 from hashlib import pbkdf2_hmac
 from dataclasses import dataclass
 from scripture_phaser.backend.models import User as UserTable, UserToken
@@ -45,7 +45,7 @@ from scripture_phaser.backend.exceptions import (
     InvalidUserToken,
 )
 
-api = FastAPI()
+api = APIRouter(tags=["user"])
 N_ITERATIONS = 100000
 
 
