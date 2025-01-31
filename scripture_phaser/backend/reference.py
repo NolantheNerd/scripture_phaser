@@ -38,9 +38,9 @@ from fastapi import APIRouter
 from scripture_phaser.backend.exceptions import InvalidReference
 from scripture_phaser.backend.enums import Bible, Bible_Books, Reverse_Bible_Books
 from scripture_phaser.backend.user import User
-from scripture_phaser.backend.models import User as UserTable
-from scripture_phaser.backend.models import Reference as ReferenceTable
-from scripture_phaser.backend.models import Recitation as RecitationTable
+from scripture_phaser.backend.models import User as UserModel
+from scripture_phaser.backend.models import Reference as ReferenceModel
+from scripture_phaser.backend.models import Recitation as RecitationModel
 
 api = APIRouter(tags=["Reference"])
 
@@ -70,8 +70,8 @@ class Reference:
 def new_reference(ref: str, translation: str, user: User | None) -> Reference:
     reference = string_to_reference(ref)
     if user is not None:
-        user_model = UserTable.get(UserTable.username == user.username)
-        ReferenceTable.get_or_create(
+        user_model = UserModel.get(UserModel.username == user.username)
+        ReferenceModel.get_or_create(
             user=user_model, ref=reference.ref, translation=translation
         )
     return reference
@@ -79,14 +79,14 @@ def new_reference(ref: str, translation: str, user: User | None) -> Reference:
 
 @api.delete("/delete_reference")
 def delete_reference(ref: str, translation: str, user: User) -> None:
-    reference = ReferenceTable.select().where(
-        (ReferenceTable.ref == ref) & (ReferenceTable.translation == translation)
+    reference = ReferenceModel.select().where(
+        (ReferenceModel.ref == ref) & (ReferenceModel.translation == translation)
     )
 
-    user_model = UserTable.get(UserTable.username == user.username)
-    n_ref_recitations = RecitationTable.select(fn.COUNT).where(
-        (RecitationTable.reference == reference)
-        & (RecitationTable.user == user_model)
+    user_model = UserModel.get(UserModel.username == user.username)
+    n_ref_recitations = RecitationModel.select(fn.COUNT).where(
+        (RecitationModel.reference == reference)
+        & (RecitationModel.user == user_model)
     )
 
     if n_ref_recitations > 0:

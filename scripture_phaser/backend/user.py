@@ -37,7 +37,7 @@ from os import urandom
 from fastapi import APIRouter
 from hashlib import pbkdf2_hmac
 from dataclasses import dataclass
-from scripture_phaser.backend.models import User as UserTable, UserToken
+from scripture_phaser.backend.models import User as UserModel, UserToken
 from scripture_phaser.backend.exceptions import (
     UsernameAlreadyTaken,
     EmailAlreadyTaken,
@@ -70,12 +70,12 @@ def validate_token(user_token: str) -> None:
 @api.post("/signup")
 def create_user(name: str, username: str, password: str, email: str) -> User:
     username_already_taken = (
-        UserTable.get_or_none(UserTable.username == username) is not None
+        UserModel.get_or_none(UserModel.username == username) is not None
     )
     if username_already_taken:
         raise UsernameAlreadyTaken()
 
-    email_already_taken = UserTable.get_or_none(UserTable.email == email) is not None
+    email_already_taken = UserModel.get_or_none(UserModel.email == email) is not None
     if email_already_taken:
         raise EmailAlreadyTaken()
 
@@ -84,7 +84,7 @@ def create_user(name: str, username: str, password: str, email: str) -> User:
         "sha256", password.encode("utf-8"), salt, N_ITERATIONS
     )
 
-    new_user = UserTable.create(
+    new_user = UserModel.create(
         name=name,
         username=username,
         password_hash=password_hash,
@@ -105,7 +105,7 @@ def create_user(name: str, username: str, password: str, email: str) -> User:
 
 @api.get("/login")
 def login(username: str, password: str) -> User:
-    user = UserTable.get_or_none(UserTable.username == username)
+    user = UserModel.get_or_none(UserModel.username == username)
     if user is None:
         raise InvalidUserCredentials()
 
@@ -136,7 +136,7 @@ def change_password(user: User, old_password: str, new_password: str) -> None:
     validate_token(user.token)
 
     user_record = (
-        UserTable.select().join(UserToken).where(UserToken.token == user.token).get()
+        UserModel.select().join(UserToken).where(UserToken.token == user.token).get()
     )
     hashed_old_password = pbkdf2_hmac(
         "sha256", old_password.encode("utf-8"), user_record.salt, N_ITERATIONS
