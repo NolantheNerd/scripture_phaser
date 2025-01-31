@@ -31,10 +31,18 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from peewee import fn
 from dataclasses import dataclass
 from itertools import accumulate
+from fastapi import APIRouter
 from scripture_phaser.backend.exceptions import InvalidReference
 from scripture_phaser.backend.enums import Bible, Bible_Books, Reverse_Bible_Books
+from scripture_phaser.backend.user import User
+from scripture_phaser.backend.models import User as UserTable
+from scripture_phaser.backend.models import Reference as ReferenceTable
+from scripture_phaser.backend.models import Recitation as RecitationTable
+
+api = APIRouter(tags=["Reference"])
 
 
 @dataclass
@@ -56,6 +64,36 @@ class Reference:
     passage: PassageID
     first: VerseTriplet
     last: VerseTriplet
+
+
+@api.post("/new_reference")
+def new_reference(ref: str, translation: str, user: User | None) -> Reference:
+    reference = string_to_reference(ref)
+    if user is not None:
+        user_model = UserTable.get(UserTable.username == user.username)
+        ReferenceTable.get_or_create(
+            user=user_model, ref=reference.ref, translation=translation
+        )
+    return reference
+
+
+@api.delete("/delete_reference")
+def delete_reference(ref: str, translation: str, user: User) -> None:
+    reference = ReferenceTable.select().where(
+        (ReferenceTable.ref == ref) & (ReferenceTable.translation == translation)
+    )
+
+    user_model = UserTable.get(UserTable.username == user.username)
+    n_ref_recitations = RecitationTable.select(fn.COUNT).where(
+        (RecitationTable.reference == reference)
+        & (RecitationTable.user == user_model)
+    )
+
+    if n_ref_recitations > 0:
+        reference.active = False
+    else:
+        reference.delete_instance()
+    reference.save()
 
 
 def string_to_reference(ref: str) -> Reference:

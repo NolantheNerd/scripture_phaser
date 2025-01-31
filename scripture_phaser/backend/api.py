@@ -33,7 +33,9 @@
 
 from fastapi import FastAPI
 from scripture_phaser.backend.user import api as user_api
+from scripture_phaser.backend.reference import api as reference_api
 
 app = FastAPI()
 
 app.include_router(user_api)
+app.include_router(reference_api)
