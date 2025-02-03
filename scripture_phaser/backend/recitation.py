@@ -33,10 +33,13 @@
 
 import datetime
 from enum import Enum
+from fastapi import APIRouter
 from difflib import SequenceMatcher
 from scripture_phaser.backend.user import User
 from scripture_phaser.backend.passage import Passage
 from scripture_phaser.backend.models import Recitation as RecitationTable
+
+api = APIRouter(tags=["Recitation"])
 
 
 class Recitation(Enum):
@@ -48,6 +51,7 @@ class Recitation(Enum):
     NUMBERED_INITIALISM = 6
 
 
+@api.post("/record_recitation")
 def record_recitation(
     passage: Passage, kind: Recitation, recitation: str, user: User | None
 ) -> None:

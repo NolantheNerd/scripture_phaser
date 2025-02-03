@@ -45,7 +45,7 @@ from scripture_phaser.backend.exceptions import (
     InvalidUserToken,
 )
 
-api = APIRouter(tags=["user"])
+api = APIRouter(tags=["User"])
 N_ITERATIONS = 100000
 
 

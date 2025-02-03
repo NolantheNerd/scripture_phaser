@@ -31,9 +31,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from fastapi import APIRouter
 from dataclasses import dataclass
 from scripture_phaser.backend.reference import Reference, id_to_reference
 import scripture_phaser.backend.translations as Translations
+
+api = APIRouter(tags=["Passage"])
 
 
 @dataclass
@@ -48,6 +51,7 @@ class Passage:
     numbered_initialism: str
 
 
+@api.post("reference_to_passage")
 def reference_to_passage(translation: str, reference: Reference) -> Passage:
     trans = getattr(Translations, translation)
     texts = trans.fetch(reference.passage.start, reference.passage.end)
