@@ -57,17 +57,19 @@ def record_recitation(
 ) -> None:
     timestamp = datetime.datetime.now()
     score = grade_attempt(passage, kind, recitation)
-    RecitationTable.create(
-        datetime=timestamp,
-        reference=passage.reference,
-        translation=passage.translation,
-        recitation_type=kind.value,
-        score=score,
-        recitation=recitation,
-        user=user,
-    )
+    if user is not None:
+        RecitationTable.create(
+            datetime=timestamp,
+            reference=passage.reference,
+            translation=passage.translation,
+            recitation_type=kind.value,
+            score=score,
+            recitation=recitation,
+            user=user,
+        )
 
 
+@api.post("/grade_recitation")
 def grade_attempt(passage: Passage, kind: Recitation, recitation: str) -> float:
     solution: str | list[str]
 

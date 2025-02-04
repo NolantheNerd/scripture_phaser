@@ -37,7 +37,7 @@ from itertools import accumulate
 from fastapi import APIRouter
 from scripture_phaser.backend.exceptions import InvalidReference
 from scripture_phaser.backend.enums import Bible, Bible_Books, Reverse_Bible_Books
-from scripture_phaser.backend.user import User
+from scripture_phaser.backend.user import User, validate_token
 from scripture_phaser.backend.models import User as UserModel
 from scripture_phaser.backend.models import Reference as ReferenceModel
 from scripture_phaser.backend.models import Recitation as RecitationModel
@@ -70,6 +70,7 @@ class Reference:
 def new_reference(ref: str, translation: str, user: User | None) -> Reference:
     reference = string_to_reference(ref)
     if user is not None:
+        validate_token(user.token)
         user_model = UserModel.get(UserModel.username == user.username)
         ReferenceModel.get_or_create(
             user=user_model, ref=reference.ref, translation=translation
@@ -79,6 +80,7 @@ def new_reference(ref: str, translation: str, user: User | None) -> Reference:
 
 @api.delete("/delete_reference")
 def delete_reference(ref: str, translation: str, user: User) -> None:
+    validate_token(user.token)
     reference = ReferenceModel.select().where(
         (ReferenceModel.ref == ref) & (ReferenceModel.translation == translation)
     )

@@ -103,6 +103,12 @@ def create_user(name: str, username: str, password: str, email: str) -> User:
     return User(name=name, username=username, email=email, token=token)
 
 
+@api.delete("/delete_user")
+def delete_user(user: User) -> None:
+    validate_token(user.token)
+    UserModel.select(UserModel.username == user.username).delete_instance()
+
+
 @api.get("/login")
 def login(username: str, password: str) -> User:
     user = UserModel.get_or_none(UserModel.username == username)
