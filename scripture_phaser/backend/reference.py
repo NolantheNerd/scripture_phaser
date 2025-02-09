@@ -101,11 +101,7 @@ def delete_reference(ref: str, translation: str, user: User) -> None:
 @api.get("/list_references")
 def list_references(user: User) -> list[Reference]:
     validate_token(user.token)
-    return list(
-        ReferenceModel.select()
-        .join(UserModel)
-        .where(ReferenceModel.user.username == user.username)
-    )
+    return list(ReferenceModel.select().join(UserModel).where(ReferenceModel.user.username == user.username))
 
 
 def string_to_reference(ref: str) -> Reference:

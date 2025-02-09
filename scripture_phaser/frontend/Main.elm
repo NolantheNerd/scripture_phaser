@@ -41,15 +41,18 @@ import Html exposing (Html, p, text)
 
 main = Browser.sandbox { init = init, update = update, view = view }
 
+type Msg = Message
+
 -- Model
+
+type alias Model =
+  {
+    translation : List String
+  }
 
 init : Model
 init = {
-  translation = "DERP-DEE-DERP",
-  one_verse_recitation = False,
-  complete_recitation = False,
-  include_verse_numbers = False,
-  fast_recitations = False
+  translation = ["DERP-DEE-DERP"]
   }
 
 -- Update
