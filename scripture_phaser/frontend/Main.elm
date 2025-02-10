@@ -35,34 +35,59 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, p, text)
+import Html exposing (Html, div, p, text, button)
+import Html.Events exposing (onClick)
 
 -- Main
 
 main = Browser.sandbox { init = init, update = update, view = view }
 
-type Msg = Message
+type Msg = SignIn | SignOut
 
 -- Model
 
-type alias Model =
-  {
-    translation : List String
+type alias Name = String
+type alias Username = String
+type alias Email = String
+type alias Usertoken = String
+
+type User = 
+  SignedInUser { name : Name, username : Username, email : Email, usertoken : Usertoken}
+  | Guest
+
+type alias Model = {
+    user : User
   }
 
 init : Model
 init = {
-  translation = ["DERP-DEE-DERP"]
+    user = SignedInUser { name = "Bob", username = "bjohnson", email = "b@example.com", usertoken = "1234" }
   }
 
 -- Update
 
 update : Msg -> Model -> Model
 update msg model = 
-  model
+  case msg of
+    SignOut ->
+      { model | user = Guest }
+
+    SignIn ->
+      { model | user = SignedInUser { name = "Joe", username = "jsmith", email = "j@example.com", usertoken = "1234" } }
 
 -- View
 
 view : Model -> Html Msg
 view model =
-  p [] [text "p"]
+  case model.user of
+    Guest ->
+      div [] [
+      p [] [text "Welcome to Scripture Phaser!"],
+      button [onClick SignIn] [text "Sign In"]
+      ]
+
+    SignedInUser { name, username, email, usertoken } ->
+      div [] [
+      p [] [text ("Welcome " ++ name)],
+      button [onClick SignOut] [text "Sign Out"]
+      ]
