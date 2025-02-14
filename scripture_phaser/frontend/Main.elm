@@ -35,45 +35,40 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, div, p, text, button)
+import Html exposing (Html, div, p, text, button, input)
 import Html.Events exposing (onClick)
 
--- Main
-
-main = Browser.sandbox { init = init, update = update, view = view }
-
-type Msg = SignIn | SignOut
 
 -- Model
 
-type alias Name = String
-type alias Username = String
-type alias Email = String
-type alias Usertoken = String
-
 type User = 
-  SignedInUser { name : Name, username : Username, email : Email, usertoken : Usertoken}
+  SignedInUser { name : String, username : String, email : String, usertoken : String}
   | Guest
 
 type alias Model = {
     user : User
   }
 
-init : Model
-init = {
-    user = SignedInUser { name = "Bob", username = "bjohnson", email = "b@example.com", usertoken = "1234" }
-  }
+init : () -> (Model, Cmd Msg)
+init = (
+  { user = Guest }
+  , Cmd.none
+  )
+
 
 -- Update
 
-update : Msg -> Model -> Model
+type Msg = SignIn | SignOut
+
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
   case msg of
     SignOut ->
-      { model | user = Guest }
+      ( { model | user = Guest }, Cmd.none )
 
     SignIn ->
-      { model | user = SignedInUser { name = "Joe", username = "jsmith", email = "j@example.com", usertoken = "1234" } }
+      ( { model | user = SignedInUser { name = "Joe", username = "jsmith", email = "j@example.com", usertoken = "1234" } }, Cmd.none )
+
 
 -- View
 
@@ -83,6 +78,10 @@ view model =
     Guest ->
       div [] [
       p [] [text "Welcome to Scripture Phaser!"],
+      p [] [text "Username"],
+      input [] [],
+      p [] [text "Password"],
+      input [] [],
       button [onClick SignIn] [text "Sign In"]
       ]
 
@@ -91,3 +90,13 @@ view model =
       p [] [text ("Welcome " ++ name)],
       button [onClick SignOut] [text "Sign Out"]
       ]
+
+-- Subscription
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  Sub.none
+
+-- Main
+
+main = Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }

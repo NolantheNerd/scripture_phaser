@@ -39,6 +39,10 @@ from scripture_phaser.backend.recitation import api as recitation_api
 
 app = FastAPI()
 
+@app.get("/test_connection")
+def verify_connection() -> str:
+    return "You made a get request to FastAPI!"
+
 app.include_router(user_api)
 app.include_router(reference_api)
 app.include_router(recitation_api)
