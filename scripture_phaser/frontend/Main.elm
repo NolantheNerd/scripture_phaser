@@ -42,16 +42,15 @@ import Html.Events exposing (onClick)
 -- Model
 
 type User = 
-  SignedInUser { name : String, username : String, email : String, usertoken : String}
+  SignedInUser { name : String, username : String, email : String, usertoken : String }
   | Guest
 
-type alias Model = {
-    user : User
-  }
+type alias Model = 
+  User
 
 init : () -> (Model, Cmd Msg)
-init = (
-  { user = Guest }
+init () = (
+  Guest
   , Cmd.none
   )
 
@@ -64,32 +63,43 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
   case msg of
     SignOut ->
-      ( { model | user = Guest }, Cmd.none )
+      ( Guest, Cmd.none )
 
     SignIn ->
-      ( { model | user = SignedInUser { name = "Joe", username = "jsmith", email = "j@example.com", usertoken = "1234" } }, Cmd.none )
+      ( SignedInUser { name = "Joe", username = "jsmith", email = "j@example.com", usertoken = "1234" }, Cmd.none )
 
 
 -- View
 
-view : Model -> Html Msg
+type alias Document msg =
+  { title : String
+  , body : List (Html msg)
+  }
+
+view : Model -> Document Msg
 view model =
-  case model.user of
+  case model of
     Guest ->
-      div [] [
-      p [] [text "Welcome to Scripture Phaser!"],
-      p [] [text "Username"],
-      input [] [],
-      p [] [text "Password"],
-      input [] [],
-      button [onClick SignIn] [text "Sign In"]
-      ]
+      { title = "Guest Title"
+      , body =
+          [ div [] [
+          p [] [text "Welcome to Scripture Phaser!"],
+          p [] [text "Username"],
+          input [] [],
+          p [] [text "Password"],
+          input [] [],
+          button [onClick SignIn] [text "Sign In"]
+          ] ]
+      }
 
     SignedInUser { name, username, email, usertoken } ->
-      div [] [
-      p [] [text ("Welcome " ++ name)],
-      button [onClick SignOut] [text "Sign Out"]
-      ]
+      { title = "SignedIn Title"
+      , body =
+          [ div [] [
+          p [] [text ("Welcome " ++ name)],
+          button [onClick SignOut] [text "Sign Out"]
+          ] ]
+      }
 
 -- Subscription
 
@@ -99,4 +109,4 @@ subscriptions model =
 
 -- Main
 
-main = Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+main = Browser.document { init = init, update = update, view = view, subscriptions = subscriptions }
