@@ -37,13 +37,41 @@ module Main exposing (..)
 import Browser
 import Html exposing (Html, div, p, text, button, input)
 import Html.Events exposing (onClick)
+import Json.Encode as Encode
+import Json.Decode as Decode
+import Http
+
+
+base_url : String
+base_url = "localhost:8000"
 
 
 -- Model
 
+type alias SignedInUserCredentials =
+  { name : String, username : String, email : String, usertoken : String }
+
 type User = 
-  SignedInUser { name : String, username : String, email : String, usertoken : String }
+  SignedInUser SignedInUserCredentials
   | Guest
+
+type alias UserCredentials =
+  { username : String, password : String }
+
+encode_user_credentials : UserCredentials -> Encode.Value
+encode_user_credentials credentials =
+  Encode.object
+    [ ("username", Encode.string, credentials.username)
+    , ("password", Encode.string, credentials.password)
+    ]
+
+decode_signedin_user : Decode.Decoder SignedInUserCredentials
+decode_signedin_user =
+  Decode.map4 SignedInUserCredentials
+    (Decode.field, "name", Decode.string)
+    (Decode.field, "username", Decode.string)
+    (Decode.field, "email", Decode.string)
+    (Decode.field, "usertoken", Decode.string)
 
 type alias Model = 
   User
@@ -57,7 +85,15 @@ init () = (
 
 -- Update
 
-type Msg = SignIn | SignOut
+type Msg = SignIn | SignOut | GotSignedInUser
+
+signin : UserCredentials -> User
+signin credentials =
+  Http.post
+    { url = base_url ++ "/login"
+    , body = encode_user_credentials credentials
+    , expect = Http.expectJson GotSignedInUser
+    }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
@@ -66,7 +102,11 @@ update msg model =
       ( Guest, Cmd.none )
 
     SignIn ->
-      ( SignedInUser { name = "Joe", username = "jsmith", email = "j@example.com", usertoken = "1234" }, Cmd.none )
+      -- ( SignedInUser { name = "Joe", username = "jsmith", email = "j@example.com", usertoken = "1234" }, Cmd.none )
+      signin model
+
+    GotSignedInUser ->
+      (SignedInUser decode_signedin_user, Cmd.none)
 
 
 -- View
