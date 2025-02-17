@@ -35,6 +35,7 @@ import uuid
 import datetime
 from os import urandom
 from fastapi import APIRouter
+from pydantic import BaseModel
 from hashlib import pbkdf2_hmac
 from dataclasses import dataclass
 from scripture_phaser.backend.models import User as UserModel, UserToken
@@ -108,15 +109,18 @@ def delete_user(user: User) -> None:
     validate_token(user.token)
     UserModel.select(UserModel.username == user.username).delete_instance()
 
+class UserCredentials(BaseModel):
+    username: str
+    password: str
 
-@api.get("/login")
-def login(username: str, password: str) -> User:
-    user = UserModel.get_or_none(UserModel.username == username)
+@api.post("/login")
+def login(user_credentials: UserCredentials) -> User:
+    user = UserModel.get_or_none(UserModel.username == user_credentials.username)
     if user is None:
         raise InvalidUserCredentials()
 
     hashed_password = pbkdf2_hmac(
-        "sha256", password.encode("utf-8"), user.salt, N_ITERATIONS
+        "sha256", user_credentials.password.encode("utf-8"), user.salt, N_ITERATIONS
     )
 
     if hashed_password != user.password_hash:

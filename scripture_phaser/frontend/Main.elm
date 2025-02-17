@@ -51,7 +51,7 @@ base_url = "http://localhost:8000"
 -- Model
 
 type alias SignedInUserCredentials =
-  { name : String, username : String, email : String, usertoken : String }
+  { name : String, username : String, email : String, token : String }
 
 type User = 
   SignedInUser SignedInUserCredentials
@@ -73,7 +73,7 @@ decode_signedin_user =
     (Decode.field "name" Decode.string)
     (Decode.field "username" Decode.string)
     (Decode.field "email" Decode.string)
-    (Decode.field "usertoken" Decode.string)
+    (Decode.field "token" Decode.string)
 
 type alias Model = 
   { user : User }
@@ -132,7 +132,7 @@ update msg model =
         Ok user_credentials ->
           ( { model | user = SignedInUser user_credentials }, Cmd.none )
 
-        Err _ ->
+        Err error ->
           ( model , Cmd.none )
 
 
@@ -159,11 +159,11 @@ view model =
           ] ]
       }
 
-    SignedInUser { name, username, email, usertoken } ->
+    SignedInUser signedin_user_credentials ->
       { title = "SignedIn Title"
       , body =
           [ div [] [
-          p [] [text ("Welcome " ++ name)],
+          p [] [text ("Welcome " ++ signedin_user_credentials.name)],
           button [onClick SignOut] [text "Sign Out"]
           ] ]
       }
