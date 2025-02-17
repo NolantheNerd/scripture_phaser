@@ -36,14 +36,16 @@ module Main exposing (..)
 
 import Browser
 import Html exposing (Html, div, p, text, button, input)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onClick, onInput)
 import Json.Encode as Encode
 import Json.Decode as Decode
 import Http
+import Debug
 
 
 base_url : String
-base_url = "localhost:8000"
+base_url = "http://localhost:8000"
 
 
 -- Model
@@ -53,7 +55,7 @@ type alias SignedInUserCredentials =
 
 type User = 
   SignedInUser SignedInUserCredentials
-  | Guest
+  | Guest UserCredentials
 
 type alias UserCredentials =
   { username : String, password : String }
@@ -61,52 +63,77 @@ type alias UserCredentials =
 encode_user_credentials : UserCredentials -> Encode.Value
 encode_user_credentials credentials =
   Encode.object
-    [ ("username", Encode.string, credentials.username)
-    , ("password", Encode.string, credentials.password)
+    [ ("username", Encode.string credentials.username)
+    , ("password", Encode.string credentials.password)
     ]
 
 decode_signedin_user : Decode.Decoder SignedInUserCredentials
 decode_signedin_user =
   Decode.map4 SignedInUserCredentials
-    (Decode.field, "name", Decode.string)
-    (Decode.field, "username", Decode.string)
-    (Decode.field, "email", Decode.string)
-    (Decode.field, "usertoken", Decode.string)
+    (Decode.field "name" Decode.string)
+    (Decode.field "username" Decode.string)
+    (Decode.field "email" Decode.string)
+    (Decode.field "usertoken" Decode.string)
 
 type alias Model = 
-  User
+  { user : User }
 
 init : () -> (Model, Cmd Msg)
 init () = (
-  Guest
+  { user = Guest { username = "", password = "" } }
   , Cmd.none
   )
 
 
 -- Update
 
-type Msg = SignIn | SignOut | GotSignedInUser
+type Msg = Username String | Password String | SignOut | SignIn | GotSignedInUser (Result Http.Error SignedInUserCredentials)
 
-signin : UserCredentials -> User
-signin credentials =
-  Http.post
-    { url = base_url ++ "/login"
-    , body = encode_user_credentials credentials
-    , expect = Http.expectJson GotSignedInUser
-    }
+signin : User -> Cmd Msg
+signin user =
+  case user of
+    SignedInUser signedin_user_credentials ->
+      Cmd.none
+
+    Guest user_credentials ->
+      Http.post
+        { url = base_url ++ "/login"
+        , body = Http.jsonBody (encode_user_credentials user_credentials)
+        , expect = Http.expectJson GotSignedInUser decode_signedin_user
+        }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
   case msg of
+    Username username ->
+      case model.user of
+        Guest user_credentials ->
+          ( { model | user = Guest (UserCredentials username user_credentials.password) }, Cmd.none )
+
+        SignedInUser _ ->
+          ( model, Cmd.none )
+
+    Password password ->
+      case model.user of
+        Guest user_credentials ->
+          ( { model | user = Guest (UserCredentials user_credentials.username password) }, Cmd.none )
+
+        SignedInUser _ ->
+          ( model, Cmd.none )
+
     SignOut ->
-      ( Guest, Cmd.none )
+      ( model, Cmd.none )
 
     SignIn ->
-      -- ( SignedInUser { name = "Joe", username = "jsmith", email = "j@example.com", usertoken = "1234" }, Cmd.none )
-      signin model
+      ( model, signin model.user )
 
-    GotSignedInUser ->
-      (SignedInUser decode_signedin_user, Cmd.none)
+    GotSignedInUser result ->
+      case result of
+        Ok user_credentials ->
+          ( { model | user = SignedInUser user_credentials }, Cmd.none )
+
+        Err _ ->
+          ( model , Cmd.none )
 
 
 -- View
@@ -118,16 +145,16 @@ type alias Document msg =
 
 view : Model -> Document Msg
 view model =
-  case model of
-    Guest ->
+  case model.user of
+    Guest user_credentials ->
       { title = "Guest Title"
       , body =
           [ div [] [
           p [] [text "Welcome to Scripture Phaser!"],
           p [] [text "Username"],
-          input [] [],
+          input [ type_ "text", placeholder "Username", value user_credentials.username, onInput Username ] [],
           p [] [text "Password"],
-          input [] [],
+          input [ type_ "password", placeholder "Password", value user_credentials.password, onInput Password ] [],
           button [onClick SignIn] [text "Sign In"]
           ] ]
       }
