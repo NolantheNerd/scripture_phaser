@@ -32,16 +32,16 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 -}
+
 module Main exposing (..)
 
+import Http
 import Browser
 import Html exposing (Html, div, p, text, button, input)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Json.Encode as Encode
 import Json.Decode as Decode
-import Http
-import Debug
 
 
 base_url : String
@@ -53,18 +53,27 @@ base_url = "http://localhost:8000"
 type alias SignedInUserCredentials =
   { name : String, username : String, email : String, token : String }
 
+type alias UserCredentials =
+  { username : String, password : String }
+
 type User = 
   SignedInUser SignedInUserCredentials
   | Guest UserCredentials
-
-type alias UserCredentials =
-  { username : String, password : String }
 
 encode_user_credentials : UserCredentials -> Encode.Value
 encode_user_credentials credentials =
   Encode.object
     [ ("username", Encode.string credentials.username)
     , ("password", Encode.string credentials.password)
+    ]
+
+encode_signedin_user_credentials : SignedInUserCredentials -> Encode.Value
+encode_signedin_user_credentials credentials =
+  Encode.object
+    [ ("name", Encode.string credentials.name)
+    , ("username", Encode.string credentials.username)
+    , ("email", Encode.string credentials.email)
+    , ("token", Encode.string credentials.token)
     ]
 
 decode_signedin_user : Decode.Decoder SignedInUserCredentials
@@ -87,7 +96,7 @@ init () = (
 
 -- Update
 
-type Msg = Username String | Password String | SignOut | SignIn | GotSignedInUser (Result Http.Error SignedInUserCredentials)
+type Msg = Username String | Password String | SignOut (Result Http.Error ()) | SignInRequest | GotSignedInUser (Result Http.Error SignedInUserCredentials) | SignOutRequest
 
 signin : User -> Cmd Msg
 signin user =
@@ -101,6 +110,23 @@ signin user =
         , body = Http.jsonBody (encode_user_credentials user_credentials)
         , expect = Http.expectJson GotSignedInUser decode_signedin_user
         }
+
+signout : User -> Cmd Msg
+signout user =
+  case user of
+    SignedInUser signedin_user_credentials ->
+      Http.request
+        { method = "DELETE"
+        , headers = []
+        , url = base_url ++ "/logout"
+        , body = Http.jsonBody (encode_signedin_user_credentials signedin_user_credentials)
+        , expect = Http.expectWhatever SignOut
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+    Guest _ ->
+      Cmd.none
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
@@ -121,10 +147,13 @@ update msg model =
         SignedInUser _ ->
           ( model, Cmd.none )
 
-    SignOut ->
-      ( model, Cmd.none )
+    SignOutRequest ->
+      ( model, signout model.user )
 
-    SignIn ->
+    SignOut _ ->
+      ( { model | user = Guest (UserCredentials "" "") }, Cmd.none )
+
+    SignInRequest ->
       ( model, signin model.user )
 
     GotSignedInUser result ->
@@ -155,7 +184,7 @@ view model =
           input [ type_ "text", placeholder "Username", value user_credentials.username, onInput Username ] [],
           p [] [text "Password"],
           input [ type_ "password", placeholder "Password", value user_credentials.password, onInput Password ] [],
-          button [onClick SignIn] [text "Sign In"]
+          button [onClick SignInRequest] [text "Sign In"]
           ] ]
       }
 
@@ -164,15 +193,17 @@ view model =
       , body =
           [ div [] [
           p [] [text ("Welcome " ++ signedin_user_credentials.name)],
-          button [onClick SignOut] [text "Sign Out"]
+          button [onClick SignOutRequest] [text "Sign Out"]
           ] ]
       }
+
 
 -- Subscription
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.none
+
 
 -- Main
 
