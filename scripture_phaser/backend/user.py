@@ -34,17 +34,12 @@
 import uuid
 import datetime
 from os import urandom
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from hashlib import pbkdf2_hmac
 from dataclasses import dataclass
 from scripture_phaser.backend.models import User as UserModel, UserToken
-from scripture_phaser.backend.exceptions import (
-    UsernameAlreadyTaken,
-    EmailAlreadyTaken,
-    InvalidUserCredentials,
-    InvalidUserToken,
-)
+from scripture_phaser.backend.exceptions import InvalidUserToken
 
 api = APIRouter(tags=["User"])
 N_ITERATIONS = 100000
@@ -74,11 +69,11 @@ def create_user(name: str, username: str, password: str, email: str) -> User:
         UserModel.get_or_none(UserModel.username == username) is not None
     )
     if username_already_taken:
-        raise UsernameAlreadyTaken()
+        raise HTTPException(status_code=403, detail="Username Already Taken")
 
     email_already_taken = UserModel.get_or_none(UserModel.email == email) is not None
     if email_already_taken:
-        raise EmailAlreadyTaken()
+        raise HTTPException(status_code=403, detail="Email Already Taken")
 
     salt = urandom(16)
     password_hash = pbkdf2_hmac(
@@ -109,22 +104,24 @@ def delete_user(user: User) -> None:
     validate_token(user.token)
     UserModel.select(UserModel.username == user.username).delete_instance()
 
+
 class UserCredentials(BaseModel):
     username: str
     password: str
+
 
 @api.post("/login")
 def login(user_credentials: UserCredentials) -> User:
     user = UserModel.get_or_none(UserModel.username == user_credentials.username)
     if user is None:
-        raise InvalidUserCredentials()
+        raise HTTPException(status_code=403, detail="Invalid User Credentials")
 
     hashed_password = pbkdf2_hmac(
         "sha256", user_credentials.password.encode("utf-8"), user.salt, N_ITERATIONS
     )
 
     if hashed_password != user.password_hash:
-        raise InvalidUserCredentials()
+        raise HTTPException(status_code=403, detail="Invalid User Credentials")
 
     token = uuid.uuid4().hex
     UserToken.create(
@@ -152,7 +149,7 @@ def change_password(user: User, old_password: str, new_password: str) -> None:
         "sha256", old_password.encode("utf-8"), user_record.salt, N_ITERATIONS
     )
     if hashed_old_password != user_record.password_hash:
-        raise InvalidUserCredentials()
+        raise HTTPException(status_code=403, detail="Invalid User Credentials")
 
     hashed_new_password = pbkdf2_hmac(
         "sha256", new_password.encode("utf-8"), user_record.salt, N_ITERATIONS
