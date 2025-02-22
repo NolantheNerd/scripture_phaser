@@ -37,9 +37,9 @@ module Main exposing (..)
 
 import Http
 import Browser
-import Html exposing (Html, div, p, text, button, input)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
+import Html
+import Html.Attributes as Attributes
+import Html.Events as Events
 import Json.Encode as Encode
 import Json.Decode as Decode
 
@@ -169,7 +169,7 @@ update msg model =
 
 type alias Document msg =
   { title : String
-  , body : List (Html msg)
+  , body : List (Html.Html msg)
   }
 
 view : Model -> Document Msg
@@ -178,22 +178,22 @@ view model =
     Guest user_credentials ->
       { title = "Guest Title"
       , body =
-          [ div [] [
-          p [] [text "Welcome to Scripture Phaser!"],
-          p [] [text "Username"],
-          input [ type_ "text", placeholder "Username", value user_credentials.username, onInput Username ] [],
-          p [] [text "Password"],
-          input [ type_ "password", placeholder "Password", value user_credentials.password, onInput Password ] [],
-          button [onClick SignInRequest] [text "Sign In"]
+          [ Html.div [] [
+          Html.p [] [ Html.text "Welcome to Scripture Phaser!"],
+          Html.p [] [ Html.text "Username"],
+          Html.input [ Attributes.type_ "text", Attributes.placeholder "Username", Attributes.value user_credentials.username, Events.onInput Username ] [],
+          Html.p [] [ Html.text "Password"],
+          Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput Password ] [],
+          Html.button [Events.onClick SignInRequest] [ Html.text "Sign In"]
           ] ]
       }
 
     SignedInUser signedin_user_credentials ->
       { title = "SignedIn Title"
       , body =
-          [ div [] [
-          p [] [text ("Welcome " ++ signedin_user_credentials.name)],
-          button [onClick SignOutRequest] [text "Sign Out"]
+          [ Html.div [] [
+          Html.p [] [ Html.text ("Welcome " ++ signedin_user_credentials.name)],
+          Html.button [Events.onClick SignOutRequest] [ Html.text "Sign Out"]
           ] ]
       }
 
