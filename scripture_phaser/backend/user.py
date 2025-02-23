@@ -63,29 +63,36 @@ def validate_token(user_token: str) -> None:
         raise InvalidUserToken()
 
 
+class NewUserDetails(BaseModel):
+    name: str
+    username: str
+    password: str
+    email: str
+
+
 @api.post("/signup")
-def create_user(name: str, username: str, password: str, email: str) -> User:
+def create_user(user_details: NewUserDetails) -> User:
     username_already_taken = (
-        UserModel.get_or_none(UserModel.username == username) is not None
+        UserModel.get_or_none(UserModel.username == user_details.username) is not None
     )
     if username_already_taken:
         raise HTTPException(status_code=403, detail="Username Already Taken")
 
-    email_already_taken = UserModel.get_or_none(UserModel.email == email) is not None
+    email_already_taken = UserModel.get_or_none(UserModel.email == user_details.email) is not None
     if email_already_taken:
         raise HTTPException(status_code=403, detail="Email Already Taken")
 
     salt = urandom(16)
     password_hash = pbkdf2_hmac(
-        "sha256", password.encode("utf-8"), salt, N_ITERATIONS
+        "sha256", user_details.password.encode("utf-8"), salt, N_ITERATIONS
     )
 
     new_user = UserModel.create(
-        name=name,
-        username=username,
+        name=user_details.name,
+        username=user_details.username,
         password_hash=password_hash,
         salt=salt,
-        email=email,
+        email=user_details.email,
     )
 
     # @@@ TODO: Make sure that token is unique in UserToken
@@ -96,7 +103,7 @@ def create_user(name: str, username: str, password: str, email: str) -> User:
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
 
-    return User(name=name, username=username, email=email, token=token)
+    return User(name=user_details.name, username=user_details.username, email=user_details.email, token=token)
 
 
 @api.delete("/delete_user")

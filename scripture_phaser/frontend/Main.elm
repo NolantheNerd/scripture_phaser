@@ -53,15 +53,19 @@ base_url = "http://localhost:8000"
 type alias SignedInUserCredentials =
   { name : String, username : String, email : String, token : String }
 
-type alias UserCredentials =
+type alias LoginCredentials =
   { username : String, password : String }
+
+type alias NewUserDetails =
+  { name : String, username : String, password : String, email : String }
 
 type User = 
   SignedInUser SignedInUserCredentials
-  | Guest UserCredentials
+  | SignedOutUser LoginCredentials
+  | NewUser NewUserDetails
 
-encode_user_credentials : UserCredentials -> Encode.Value
-encode_user_credentials credentials =
+encode_login_credentials : LoginCredentials -> Encode.Value
+encode_login_credentials credentials =
   Encode.object
     [ ("username", Encode.string credentials.username)
     , ("password", Encode.string credentials.password)
@@ -74,6 +78,15 @@ encode_signedin_user_credentials credentials =
     , ("username", Encode.string credentials.username)
     , ("email", Encode.string credentials.email)
     , ("token", Encode.string credentials.token)
+    ]
+
+encode_new_user_details : NewUserDetails -> Encode.Value
+encode_new_user_details details =
+  Encode.object
+    [ ("name", Encode.string details.name)
+    , ("username", Encode.string details.username)
+    , ("email", Encode.string details.email)
+    , ("password", Encode.string details.password)
     ]
 
 decode_signedin_user : Decode.Decoder SignedInUserCredentials
@@ -89,31 +102,62 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init () = (
-  { user = Guest { username = "", password = "" } }
+  { user = NewUser { name = "", username = "", password = "", email = "" } }
   , Cmd.none
   )
 
 
 -- Update
 
-type Msg = Username String | Password String | SignOut (Result Http.Error ()) | SignInRequest | GotSignedInUser (Result Http.Error SignedInUserCredentials) | SignOutRequest
+type Msg =
+  Name String
+  | Username String
+  | Email String
+  | Password String
+  | SignOut (Result Http.Error ())
+  | SignInRequest
+  | GotSignedInUser (Result Http.Error SignedInUserCredentials)
+  | SignOutRequest
+  | CreateUserRequest
+
+createuser : User -> Cmd Msg
+createuser user =
+  case user of
+    NewUser user_details ->
+      Http.post
+        { url = base_url ++ "/signup"
+        , body = Http.jsonBody (encode_new_user_details user_details)
+        , expect = Http.expectJson GotSignedInUser decode_signedin_user
+        }
+
+    SignedInUser _ ->
+      Cmd.none
+
+    SignedOutUser _ ->
+      Cmd.none
 
 signin : User -> Cmd Msg
 signin user =
   case user of
-    SignedInUser signedin_user_credentials ->
+    NewUser _ ->
       Cmd.none
 
-    Guest user_credentials ->
+    SignedInUser _ ->
+      Cmd.none
+
+    SignedOutUser user_credentials ->
       Http.post
         { url = base_url ++ "/login"
-        , body = Http.jsonBody (encode_user_credentials user_credentials)
+        , body = Http.jsonBody (encode_login_credentials user_credentials)
         , expect = Http.expectJson GotSignedInUser decode_signedin_user
         }
 
 signout : User -> Cmd Msg
 signout user =
   case user of
+    NewUser _ ->
+      Cmd.none
+
     SignedInUser signedin_user_credentials ->
       Http.request
         { method = "DELETE"
@@ -125,24 +169,52 @@ signout user =
         , tracker = Nothing
         }
 
-    Guest _ ->
+    SignedOutUser _ ->
       Cmd.none
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
   case msg of
+    Name name ->
+      case model.user of
+        NewUser user_details ->
+          ( { model | user = NewUser (NewUserDetails name user_details.username user_details.password user_details.email ) }, Cmd.none )
+
+        SignedOutUser _ ->
+          ( model, Cmd.none )
+
+        SignedInUser _ ->
+          ( model, Cmd.none )
+
     Username username ->
       case model.user of
-        Guest user_credentials ->
-          ( { model | user = Guest (UserCredentials username user_credentials.password) }, Cmd.none )
+        NewUser user_details ->
+          ( { model | user = NewUser (NewUserDetails user_details.name username user_details.password user_details.email ) }, Cmd.none )
+
+        SignedOutUser user_credentials ->
+          ( { model | user = SignedOutUser (LoginCredentials username user_credentials.password) }, Cmd.none )
 
         SignedInUser _ ->
           ( model, Cmd.none )
 
     Password password ->
       case model.user of
-        Guest user_credentials ->
-          ( { model | user = Guest (UserCredentials user_credentials.username password) }, Cmd.none )
+        NewUser user_details ->
+          ( { model | user = NewUser (NewUserDetails user_details.name user_details.username password user_details.email ) }, Cmd.none )
+
+        SignedOutUser user_credentials ->
+          ( { model | user = SignedOutUser (LoginCredentials user_credentials.username password) }, Cmd.none )
+
+        SignedInUser _ ->
+          ( model, Cmd.none )
+
+    Email email ->
+      case model.user of
+        NewUser user_details ->
+          ( { model | user = NewUser (NewUserDetails user_details.name user_details.username user_details.password email ) }, Cmd.none )
+
+        SignedOutUser _ ->
+          ( model, Cmd.none )
 
         SignedInUser _ ->
           ( model, Cmd.none )
@@ -151,7 +223,7 @@ update msg model =
       ( model, signout model.user )
 
     SignOut _ ->
-      ( { model | user = Guest (UserCredentials "" "") }, Cmd.none )
+      ( { model | user = SignedOutUser (LoginCredentials "" "") }, Cmd.none )
 
     SignInRequest ->
       ( model, signin model.user )
@@ -164,6 +236,9 @@ update msg model =
         Err error ->
           ( model , Cmd.none )
 
+    CreateUserRequest ->
+      ( model, createuser model.user )
+
 
 -- View
 
@@ -175,16 +250,33 @@ type alias Document msg =
 view : Model -> Document Msg
 view model =
   case model.user of
-    Guest user_credentials ->
-      { title = "Guest Title"
+    NewUser user_details ->
+      { title = "Create Account"
+      , body =
+        [ Html.div [] [
+          Html.p [] [ Html.text "Create Account" ]
+        , Html.p [] [ Html.text "Name" ]
+        , Html.input [ Attributes.type_ "text", Attributes.placeholder "John Doe", Attributes.value user_details.name, Events.onInput Name ] []
+        , Html.p [] [ Html.text "Username" ]
+        , Html.input [ Attributes.type_ "text", Attributes.placeholder "jdoe", Attributes.value user_details.username, Events.onInput Username] []
+        , Html.p [] [ Html.text "Email Address" ]
+        , Html.input [ Attributes.type_ "text", Attributes.placeholder "john.doe@example.com", Attributes.value user_details.email, Events.onInput Email ] []
+        , Html.p [] [ Html.text "Password" ]
+        , Html.input [ Attributes.type_ "text", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput Password ] []
+        , Html.button [ Events.onClick CreateUserRequest ] [ Html.text "Create" ]
+        ] ]
+      }
+
+    SignedOutUser user_credentials ->
+      { title = "SignedOutUser Title"
       , body =
           [ Html.div [] [
-          Html.p [] [ Html.text "Welcome to Scripture Phaser!"],
-          Html.p [] [ Html.text "Username"],
-          Html.input [ Attributes.type_ "text", Attributes.placeholder "Username", Attributes.value user_credentials.username, Events.onInput Username ] [],
-          Html.p [] [ Html.text "Password"],
-          Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput Password ] [],
-          Html.button [Events.onClick SignInRequest] [ Html.text "Sign In"]
+            Html.p [] [ Html.text "Welcome to Scripture Phaser!"]
+          , Html.p [] [ Html.text "Username"]
+          , Html.input [ Attributes.type_ "text", Attributes.placeholder "Username", Attributes.value user_credentials.username, Events.onInput Username ] []
+          , Html.p [] [ Html.text "Password"]
+          , Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput Password ] []
+          , Html.button [Events.onClick SignInRequest] [ Html.text "Sign In"]
           ] ]
       }
 
@@ -192,8 +284,8 @@ view model =
       { title = "SignedIn Title"
       , body =
           [ Html.div [] [
-          Html.p [] [ Html.text ("Welcome " ++ signedin_user_credentials.name)],
-          Html.button [Events.onClick SignOutRequest] [ Html.text "Sign Out"]
+            Html.p [] [ Html.text ("Welcome " ++ signedin_user_credentials.name)]
+          , Html.button [Events.onClick SignOutRequest] [ Html.text "Sign Out"]
           ] ]
       }
 
