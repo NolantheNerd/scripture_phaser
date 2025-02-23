@@ -78,7 +78,9 @@ def create_user(user_details: NewUserDetails) -> User:
     if username_already_taken:
         raise HTTPException(status_code=403, detail="Username Already Taken")
 
-    email_already_taken = UserModel.get_or_none(UserModel.email == user_details.email) is not None
+    email_already_taken = (
+        UserModel.get_or_none(UserModel.email == user_details.email) is not None
+    )
     if email_already_taken:
         raise HTTPException(status_code=403, detail="Email Already Taken")
 
@@ -103,7 +105,12 @@ def create_user(user_details: NewUserDetails) -> User:
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
 
-    return User(name=user_details.name, username=user_details.username, email=user_details.email, token=token)
+    return User(
+        name=user_details.name,
+        username=user_details.username,
+        email=user_details.email,
+        token=token,
+    )
 
 
 @api.delete("/delete_user")

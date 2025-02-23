@@ -40,6 +40,7 @@ from scripture_phaser.backend.user import (
     logout,
     change_password,
     UserCredentials,
+    NewUserDetails,
 )
 from scripture_phaser.backend.models import User as UserTable, UserToken
 from scripture_phaser.backend.exceptions import (
@@ -68,8 +69,11 @@ class UserTests(TestCase):
         username = "bJohnson"
         password = "password"
         email = "bob@example.com"
+        new_user_details = NewUserDetails(
+            name=name, username=username, password=password, email=email
+        )
 
-        create_user(name, username, password, email)
+        create_user(new_user_details)
         login(UserCredentials(username=username, password=password))
 
         with self.assertRaises(HTTPException):
@@ -80,8 +84,11 @@ class UserTests(TestCase):
         username = "sSmith"
         password = "password"
         email = "sam@example.com"
+        new_user_details = NewUserDetails(
+            name=name, username=username, password=password, email=email
+        )
 
-        user = create_user(name, username, password, email)
+        user = create_user(new_user_details)
         logout(user)
 
         with self.assertRaises(InvalidUserToken):
@@ -92,8 +99,11 @@ class UserTests(TestCase):
         username = "iJones"
         password = "abadpassword"
         email = "indy@example.com"
+        new_user_details = NewUserDetails(
+            name=name, username=username, password=password, email=email
+        )
 
-        user = create_user(name, username, password, email)
+        user = create_user(new_user_details)
         new_password = "abetterpassword"
         change_password(user, password, new_password)
 

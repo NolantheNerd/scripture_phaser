@@ -262,7 +262,7 @@ view model =
         , Html.p [] [ Html.text "Email Address" ]
         , Html.input [ Attributes.type_ "text", Attributes.placeholder "john.doe@example.com", Attributes.value user_details.email, Events.onInput Email ] []
         , Html.p [] [ Html.text "Password" ]
-        , Html.input [ Attributes.type_ "text", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput Password ] []
+        , Html.input [ Attributes.type_ "password", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput Password ] []
         , Html.button [ Events.onClick CreateUserRequest ] [ Html.text "Create" ]
         ] ]
       }
