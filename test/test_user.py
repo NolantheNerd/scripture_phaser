@@ -39,7 +39,7 @@ from scripture_phaser.backend.user import (
     login,
     logout,
     change_password,
-    UserCredentials,
+    LoginCredentials,
     NewUserDetails,
 )
 from scripture_phaser.backend.models import User as UserTable, UserToken
@@ -74,10 +74,10 @@ class UserTests(TestCase):
         )
 
         create_user(new_user_details)
-        login(UserCredentials(username=username, password=password))
+        login(LoginCredentials(username=username, password=password))
 
         with self.assertRaises(HTTPException):
-            login(UserCredentials(username=username, password="password1"))
+            login(LoginCredentials(username=username, password="password1"))
 
     def test_logout(self) -> None:
         name = "Sam Smith"
@@ -108,4 +108,4 @@ class UserTests(TestCase):
         change_password(user, password, new_password)
 
         with self.assertRaises(HTTPException):
-            login(UserCredentials(username=username, password=password))
+            login(LoginCredentials(username=username, password=password))

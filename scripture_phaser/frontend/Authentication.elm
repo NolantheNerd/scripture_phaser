@@ -33,7 +33,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 -}
 
-module Main exposing (..)
+module Authentication exposing (..)
 
 import Http
 import Browser
@@ -50,7 +50,7 @@ base_url = "http://localhost:8000"
 
 -- Model
 
-type alias SignedInUserCredentials =
+type alias UserCredentials =
   { name : String, username : String, email : String, token : String }
 
 type alias LoginCredentials =
@@ -60,7 +60,7 @@ type alias NewUserDetails =
   { name : String, username : String, password : String, email : String }
 
 type User = 
-  SignedInUser SignedInUserCredentials
+  SignedInUser UserCredentials
   | SignedOutUser LoginCredentials
   | NewUser NewUserDetails
 
@@ -71,7 +71,7 @@ encode_login_credentials credentials =
     , ("password", Encode.string credentials.password)
     ]
 
-encode_signedin_user_credentials : SignedInUserCredentials -> Encode.Value
+encode_signedin_user_credentials : UserCredentials -> Encode.Value
 encode_signedin_user_credentials credentials =
   Encode.object
     [ ("name", Encode.string credentials.name)
@@ -89,9 +89,9 @@ encode_new_user_details details =
     , ("password", Encode.string details.password)
     ]
 
-decode_signedin_user : Decode.Decoder SignedInUserCredentials
+decode_signedin_user : Decode.Decoder UserCredentials
 decode_signedin_user =
-  Decode.map4 SignedInUserCredentials
+  Decode.map4 UserCredentials
     (Decode.field "name" Decode.string)
     (Decode.field "username" Decode.string)
     (Decode.field "email" Decode.string)
@@ -110,54 +110,28 @@ init () = (
 -- Update
 
 type Msg =
-  Name String
-  | Username String
-  | Email String
-  | Password String
+  NameInput String
+  | UsernameInput String
+  | EmailInput String
+  | PasswordInput String
   | SignOut (Result Http.Error ())
-  | SignInRequest
-  | GotSignedInUser (Result Http.Error SignedInUserCredentials)
-  | SignOutRequest
-  | CreateUserRequest
+  | SignInButtonClicked
+  | SignIn (Result Http.Error UserCredentials)
+  | SignOutButtonClicked
+  | CreateUserButtonClicked
 
-createuser : User -> Cmd Msg
-createuser user =
+update_user : User -> Cmd Msg
+update_user user =
   case user of
+    -- Create User
     NewUser user_details ->
       Http.post
         { url = base_url ++ "/signup"
         , body = Http.jsonBody (encode_new_user_details user_details)
-        , expect = Http.expectJson GotSignedInUser decode_signedin_user
+        , expect = Http.expectJson SignIn decode_signedin_user
         }
 
-    SignedInUser _ ->
-      Cmd.none
-
-    SignedOutUser _ ->
-      Cmd.none
-
-signin : User -> Cmd Msg
-signin user =
-  case user of
-    NewUser _ ->
-      Cmd.none
-
-    SignedInUser _ ->
-      Cmd.none
-
-    SignedOutUser user_credentials ->
-      Http.post
-        { url = base_url ++ "/login"
-        , body = Http.jsonBody (encode_login_credentials user_credentials)
-        , expect = Http.expectJson GotSignedInUser decode_signedin_user
-        }
-
-signout : User -> Cmd Msg
-signout user =
-  case user of
-    NewUser _ ->
-      Cmd.none
-
+    -- Sign Out
     SignedInUser signedin_user_credentials ->
       Http.request
         { method = "DELETE"
@@ -169,13 +143,18 @@ signout user =
         , tracker = Nothing
         }
 
-    SignedOutUser _ ->
-      Cmd.none
+    -- Sign In
+    SignedOutUser user_credentials ->
+      Http.post
+        { url = base_url ++ "/login"
+        , body = Http.jsonBody (encode_login_credentials user_credentials)
+        , expect = Http.expectJson SignIn decode_signedin_user
+        }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
   case msg of
-    Name name ->
+    NameInput name ->
       case model.user of
         NewUser user_details ->
           ( { model | user = NewUser (NewUserDetails name user_details.username user_details.password user_details.email ) }, Cmd.none )
@@ -186,7 +165,7 @@ update msg model =
         SignedInUser _ ->
           ( model, Cmd.none )
 
-    Username username ->
+    UsernameInput username ->
       case model.user of
         NewUser user_details ->
           ( { model | user = NewUser (NewUserDetails user_details.name username user_details.password user_details.email ) }, Cmd.none )
@@ -197,7 +176,7 @@ update msg model =
         SignedInUser _ ->
           ( model, Cmd.none )
 
-    Password password ->
+    PasswordInput password ->
       case model.user of
         NewUser user_details ->
           ( { model | user = NewUser (NewUserDetails user_details.name user_details.username password user_details.email ) }, Cmd.none )
@@ -208,7 +187,7 @@ update msg model =
         SignedInUser _ ->
           ( model, Cmd.none )
 
-    Email email ->
+    EmailInput email ->
       case model.user of
         NewUser user_details ->
           ( { model | user = NewUser (NewUserDetails user_details.name user_details.username user_details.password email ) }, Cmd.none )
@@ -219,16 +198,16 @@ update msg model =
         SignedInUser _ ->
           ( model, Cmd.none )
 
-    SignOutRequest ->
-      ( model, signout model.user )
+    SignOutButtonClicked ->
+      ( model, update_user model.user )
 
     SignOut _ ->
       ( { model | user = SignedOutUser (LoginCredentials "" "") }, Cmd.none )
 
-    SignInRequest ->
-      ( model, signin model.user )
+    SignInButtonClicked ->
+      ( model, update_user model.user )
 
-    GotSignedInUser result ->
+    SignIn result ->
       case result of
         Ok user_credentials ->
           ( { model | user = SignedInUser user_credentials }, Cmd.none )
@@ -236,8 +215,8 @@ update msg model =
         Err error ->
           ( model , Cmd.none )
 
-    CreateUserRequest ->
-      ( model, createuser model.user )
+    CreateUserButtonClicked ->
+      ( model, update_user model.user )
 
 
 -- View
@@ -256,14 +235,14 @@ view model =
         [ Html.div [] [
           Html.p [] [ Html.text "Create Account" ]
         , Html.p [] [ Html.text "Name" ]
-        , Html.input [ Attributes.type_ "text", Attributes.placeholder "John Doe", Attributes.value user_details.name, Events.onInput Name ] []
+        , Html.input [ Attributes.type_ "text", Attributes.placeholder "John Doe", Attributes.value user_details.name, Events.onInput NameInput ] []
         , Html.p [] [ Html.text "Username" ]
-        , Html.input [ Attributes.type_ "text", Attributes.placeholder "jdoe", Attributes.value user_details.username, Events.onInput Username] []
+        , Html.input [ Attributes.type_ "text", Attributes.placeholder "jdoe", Attributes.value user_details.username, Events.onInput UsernameInput ] []
         , Html.p [] [ Html.text "Email Address" ]
-        , Html.input [ Attributes.type_ "text", Attributes.placeholder "john.doe@example.com", Attributes.value user_details.email, Events.onInput Email ] []
+        , Html.input [ Attributes.type_ "text", Attributes.placeholder "john.doe@example.com", Attributes.value user_details.email, Events.onInput EmailInput ] []
         , Html.p [] [ Html.text "Password" ]
-        , Html.input [ Attributes.type_ "password", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput Password ] []
-        , Html.button [ Events.onClick CreateUserRequest ] [ Html.text "Create" ]
+        , Html.input [ Attributes.type_ "password", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput PasswordInput ] []
+        , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
         ] ]
       }
 
@@ -273,10 +252,10 @@ view model =
           [ Html.div [] [
             Html.p [] [ Html.text "Welcome to Scripture Phaser!"]
           , Html.p [] [ Html.text "Username"]
-          , Html.input [ Attributes.type_ "text", Attributes.placeholder "Username", Attributes.value user_credentials.username, Events.onInput Username ] []
+          , Html.input [ Attributes.type_ "text", Attributes.placeholder "Username", Attributes.value user_credentials.username, Events.onInput UsernameInput ] []
           , Html.p [] [ Html.text "Password"]
-          , Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput Password ] []
-          , Html.button [Events.onClick SignInRequest] [ Html.text "Sign In"]
+          , Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput PasswordInput ] []
+          , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
           ] ]
       }
 
@@ -284,8 +263,8 @@ view model =
       { title = "SignedIn Title"
       , body =
           [ Html.div [] [
-            Html.p [] [ Html.text ("Welcome " ++ signedin_user_credentials.name)]
-          , Html.button [Events.onClick SignOutRequest] [ Html.text "Sign Out"]
+            Html.p [] [ Html.text ("Welcome " ++ signedin_user_credentials.name) ]
+          , Html.button [ Events.onClick SignOutButtonClicked ] [ Html.text "Sign Out" ]
           ] ]
       }
 

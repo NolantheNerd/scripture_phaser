@@ -37,7 +37,7 @@ from itertools import accumulate
 from fastapi import APIRouter
 from scripture_phaser.backend.exceptions import InvalidReference
 from scripture_phaser.backend.enums import Bible, Bible_Books, Reverse_Bible_Books
-from scripture_phaser.backend.user import User, validate_token
+from scripture_phaser.backend.user import UserCredentials, validate_token
 from scripture_phaser.backend.models import User as UserModel
 from scripture_phaser.backend.models import Reference as ReferenceModel
 from scripture_phaser.backend.models import Recitation as RecitationModel
@@ -67,11 +67,13 @@ class Reference:
 
 
 @api.post("/new_reference")
-def new_reference(ref: str, translation: str, user: User | None) -> Reference:
+def new_reference(
+    ref: str, translation: str, user_credentials: UserCredentials | None
+) -> Reference:
     reference = string_to_reference(ref)
-    if user is not None:
-        validate_token(user.token)
-        user_model = UserModel.get(UserModel.username == user.username)
+    if user_credentials is not None:
+        validate_token(user_credentials.token)
+        user_model = UserModel.get(UserModel.username == user_credentials.username)
         ReferenceModel.get_or_create(
             user=user_model, ref=reference.ref, translation=translation
         )
@@ -79,13 +81,15 @@ def new_reference(ref: str, translation: str, user: User | None) -> Reference:
 
 
 @api.delete("/delete_reference")
-def delete_reference(ref: str, translation: str, user: User) -> None:
-    validate_token(user.token)
+def delete_reference(
+    ref: str, translation: str, user_credentials: UserCredentials
+) -> None:
+    validate_token(user_credentials.token)
     reference = ReferenceModel.select().where(
         (ReferenceModel.ref == ref) & (ReferenceModel.translation == translation)
     )
 
-    user_model = UserModel.get(UserModel.username == user.username)
+    user_model = UserModel.get(UserModel.username == user_credentials.username)
     n_ref_recitations = RecitationModel.select(fn.COUNT).where(
         (RecitationModel.reference == reference)
         & (RecitationModel.user == user_model)
@@ -99,12 +103,12 @@ def delete_reference(ref: str, translation: str, user: User) -> None:
 
 
 @api.post("/list_references")
-def list_references(user: User) -> list[Reference]:
-    validate_token(user.token)
+def list_references(user_credentials: UserCredentials) -> list[Reference]:
+    validate_token(user_credentials.token)
     return list(
         ReferenceModel.select()
         .join(UserModel)
-        .where(ReferenceModel.user.username == user.username)
+        .where(ReferenceModel.user.username == user_credentials.username)
     )
 
 

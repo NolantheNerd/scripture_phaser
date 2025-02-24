@@ -37,7 +37,6 @@ from os import urandom
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from hashlib import pbkdf2_hmac
-from dataclasses import dataclass
 from scripture_phaser.backend.models import User as UserModel, UserToken
 from scripture_phaser.backend.exceptions import InvalidUserToken
 
@@ -45,12 +44,23 @@ api = APIRouter(tags=["User"])
 N_ITERATIONS = 100000
 
 
-@dataclass
-class User:
+class UserCredentials(BaseModel):
     name: str
     username: str
     email: str
     token: str
+
+
+class NewUserDetails(BaseModel):
+    name: str
+    username: str
+    password: str
+    email: str
+
+
+class LoginCredentials(BaseModel):
+    username: str
+    password: str
 
 
 def validate_token(user_token: str) -> None:
@@ -63,38 +73,32 @@ def validate_token(user_token: str) -> None:
         raise InvalidUserToken()
 
 
-class NewUserDetails(BaseModel):
-    name: str
-    username: str
-    password: str
-    email: str
-
-
 @api.post("/signup")
-def create_user(user_details: NewUserDetails) -> User:
+def create_user(new_user_details: NewUserDetails) -> UserCredentials:
     username_already_taken = (
-        UserModel.get_or_none(UserModel.username == user_details.username) is not None
+        UserModel.get_or_none(UserModel.username == new_user_details.username)
+        is not None
     )
     if username_already_taken:
         raise HTTPException(status_code=403, detail="Username Already Taken")
 
     email_already_taken = (
-        UserModel.get_or_none(UserModel.email == user_details.email) is not None
+        UserModel.get_or_none(UserModel.email == new_user_details.email) is not None
     )
     if email_already_taken:
         raise HTTPException(status_code=403, detail="Email Already Taken")
 
     salt = urandom(16)
     password_hash = pbkdf2_hmac(
-        "sha256", user_details.password.encode("utf-8"), salt, N_ITERATIONS
+        "sha256", new_user_details.password.encode("utf-8"), salt, N_ITERATIONS
     )
 
     new_user = UserModel.create(
-        name=user_details.name,
-        username=user_details.username,
+        name=new_user_details.name,
+        username=new_user_details.username,
         password_hash=password_hash,
         salt=salt,
-        email=user_details.email,
+        email=new_user_details.email,
     )
 
     # @@@ TODO: Make sure that token is unique in UserToken
@@ -105,33 +109,30 @@ def create_user(user_details: NewUserDetails) -> User:
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
 
-    return User(
-        name=user_details.name,
-        username=user_details.username,
-        email=user_details.email,
+    return UserCredentials(
+        name=new_user_details.name,
+        username=new_user_details.username,
+        email=new_user_details.email,
         token=token,
     )
 
 
 @api.delete("/delete_user")
-def delete_user(user: User) -> None:
-    validate_token(user.token)
-    UserModel.select(UserModel.username == user.username).delete_instance()
-
-
-class UserCredentials(BaseModel):
-    username: str
-    password: str
+def delete_user(user_credentials: UserCredentials) -> None:
+    validate_token(user_credentials.token)
+    UserModel.select(
+        UserModel.username == user_credentials.username
+    ).delete_instance()
 
 
 @api.post("/login")
-def login(user_credentials: UserCredentials) -> User:
-    user = UserModel.get_or_none(UserModel.username == user_credentials.username)
+def login(login_credentials: LoginCredentials) -> UserCredentials:
+    user = UserModel.get_or_none(UserModel.username == login_credentials.username)
     if user is None:
         raise HTTPException(status_code=403, detail="Invalid User Credentials")
 
     hashed_password = pbkdf2_hmac(
-        "sha256", user_credentials.password.encode("utf-8"), user.salt, N_ITERATIONS
+        "sha256", login_credentials.password.encode("utf-8"), user.salt, N_ITERATIONS
     )
 
     if hashed_password != user.password_hash:
@@ -143,21 +144,28 @@ def login(user_credentials: UserCredentials) -> User:
         token=token,
         expiry=datetime.datetime.now() + datetime.timedelta(days=7),
     )
-    return User(name=user.name, username=user.username, email=user.email, token=token)
+    return UserCredentials(
+        name=user.name, username=user.username, email=user.email, token=token
+    )
 
 
 @api.delete("/logout")
-def logout(user: User) -> None:
-    validate_token(user.token)
-    UserToken.get(UserToken.token == user.token).delete_instance()
+def logout(user_credentials: UserCredentials) -> None:
+    validate_token(user_credentials.token)
+    UserToken.get(UserToken.token == user_credentials.token).delete_instance()
 
 
 @api.post("/change_password")
-def change_password(user: User, old_password: str, new_password: str) -> None:
-    validate_token(user.token)
+def change_password(
+    user_credentials: UserCredentials, old_password: str, new_password: str
+) -> None:
+    validate_token(user_credentials.token)
 
     user_record = (
-        UserModel.select().join(UserToken).where(UserToken.token == user.token).get()
+        UserModel.select()
+        .join(UserToken)
+        .where(UserToken.token == user_credentials.token)
+        .get()
     )
     hashed_old_password = pbkdf2_hmac(
         "sha256", old_password.encode("utf-8"), user_record.salt, N_ITERATIONS
