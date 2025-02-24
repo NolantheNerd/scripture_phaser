@@ -205,7 +205,15 @@ update msg model =
       ( { model | user = SignedOutUser (LoginCredentials "" "") }, Cmd.none )
 
     SignInButtonClicked ->
-      ( model, update_user model.user )
+      case model.user of
+        NewUser _ ->
+          ( { model | user = SignedOutUser (LoginCredentials "" "") }, Cmd.none )
+
+        SignedOutUser _ ->
+          ( model, update_user model.user )
+
+        SignedInUser _ ->
+          ( model, Cmd.none )
 
     SignIn result ->
       case result of
@@ -216,7 +224,15 @@ update msg model =
           ( model , Cmd.none )
 
     CreateUserButtonClicked ->
-      ( model, update_user model.user )
+      case model.user of
+        NewUser _ ->
+          ( model, update_user model.user )
+
+        SignedOutUser _ ->
+          ( { model | user = NewUser (NewUserDetails "" "" "" "") }, Cmd.none )
+
+        SignedInUser _ ->
+          ( model, Cmd.none )
 
 
 -- View
@@ -243,6 +259,7 @@ view model =
         , Html.p [] [ Html.text "Password" ]
         , Html.input [ Attributes.type_ "password", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput PasswordInput ] []
         , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
+        , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
         ] ]
       }
 
@@ -256,6 +273,7 @@ view model =
           , Html.p [] [ Html.text "Password"]
           , Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput PasswordInput ] []
           , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
+          , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
           ] ]
       }
 
