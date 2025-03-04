@@ -58,7 +58,7 @@ class NewUserDetails(BaseModel):
     email: str
 
 
-class LoginCredentials(BaseModel):
+class SignInCredentials(BaseModel):
     username: str
     password: str
 
@@ -126,7 +126,7 @@ def delete_user(user_credentials: UserCredentials) -> None:
 
 
 @api.post("/login")
-def login(login_credentials: LoginCredentials) -> UserCredentials:
+def login(login_credentials: SignInCredentials) -> UserCredentials:
     user = UserModel.get_or_none(UserModel.username == login_credentials.username)
     if user is None:
         raise HTTPException(status_code=403, detail="Invalid User Credentials")

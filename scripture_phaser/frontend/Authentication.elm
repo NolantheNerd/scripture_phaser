@@ -53,18 +53,24 @@ base_url = "http://localhost:8000"
 type alias UserCredentials =
   { name : String, username : String, email : String, token : String }
 
-type alias LoginCredentials =
+type alias SignInCredentials =
   { username : String, password : String }
 
 type alias NewUserDetails =
   { name : String, username : String, password : String, email : String }
 
+-- @@@ TODO: Change to UsernameTaken & EmailTaken with expectStringResponse
+type UserError =
+  None
+  | InvalidCredentials
+  | CredentialTaken
+
 type User = 
   SignedInUser UserCredentials
-  | SignedOutUser LoginCredentials
+  | SignedOutUser SignInCredentials
   | NewUser NewUserDetails
 
-encode_login_credentials : LoginCredentials -> Encode.Value
+encode_login_credentials : SignInCredentials -> Encode.Value
 encode_login_credentials credentials =
   Encode.object
     [ ("username", Encode.string credentials.username)
@@ -98,11 +104,12 @@ decode_signedin_user =
     (Decode.field "token" Decode.string)
 
 type alias Model = 
-  { user : User }
+  { user : User, user_error : UserError }
 
 init : () -> (Model, Cmd Msg)
 init () = (
-  { user = NewUser { name = "", username = "", password = "", email = "" } }
+  { user = NewUser { name = "", username = "", password = "", email = "" }
+  , user_error = None }
   , Cmd.none
   )
 
@@ -171,7 +178,7 @@ update msg model =
           ( { model | user = NewUser (NewUserDetails user_details.name username user_details.password user_details.email ) }, Cmd.none )
 
         SignedOutUser user_credentials ->
-          ( { model | user = SignedOutUser (LoginCredentials username user_credentials.password) }, Cmd.none )
+          ( { model | user = SignedOutUser (SignInCredentials username user_credentials.password) }, Cmd.none )
 
         SignedInUser _ ->
           ( model, Cmd.none )
@@ -182,7 +189,7 @@ update msg model =
           ( { model | user = NewUser (NewUserDetails user_details.name user_details.username password user_details.email ) }, Cmd.none )
 
         SignedOutUser user_credentials ->
-          ( { model | user = SignedOutUser (LoginCredentials user_credentials.username password) }, Cmd.none )
+          ( { model | user = SignedOutUser (SignInCredentials user_credentials.username password) }, Cmd.none )
 
         SignedInUser _ ->
           ( model, Cmd.none )
@@ -202,12 +209,12 @@ update msg model =
       ( model, update_user model.user )
 
     SignOut _ ->
-      ( { model | user = SignedOutUser (LoginCredentials "" "") }, Cmd.none )
+      ( { model | user = SignedOutUser (SignInCredentials "" "") }, Cmd.none )
 
     SignInButtonClicked ->
       case model.user of
         NewUser _ ->
-          ( { model | user = SignedOutUser (LoginCredentials "" "") }, Cmd.none )
+          ( { model | user = SignedOutUser (SignInCredentials "" "") }, Cmd.none )
 
         SignedOutUser _ ->
           ( model, update_user model.user )
@@ -218,10 +225,38 @@ update msg model =
     SignIn result ->
       case result of
         Ok user_credentials ->
-          ( { model | user = SignedInUser user_credentials }, Cmd.none )
+          ( { model | user = SignedInUser user_credentials, user_error = None}, Cmd.none )
 
         Err error ->
-          ( model , Cmd.none )
+          case model.user of
+            NewUser user_details ->
+              case error of
+                Http.BadStatus _ ->
+                  ( { model | user = SignedOutUser (SignInCredentials "" ""), user_error = CredentialTaken }, Cmd.none )
+                Http.BadUrl _ ->
+                  ( model , Cmd.none )
+                Http.Timeout ->
+                  ( model , Cmd.none )
+                Http.NetworkError ->
+                  ( model , Cmd.none )
+                Http.BadBody _ ->
+                  ( model , Cmd.none )
+
+            SignedInUser _ ->
+              ( model, Cmd.none )
+
+            SignedOutUser _ ->
+              case error of
+                Http.BadStatus _ ->
+                  ( { model | user = SignedOutUser (SignInCredentials "" ""), user_error = InvalidCredentials }, Cmd.none )
+                Http.BadUrl _ ->
+                  ( model , Cmd.none )
+                Http.Timeout ->
+                  ( model , Cmd.none )
+                Http.NetworkError ->
+                  ( model , Cmd.none )
+                Http.BadBody _ ->
+                  ( model , Cmd.none )
 
     CreateUserButtonClicked ->
       case model.user of
@@ -246,39 +281,93 @@ view : Model -> Document Msg
 view model =
   case model.user of
     NewUser user_details ->
-      { title = "Create Account"
-      , body =
-        [ Html.div [] [
-          Html.p [] [ Html.text "Create Account" ]
-        , Html.p [] [ Html.text "Name" ]
-        , Html.input [ Attributes.type_ "text", Attributes.placeholder "John Doe", Attributes.value user_details.name, Events.onInput NameInput ] []
-        , Html.p [] [ Html.text "Username" ]
-        , Html.input [ Attributes.type_ "text", Attributes.placeholder "jdoe", Attributes.value user_details.username, Events.onInput UsernameInput ] []
-        , Html.p [] [ Html.text "Email Address" ]
-        , Html.input [ Attributes.type_ "text", Attributes.placeholder "john.doe@example.com", Attributes.value user_details.email, Events.onInput EmailInput ] []
-        , Html.p [] [ Html.text "Password" ]
-        , Html.input [ Attributes.type_ "password", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput PasswordInput ] []
-        , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
-        , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
-        ] ]
-      }
+      case model.user_error of
+        None ->
+          { title = "Create Account"
+          , body =
+            [ Html.div [] [
+              Html.p [] [ Html.text "Create Account" ]
+            , Html.p [] [ Html.text "Name" ]
+            , Html.input [ Attributes.type_ "text", Attributes.placeholder "John Doe", Attributes.value user_details.name, Events.onInput NameInput ] []
+            , Html.p [] [ Html.text "Username" ]
+            , Html.input [ Attributes.type_ "text", Attributes.placeholder "jdoe", Attributes.value user_details.username, Events.onInput UsernameInput ] []
+            , Html.p [] [ Html.text "Email Address" ]
+            , Html.input [ Attributes.type_ "text", Attributes.placeholder "john.doe@example.com", Attributes.value user_details.email, Events.onInput EmailInput ] []
+            , Html.p [] [ Html.text "Password" ]
+            , Html.input [ Attributes.type_ "password", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput PasswordInput ] []
+            , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
+            , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
+            ] ]
+          }
+
+        CredentialTaken ->
+          { title = "Create Account"
+          , body =
+            [ Html.div [] [
+              Html.p [] [ Html.text "Create Account" ]
+            , Html.p [] [ Html.text "Name" ]
+            , Html.input [ Attributes.type_ "text", Attributes.placeholder "John Doe", Attributes.value user_details.name, Events.onInput NameInput ] []
+            , Html.p [] [ Html.text "Username" ]
+            , Html.input [ Attributes.type_ "text", Attributes.placeholder "jdoe", Attributes.value user_details.username, Events.onInput UsernameInput ] []
+            , Html.p [] [ Html.text "Email Address" ]
+            , Html.input [ Attributes.type_ "text", Attributes.placeholder "john.doe@example.com", Attributes.value user_details.email, Events.onInput EmailInput ] []
+            , Html.p [] [ Html.text "Password" ]
+            , Html.input [ Attributes.type_ "password", Attributes.placeholder "password123", Attributes.value user_details.password, Events.onInput PasswordInput ] []
+            , Html.p [] [ Html.text "Sorry! Username or Email Already Taken!" ]
+            , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
+            , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
+            ] ]
+          }
+
+        InvalidCredentials ->
+          { title = "Whoops!"
+          , body =
+            [ Html.div [] [
+              Html.p [] [ Html.text "Whoops! You shouldn't be able to get to this page!" ]
+            ] ]
+          }
 
     SignedOutUser user_credentials ->
-      { title = "SignedOutUser Title"
-      , body =
-          [ Html.div [] [
-            Html.p [] [ Html.text "Welcome to Scripture Phaser!"]
-          , Html.p [] [ Html.text "Username"]
-          , Html.input [ Attributes.type_ "text", Attributes.placeholder "Username", Attributes.value user_credentials.username, Events.onInput UsernameInput ] []
-          , Html.p [] [ Html.text "Password"]
-          , Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput PasswordInput ] []
-          , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
-          , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
-          ] ]
-      }
+      case model.user_error of
+        None ->
+          { title = "Scripture Phaser"
+          , body =
+              [ Html.div [] [
+                Html.p [] [ Html.text "Welcome to Scripture Phaser!"]
+              , Html.p [] [ Html.text "Username"]
+              , Html.input [ Attributes.type_ "text", Attributes.placeholder "Username", Attributes.value user_credentials.username, Events.onInput UsernameInput ] []
+              , Html.p [] [ Html.text "Password"]
+              , Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput PasswordInput ] []
+              , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
+              , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
+              ] ]
+          }
+
+        CredentialTaken ->
+          { title = "Whoops!"
+          , body =
+            [ Html.div [] [
+              Html.p [] [ Html.text "Whoops! You shouldn't be able to get to this page!" ]
+            ] ]
+          }
+
+        InvalidCredentials ->
+          { title = "Scripture Phaser"
+          , body =
+              [ Html.div [] [
+                Html.p [] [ Html.text "Welcome to Scripture Phaser!"]
+              , Html.p [] [ Html.text "Username"]
+              , Html.input [ Attributes.type_ "text", Attributes.placeholder "Username", Attributes.value user_credentials.username, Events.onInput UsernameInput ] []
+              , Html.p [] [ Html.text "Password"]
+              , Html.input [ Attributes.type_ "password", Attributes.placeholder "Password", Attributes.value user_credentials.password, Events.onInput PasswordInput ] []
+              , Html.p [] [ Html.text "Sorry! Wrong username or password." ]
+              , Html.button [ Events.onClick SignInButtonClicked ] [ Html.text "Sign In" ]
+              , Html.button [ Events.onClick CreateUserButtonClicked ] [ Html.text "Create" ]
+              ] ]
+          }
 
     SignedInUser signedin_user_credentials ->
-      { title = "SignedIn Title"
+      { title = "Welcome!"
       , body =
           [ Html.div [] [
             Html.p [] [ Html.text ("Welcome " ++ signedin_user_credentials.name) ]
