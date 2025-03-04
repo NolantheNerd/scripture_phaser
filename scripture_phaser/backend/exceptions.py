@@ -37,21 +37,6 @@ class InvalidReference(Exception):
         Exception.__init__(self, "Invalid reference")
 
 
-class UsernameAlreadyTaken(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(self, "Username already taken")
-
-
-class EmailAlreadyTaken(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(self, "Email already taken")
-
-
-class InvalidUserCredentials(Exception):
-    def __init__(self) -> None:
-        Exception.__init__(self, "Username or password incorrect")
-
-
 class InvalidUserToken(Exception):
     def __init__(self) -> None:
         Exception.__init__(self, "Invalid user token")

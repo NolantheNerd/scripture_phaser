@@ -35,7 +35,7 @@ import datetime
 from enum import Enum
 from fastapi import APIRouter
 from difflib import SequenceMatcher
-from scripture_phaser.backend.user import User
+from scripture_phaser.backend.user import UserCredentials
 from scripture_phaser.backend.passage import Passage
 from scripture_phaser.backend.models import Recitation as RecitationTable
 
@@ -51,13 +51,17 @@ class Recitation(Enum):
     NUMBERED_INITIALISM = 6
 
 
+# @@@ TODO: I don't think user_credentials is right here...
 @api.post("/record_recitation")
 def record_recitation(
-    passage: Passage, kind: Recitation, recitation: str, user: User | None
+    passage: Passage,
+    kind: Recitation,
+    recitation: str,
+    user_credentials: UserCredentials | None,
 ) -> None:
     timestamp = datetime.datetime.now()
     score = grade_attempt(passage, kind, recitation)
-    if user is not None:
+    if user_credentials is not None:
         RecitationTable.create(
             datetime=timestamp,
             reference=passage.reference,
@@ -65,7 +69,7 @@ def record_recitation(
             recitation_type=kind.value,
             score=score,
             recitation=recitation,
-            user=user,
+            user=user_credentials,
         )
 
 

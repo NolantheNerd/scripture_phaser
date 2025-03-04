@@ -32,6 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from scripture_phaser.backend.user import api as user_api
 from scripture_phaser.backend.passage import api as passage_api
 from scripture_phaser.backend.reference import api as reference_api
@@ -39,9 +40,13 @@ from scripture_phaser.backend.recitation import api as recitation_api
 
 app = FastAPI()
 
-@app.get("/test_connection")
-def verify_connection() -> str:
-    return "You made a get request to FastAPI!"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(user_api)
 app.include_router(reference_api)

@@ -32,11 +32,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from unittest import TestCase
+from fastapi import HTTPException
 from peewee import SqliteDatabase
-from scripture_phaser.backend.user import create_user, login, logout, change_password
+from scripture_phaser.backend.user import (
+    create_user,
+    login,
+    logout,
+    change_password,
+    LoginCredentials,
+    NewUserDetails,
+)
 from scripture_phaser.backend.models import User as UserTable, UserToken
 from scripture_phaser.backend.exceptions import (
-    InvalidUserCredentials,
     InvalidUserToken,
 )
 
@@ -62,20 +69,26 @@ class UserTests(TestCase):
         username = "bJohnson"
         password = "password"
         email = "bob@example.com"
+        new_user_details = NewUserDetails(
+            name=name, username=username, password=password, email=email
+        )
 
-        create_user(name, username, password, email)
-        login(username, password)
+        create_user(new_user_details)
+        login(LoginCredentials(username=username, password=password))
 
-        with self.assertRaises(InvalidUserCredentials):
-            login(username, "password1")
+        with self.assertRaises(HTTPException):
+            login(LoginCredentials(username=username, password="password1"))
 
     def test_logout(self) -> None:
         name = "Sam Smith"
         username = "sSmith"
         password = "password"
         email = "sam@example.com"
+        new_user_details = NewUserDetails(
+            name=name, username=username, password=password, email=email
+        )
 
-        user = create_user(name, username, password, email)
+        user = create_user(new_user_details)
         logout(user)
 
         with self.assertRaises(InvalidUserToken):
@@ -86,10 +99,13 @@ class UserTests(TestCase):
         username = "iJones"
         password = "abadpassword"
         email = "indy@example.com"
+        new_user_details = NewUserDetails(
+            name=name, username=username, password=password, email=email
+        )
 
-        user = create_user(name, username, password, email)
+        user = create_user(new_user_details)
         new_password = "abetterpassword"
         change_password(user, password, new_password)
 
-        with self.assertRaises(InvalidUserCredentials):
-            login(username, password)
+        with self.assertRaises(HTTPException):
+            login(LoginCredentials(username=username, password=password))
