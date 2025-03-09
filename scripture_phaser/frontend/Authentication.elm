@@ -214,7 +214,7 @@ update msg model =
     SignInButtonClicked ->
       case model.user of
         NewUser _ ->
-          ( { model | user = SignedOutUser (SignInCredentials "" "") }, Cmd.none )
+          ( { model | user = SignedOutUser (SignInCredentials "" ""), user_error = None }, Cmd.none )
 
         SignedOutUser _ ->
           ( model, update_user model.user )
@@ -232,7 +232,7 @@ update msg model =
             NewUser user_details ->
               case error of
                 Http.BadStatus _ ->
-                  ( { model | user = SignedOutUser (SignInCredentials "" ""), user_error = CredentialTaken }, Cmd.none )
+                  ( { model | user = NewUser (NewUserDetails "" "" "" ""), user_error = CredentialTaken }, Cmd.none )
                 Http.BadUrl _ ->
                   ( model , Cmd.none )
                 Http.Timeout ->
@@ -264,7 +264,7 @@ update msg model =
           ( model, update_user model.user )
 
         SignedOutUser _ ->
-          ( { model | user = NewUser (NewUserDetails "" "" "" "") }, Cmd.none )
+          ( { model | user = NewUser (NewUserDetails "" "" "" ""), user_error = None }, Cmd.none )
 
         SignedInUser _ ->
           ( model, Cmd.none )
